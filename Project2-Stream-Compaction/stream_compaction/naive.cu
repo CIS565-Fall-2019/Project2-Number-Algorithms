@@ -3,6 +3,8 @@
 #include "common.h"
 #include "naive.h"
 
+#define blockSize 128
+
 namespace StreamCompaction {
     namespace Naive {
         using StreamCompaction::Common::PerformanceTimer;
@@ -15,9 +17,16 @@ namespace StreamCompaction {
         
         // out put and two input buffers to ping pong off of
         // 
-        __global__ void kernel_scan( int n, int* odata, int* idata )
+        __global__ void kernel_scan( int buff_length, int array_pos, int* odata, int* idata )
         {
-            if( tid <= n ) // already been computed
+            tid = (blockIdx.x * blockDim.x) + threadIdx.x;
+            if( tid >= buff_length )
+            {
+                __syncthreads();
+                return;
+            }
+            
+            if( tid <= array_pos ) // already been computed
             {
                 __syncthreads(); // need this or will lock ): 
                 odata[thid] = (tid == 0) ?  0 :  idata[tid];
@@ -42,24 +51,31 @@ namespace StreamCompaction {
             // TODO
             int* dev_temp_in;
             int* dev_input;
+            int fullBlocksPerGrid = ((n + blockSize - 1) / blockSize);
             //create cuda buffers and copy data over
             cudaMalloc((void**)&dev_temp_in, n * sizeof(int));
+            checkCUDAErrorWithLine("malloc temp in failed!");
             cudaMalloc((void**)&dev_input, n * sizeof(int));
+            checkCUDAErrorWithLine("malloc devinput failed!");
             // copy data to device n or n*size? check
             cudaCopy( dev_input, idata, n, cudaMemcpyHostToDevice );
-          
+            checkCUDAErrorWithLine("copy failed!");
             
             // think this itr count needs to be changed
             for(int i = 0; i < n; i++)
             {
-                kernel_scan(n-i,dev_temp_in,dev_input);
+                kernel_scan<<< fullBlocksPerGrid, blockSize >>>(n,i,dev_temp_in,dev_input);
+                checkCUDAErrorWithLine("scan failed!");
                 std::swap(dev_temp_in,dev_input);
+                checkCUDAErrorWithLine("swap failed!");
             }
             
             cudaCopy( odata, dev_input, n, cudaMemcpyDeviceToHost );
-                
+            checkCUDAErrorWithLine("copy out failed!");
             cudaFree(dev_input);
+            checkCUDAErrorWithLine("free input failed!");
             cudaFree(dev_temp_in);
+            checkCUDAErrorWithLine("free temp failed!");
             
             timer().endGpuTimer();
         }
