@@ -12,6 +12,18 @@ namespace StreamCompaction {
             return timer;
         }
         // TODO: __global__
+        
+        // out put and two input buffers to ping pong off of
+        __global__ void kernel_scan( int n, int* odata, int* idata )
+        {
+            if( tid >= n ) // already been computed so just copy over
+            {
+                odata = idata;
+            }
+            
+            idata[
+            
+        }
 
         /**
          * Performs prefix-sum (aka scan) on idata, storing the result into odata.
@@ -19,6 +31,15 @@ namespace StreamCompaction {
         void scan(int n, int *odata, const int *idata) {
             timer().startGpuTimer();
             // TODO
+            
+            //create cuda buffers and copy data over
+            cudaalloc(temp_in);
+            cudaalloc(input);
+            cudacopy(idata,input);
+            
+            o_data[0] = 0;
+            
+            
             timer().endGpuTimer();
         }
     }
