@@ -17,7 +17,7 @@ namespace StreamCompaction {
         // 
         __global__ void kernel_scan( int n, int* odata, int* idata )
         {
-            if( tid >= n ) // already been computed
+            if( tid <= n ) // already been computed
             {
                 __syncthreads(); // need this or will lock ): 
                 odata[thid] = (tid == 0) ?  0 :  idata[tid];
