@@ -17,11 +17,13 @@ namespace StreamCompaction {
 	{
 		//from notes:
 		// in [3,1,4,7 ,0,4,1,6,3]
-		// out[0,4,5,11,7,4,5,7,9]
+		// out[0,3,4,8,15,15,19,20,26] 
+		// itr1 odata[1] = idata[0] + odata[0]; 3
+		// itr2 odata[2] = idata[1] + odata[1]
 		odata[0] = 0;
-		for(int i =1; i < n; i++)
+		for(int i = 1; i < n; i++)
 		{
-			odata[i] = idata[i-1] + idata[i];
+			odata[i] = idata[i-1] + odata[i-1];
 		}
 	}
         /**
