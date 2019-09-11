@@ -76,9 +76,9 @@ namespace StreamCompaction {
 			}
 
 			// Step 2: Scan
-			odata[0] = 0;
+			tmpScan[0] = 0;
 			for (int i = 1; i < n; i++) {
-				odata[i] = odata[i - 1] + idata[i - 1];
+				tmpScan[i] = tmpScan[i - 1] + tmpMap[i - 1];
 			}
 
 			// Step 3: Scatter
