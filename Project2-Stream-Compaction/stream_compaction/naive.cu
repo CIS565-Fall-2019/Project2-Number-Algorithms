@@ -93,7 +93,7 @@ namespace StreamCompaction {
             for(int i = 1; i <= depth; i++)
             {
 				int pow2 = (1 << (i - 1));
-				printf("i %d  -> depth %d \n ", i, pow2);
+				//printf("i %d  -> depth %d \n ", i, pow2);
 				kernel_scan<<< fullBlocksPerGrid, blockSize >>>(pow2,n,i,dev_temp_in,dev_input);
 				checkCUDAErrorFn("scan failed!");
                 std::swap(dev_temp_in,dev_input);

@@ -38,8 +38,8 @@ namespace StreamCompaction {
 
 			for (int i = 0; i < n; i++)
 			{
-				printf("odata[i] %d ", odata[i]);
-				printf("idata[i] %d\n", idata[i]);
+				printf("odata[%d] %d ",i, odata[i]);
+				printf("idata[%d] %d\n",i, idata[i]);
 			}
 
 	        timer().endCpuTimer();

@@ -19,9 +19,14 @@ namespace StreamCompaction {
          */
         void scan(int n, int *odata, const int *idata) {
             timer().startGpuTimer();
+
+			thrust::device_vector<int> in(idata, idata+n);
+			thrust::device_vector<int> out(n);
+
             // TODO use `thrust::exclusive_scan`
             // example: for device_vectors dv_in and dv_out:
-            // thrust::exclusive_scan(dv_in.begin(), dv_in.end(), dv_out.begin());
+            thrust::exclusive_scan(in.begin(),in.end(),out.begin());
+			thrust::copy(out.begin(), out.end(), odata);
             timer().endGpuTimer();
         }
     }

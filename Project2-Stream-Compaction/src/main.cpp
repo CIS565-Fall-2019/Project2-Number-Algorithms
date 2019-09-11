@@ -19,6 +19,10 @@ int *a = new int[SIZE];
 int *b = new int[SIZE];
 int *c = new int[SIZE];
 
+int _a[8] = {0, 1, 2, 3, 4, 5, 6, 7};
+int *_b = new int[8];
+int *_c = new int[8];
+
 int main(int argc, char* argv[]) {
     // Scan tests
 
@@ -73,6 +77,13 @@ int main(int argc, char* argv[]) {
     printElapsedTime(StreamCompaction::Efficient::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
     //printArray(SIZE, c, true);
     printCmpResult(SIZE, b, c);
+
+	//zeroArray(8, c);
+	//printDesc("erics work-efficient scan, power-of-two");
+	//StreamCompaction::Efficient::scan(8, _c, &_a[0]);
+	//printElapsedTime(StreamCompaction::Efficient::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
+	//printArray(SIZE, c, true);
+	//printCmpResult(SIZE, _b, _c);
 
     zeroArray(SIZE, c);
     printDesc("work-efficient scan, non-power-of-two");
