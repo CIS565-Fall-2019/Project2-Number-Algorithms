@@ -13,7 +13,7 @@ namespace StreamCompaction {
         }
 	
 	// since used in compact scan
-	static void scan( int n, int* odata, const int *idata )
+	static void __scan( int n, int* odata, const int *idata )
 	{
 		//from notes:
 		// in [3,1,4,7 ,0,4,1,6,3]
@@ -34,7 +34,14 @@ namespace StreamCompaction {
         void scan(int n, int *odata, const int *idata) {
 	        timer().startCpuTimer();
             	// TODO
-		scan( n, odata, idata );
+			__scan( n, odata, idata );
+
+			for (int i = 0; i < n; i++)
+			{
+				printf("odata[i] %d ", odata[i]);
+				printf("idata[i] %d\n", idata[i]);
+			}
+
 	        timer().endCpuTimer();
         }
 
@@ -60,7 +67,7 @@ namespace StreamCompaction {
 			}
 		}
 	        timer().endCpuTimer();
-            return writer;
+           return writer;
         }
 
         /**
@@ -88,7 +95,7 @@ namespace StreamCompaction {
 		// create [1,0,1,0,0,1,0,1,0] 
 		for(i = 0; i < n; i++)
 		{
-			if(idata != 0)
+			if(idata[i] != 0)
 			{
 				buff[i] = 1;
 			}
@@ -101,26 +108,30 @@ namespace StreamCompaction {
 		// have [1,0,1,0,0,1,0,1,0]
 		// create scan[1,1,2,2,2,3,3,4,4] 
 		int* scan_buff = new int[n];
-		scan( n, scan_buff, buff ); // #el, out, in
+		__scan( n, scan_buff, buff ); // #el, out, in
 		
 		// have scan[1,1,2,2,2,3,3,4,4] index to where we should place output
 		// have input[3,0,4,0,0,4,0,6,0]
 		//create[3,4,4,6]
 		for(i = 0; i < n; i++)
 		{
+			//printf("buff[%d] = %d ", i, buff[i]);
+			//printf("scan_buff[%d] = %d ", i, scan_buff[i]);
+			//printf("in[%d] = %d\n", i, idata[i]);
 			if(buff[i] == 1) // marked as data
 			{
 				odata[scan_buff[i]] = idata[i]; 
 				rval = scan_buff[i]; // how many elements do we have
 			}
 		}
+
+
 		
 	        timer().endCpuTimer();
 	    //
-	    delete scan_buff;
-	    delete buff;
-		
-            return (rval +1);
+	    delete [] scan_buff;
+	    delete [] buff;
+        return (rval +1);
         }
     }
 }
