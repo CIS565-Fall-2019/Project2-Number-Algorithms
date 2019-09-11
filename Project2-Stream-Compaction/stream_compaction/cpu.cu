@@ -19,7 +19,13 @@ namespace StreamCompaction {
          */
         void scan(int n, int *odata, const int *idata) {
 	        timer().startCpuTimer();
-            // TODO
+
+			// Exclusive, naive, sequential scan.
+			odata[0] = 0;
+			for (int i = 1; i < n; i++) {
+				odata[i] = odata[i - 1] + idata[i - 1];
+			}
+
 	        timer().endCpuTimer();
         }
 
@@ -30,9 +36,19 @@ namespace StreamCompaction {
          */
         int compactWithoutScan(int n, int *odata, const int *idata) {
 	        timer().startCpuTimer();
-            // TODO
+            
+			// Simple stream compaction w/o scan.
+			// Fills output array with non-null values.
+			int oidx = 0;
+			for (int i = 0; i < n; i++) {
+				if (idata[i]) {
+					odata[oidx] = idata[i];
+					oidx++;
+				}
+			}
+
 	        timer().endCpuTimer();
-            return -1;
+            return oidx;
         }
 
         /**
@@ -41,10 +57,44 @@ namespace StreamCompaction {
          * @returns the number of elements remaining after compaction.
          */
         int compactWithScan(int n, int *odata, const int *idata) {
-	        timer().startCpuTimer();
-	        // TODO
-	        timer().endCpuTimer();
-            return -1;
+			// CPU Stream compation with scan() function.
+			// Create intermediate buffer.
+			int *tmpMap = (int*)malloc(n * sizeof(int));
+			if (!tmpMap) {
+				throw std::runtime_error("Failed to allocate memory for tmpMap buffer!");
+			}
+			int *tmpScan = (int*)malloc(n * sizeof(int));
+			if (!tmpScan) {
+				throw std::runtime_error("Failed to allocate memory for tmpScan buffer!");
+			}
+
+			timer().startCpuTimer();
+
+			// Step 1: Map
+			for (int i = 0; i < n; i++) {
+				tmpMap[i] = (idata[i] != 0);
+			}
+
+			// Step 2: Scan
+			odata[0] = 0;
+			for (int i = 1; i < n; i++) {
+				odata[i] = odata[i - 1] + idata[i - 1];
+			}
+
+			// Step 3: Scatter
+			int oidx = 0;
+			for (int i = 0; i < n; i++) {
+				if (tmpMap[i]) {
+					odata[tmpScan[i]] = idata[i];
+					oidx++;
+				}
+			}
+
+			timer().endCpuTimer();
+
+			free(tmpMap);
+			free(tmpScan);
+            return oidx;
         }
     }
 }
