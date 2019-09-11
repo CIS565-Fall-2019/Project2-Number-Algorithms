@@ -68,6 +68,8 @@ namespace StreamCompaction {
 				throw std::runtime_error("Failed to allocate memory for tmpScan buffer!");
 			}
 
+			// Exclude the above mallocs from timing, since they can block!
+			// Assume everything is allocated already for us
 			timer().startCpuTimer();
 
 			// Step 1: Map
