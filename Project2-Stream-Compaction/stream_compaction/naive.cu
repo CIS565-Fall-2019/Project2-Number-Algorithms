@@ -3,8 +3,6 @@
 #include "common.h"
 #include "naive.h"
 
-
-#define checkCUDAError(msg) checkCUDAErrorFn(msg, FILENAME, __LINE__)
 /*! Block size used for CUDA kernel launch. */
 #define blockSize 128
 
@@ -16,9 +14,9 @@ namespace StreamCompaction {
             static PerformanceTimer timer;
             return timer;
         }
-		__global__ void kernScan(int N, int p, int *odata, int *idata) {
+		__global__ void kernScan(int n, int p, int *odata, int *idata) {
 			int index = threadIdx.x + (blockIdx.x * blockDim.x);
-			if (index >= N) {
+			if (index >= n) {
 				return;
 			}
 			if (index >= p) {
@@ -30,9 +28,9 @@ namespace StreamCompaction {
 
 		}
 
-		__global__ void kernRightShift(int N, int *odata, int *idata) {
+		__global__ void kernRightShift(int n, int *odata, int *idata) {
 			int index = threadIdx.x + (blockIdx.x * blockDim.x);
-			if (index >= N) {
+			if (index >= n) {
 				return;
 			}
 			if (index == 0) {
