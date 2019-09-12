@@ -70,7 +70,6 @@ namespace StreamCompaction {
          * Performs prefix-sum (aka scan) on idata, storing the result into odata.
          */
         void scan(int n, int *odata, const int *idata) {
-            timer().startGpuTimer();
             // TODO
             int* dev_temp_in;
             int* dev_input;
@@ -88,6 +87,8 @@ namespace StreamCompaction {
 
 
 			int depth = ilog2ceil(n);
+
+			timer().startGpuTimer();
             
             // think this itr count needs to be changed
             for(int i = 1; i <= depth; i++)
@@ -104,6 +105,8 @@ namespace StreamCompaction {
 			checkCUDAErrorFn("copy out failed!");
 
 			kernel_inclusive_to_exclusive<<< fullBlocksPerGrid, blockSize >> > (n,dev_temp_in, dev_input);
+
+			timer().endGpuTimer();
 			
             cudaMemcpy( odata, dev_temp_in, n * sizeof(int), cudaMemcpyDeviceToHost );
 			checkCUDAErrorFn("copy out failed!");
@@ -112,8 +115,6 @@ namespace StreamCompaction {
 			checkCUDAErrorFn("free input failed!");
             cudaFree(dev_temp_in);
 			checkCUDAErrorFn("free temp failed!");
-            
-            timer().endGpuTimer();
         }
     }
 }

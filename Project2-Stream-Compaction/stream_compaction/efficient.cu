@@ -146,21 +146,15 @@ namespace StreamCompaction {
 				checkCUDAErrorFn("down sweep failed!");
 			}
 		}
-
-		void __scan(int n,int* odata,const int* idata)
-		{
+	
+        /**
+         * Performs prefix-sum (aka scan) on idata, storing the result into odata.
+         */
+        void scan(int n, int *odata, const int *idata) {
+         
 			int* dev_data;
 			int pow = 0;
 			int byte[1] = { 0 };
-
-			//const int log_n_ceil = ilog2ceil(n);
-
-			//printf("log ceil %d\n", log_n_ceil);
-			//const int pow2RoundedSize = 1 << log_n_ceil;
-			//printf("log ceil %d\n", pow2RoundedSize);
-
-			//const int numbytes_pow2roundedsize = pow2RoundedSize * sizeof(int);
-			//const int numbytes_ForCopying = n * sizeof(int);
 
 			// if we have 257 elements we need to account for element 257
 			// so we have to do an extra loop log2size will be 512 in this case
@@ -168,55 +162,28 @@ namespace StreamCompaction {
 			int rounded_elements = 1 << rounded_depth;
 			dim3 fullBlocksPerGrid((rounded_elements + blockSize - 1) / blockSize);
 
-			//int last_in = idata[]
 			// need a slightly bigger buffer since if we have 257 elements well go up to 
 			// iteration 512
 			cudaMalloc((void**)&dev_data, rounded_elements * sizeof(int));
 			checkCUDAErrorFn("malloc temp in failed!");
 
-			// init to zero
-			//kernel_calloc<< < fullBlocksPerGrid, blockSize >> > kernel_calloc(dev_data, rounded_depth);
-
-			// copy data to device n or n*size? check
 			cudaMemcpy(dev_data, idata, n * sizeof(int), cudaMemcpyHostToDevice);
-			checkCUDAErrorFn("copy failed!");
+			checkCUDAErrorFn("scan idata copy failed!");
 
 			// pad if we need to 
 			kernel_padd_0s << < fullBlocksPerGrid, blockSize >> > (dev_data, n, rounded_elements);
 
-			//cudaMemcpy(inc_byte, &idata[n-1], sizeof(int), cudaMemcpyHostToDevice);
-			//checkCUDAErrorFn("copy failed!");
-
+			timer().startGpuTimer();
+			// run the actual work efficient algorithm
 			dev_scan(n, rounded_depth, rounded_elements, dev_data, fullBlocksPerGrid);
-
 			
-			//printf("fin downsweep\n");
-			//memory_debug(n, dev_data, odata, idata);
-			// need to run inclusive to exclusive
-			//kernel_inclusive_to_exclusive <<< fullBlocksPerGrid, blockSize >> > (n,dev_data,dev_out,inc_byte);
-			//printf("fin in to ex\n");
-			//memory_debug(n, dev_out, odata, idata);
+			timer().endGpuTimer();
+
 			cudaMemcpy(odata, dev_data, n * sizeof(int), cudaMemcpyDeviceToHost);
 			checkCUDAErrorFn("copy out failed!");
 
 			cudaFree(dev_data);
 			checkCUDAErrorFn("free input failed!");
-
-			//cudaFree(dev_out);
-			//checkCUDAErrorFn("free input failed!");
-		}
-
-	
-
-        /**
-         * Performs prefix-sum (aka scan) on idata, storing the result into odata.
-         */
-        void scan(int n, int *odata, const int *idata) {
-            timer().startGpuTimer();
-
-			__scan(n, odata, idata);
-
-            timer().endGpuTimer();
         }
 
         /**
@@ -229,7 +196,6 @@ namespace StreamCompaction {
          * @returns      The number of elements remaining after compaction.
          */
         int compact(int n, int *odata, const int *idata) {
-            timer().startGpuTimer();
             // TODO
 			int* dev_boolbuff;
 			int* dev_map;
@@ -258,6 +224,8 @@ namespace StreamCompaction {
 			// pad if we need to 
 			kernel_padd_0s << < fullBlocksPerGrid, blockSize >> > (dev_in, n, rounded_elements);
 
+
+			timer().startGpuTimer();
 			// stores 1s and zeros in the boolbuffer
 			// have [3,0,4,0,0,4,0,6,0]
 			// create [1,0,1,0,0,1,0,1,0] 
@@ -281,6 +249,8 @@ namespace StreamCompaction {
 			// device map created by scan
 			StreamCompaction::Common::kernScatter << < fullBlocksPerGrid, blockSize >> > (n, dev_out, dev_in, dev_boolbuff, dev_map);
 
+
+			timer().endGpuTimer();
 			// we need to read the last elements from our map and our the bool buff.
 			// the map will tell us how many elements but is an exclusive scan so
 			// we need to read the last element of the bool array to see if it contains a 1 or 0
@@ -303,7 +273,6 @@ namespace StreamCompaction {
 			cudaFree(dev_out);
 			cudaFree(dev_in);
 
-            timer().endGpuTimer();
             return scatter_size;
         }
     }
