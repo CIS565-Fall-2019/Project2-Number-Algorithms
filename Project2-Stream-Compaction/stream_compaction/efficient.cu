@@ -48,10 +48,26 @@ namespace StreamCompaction {
 			return;
 		}
 
+		// according to notes we need to padd with zeros to accomodate not 
+		// perfect logs.
+		__global__ void kernel_padd_0s(int* idata,int bufflength,int padded_length)
+		{
+			int tid = (blockIdx.x * blockDim.x) + threadIdx.x;
+
+			if (tid > bufflength && tid < padded_length)
+				idata[tid] = 0;
+
+			return;
+		}
+
 		/*
 		* perform and upsweep
+		* from the notes that means 
+		* fir d=0 to log2n-1
+		*	for k =0; to n-1 by 2^(d+1) in parallel
+		*		x[k+(2^d+1) -1] += x[k+(2^d)-1] // so we need power and power plus one
 		*/
-		__global__ void kernel_upsweep(int bufflength, int power, int* data, int depth)
+		__global__ void kernel_upsweep(int bufflength, int* data, int power, int power_plus1)
 		{
 			int tid = (blockIdx.x * blockDim.x) + threadIdx.x;
 			
@@ -62,9 +78,9 @@ namespace StreamCompaction {
 			//sums[x,(0+1),x,(2+3),x(4+5),x,(6+7)]
 			//move down [0,x,2,x,4,x,6,x]
 			// want threads [1,3,5,6] to compute something
-			if ( ( (tid+1) % (power) ) == 0)
+			if ( ( tid % power_plus1 ) == 0)
 			{
-				data[tid] += data[tid - depth];
+				data[tid+power_plus1-1] += data[tid+power-1];
 			}
 		}
 
@@ -72,8 +88,14 @@ namespace StreamCompaction {
 		* perform a downsweep after an upsweep
 		* for[0,1,2,3,4,5,6,7]
 		* after upsweep [0,1,2,6,4,9,6,28]
+		* from notes
+		* for d = log2n-1 to 0
+		*	for all k = 0 to n-1 by 2^(d+1) in par
+		*		t = x[k+(2^d)-1]
+		*		x[k+(2^d)-1] = x[k+(2^d+1) -1]
+		*		x[k+(2^d+1)-1] += t
 		*/
-		__global__ void kernel_downsweep(int bufflength, int power, int* data, int depth)
+		__global__ void kernel_downsweep(int bufflength, int* data, int power, int power_plus1)
 		{
 			int tid = (blockIdx.x * blockDim.x) + threadIdx.x;
 
@@ -84,11 +106,11 @@ namespace StreamCompaction {
 			// first set last to 0
 			//         [0,1,2,6,4,9,6,0] set initially last element to 0
 			// now want[0,1,2,0,4,9,6,6] ( [7-4] + [7] ) then set 7-4 to 0
-			if (( (tid + 1) % (power) ) == 0)
+			if ((tid % power_plus1) == 0)
 			{
-				int old = data[tid];
-				data[tid] += data[tid - depth];
-				data[tid - depth] = old;
+				int old = data[tid + power - 1]; 
+				data[tid + power - 1] = data[tid + power_plus1 - 1]; 
+				data[tid + power_plus1 - 1] += old;
 			}
 		}
 
@@ -104,10 +126,14 @@ namespace StreamCompaction {
 			int byte[1] = { 0 };
 			int* inc_byte;
 
-			const int log_n_ceil = ilog2ceil(n);
-			const int pow2RoundedSize = 1 << log_n_ceil;
-			const int numbytes_pow2roundedsize = pow2RoundedSize * sizeof(int);
-			const int numbytes_ForCopying = n * sizeof(int);
+			//const int log_n_ceil = ilog2ceil(n);
+
+			//printf("log ceil %d\n", log_n_ceil);
+			//const int pow2RoundedSize = 1 << log_n_ceil;
+			//printf("log ceil %d\n", pow2RoundedSize);
+			
+			//const int numbytes_pow2roundedsize = pow2RoundedSize * sizeof(int);
+			//const int numbytes_ForCopying = n * sizeof(int);
 
 			// if we have 257 elements we need to account for element 257
 			// so we have to do an extra loop log2size will be 512 in this case
@@ -120,29 +146,27 @@ namespace StreamCompaction {
 			// iteration 512
 			cudaMalloc((void**)&dev_data, rounded_elements * sizeof(int));
 			checkCUDAErrorFn("malloc temp in failed!");
-			cudaMalloc((void**)&dev_out, rounded_elements * sizeof(int));
-			checkCUDAErrorFn("malloc temp in failed!");
-			cudaMalloc((void**)&inc_byte,sizeof(int));
-			checkCUDAErrorFn("malloc temp in failed!");
 
 			// init to zero
 			//kernel_calloc<< < fullBlocksPerGrid, blockSize >> > kernel_calloc(dev_data, rounded_depth);
 
 			// copy data to device n or n*size? check
-			cudaMemcpy(dev_data, idata, n * sizeof(int), cudaMemcpyHostToDevice);
+			cudaMemcpy(dev_data, idata, rounded_elements * sizeof(int), cudaMemcpyHostToDevice);
 			checkCUDAErrorFn("copy failed!");
 			
-			cudaMemcpy(inc_byte, &idata[n-1], sizeof(int), cudaMemcpyHostToDevice);
-			checkCUDAErrorFn("copy failed!");
+			// pad if we need to 
+			kernel_padd_0s<< < fullBlocksPerGrid, blockSize >> > (dev_data, n, rounded_elements);
 
-			int depth = ilog2ceil(n);
+			//cudaMemcpy(inc_byte, &idata[n-1], sizeof(int), cudaMemcpyHostToDevice);
+			//checkCUDAErrorFn("copy failed!");
 
-			for (int i = 1; i <= depth; i++)
+		
+			for (int i = 0; i <= rounded_depth-1; i++)
 			{
 				pow = (1 << i);
-				int pow_minus = (1 << (i-1));
+				int powplus1 = (1 << (i+1));
 				//printf("i %d  -> depth %d \n ", other_pow, pow2);
-				kernel_upsweep << < fullBlocksPerGrid, blockSize >> > (n,pow,dev_data, pow_minus);
+				kernel_upsweep << < fullBlocksPerGrid, blockSize >> > (rounded_elements, dev_data, pow, powplus1);
 				checkCUDAErrorFn("up sweep failed!");
 			}
 
@@ -155,28 +179,28 @@ namespace StreamCompaction {
 			//printf("write last byte\n");
 			//memory_debug(n, dev_data, odata, idata);
 			//printf("starting downsweep\n");
-			for (int i = depth; i > 0; i--)
+			for (int i = rounded_depth-1; i >= 0; i--)
 			{
-				int other_pow = (1 << (i - 1));
-				kernel_downsweep << < fullBlocksPerGrid, blockSize >> > (n, pow, dev_data,other_pow);
+				pow = (1 << (i));
+				int powplus1 = (1 << (i + 1));
+				kernel_downsweep << < fullBlocksPerGrid, blockSize >> > (rounded_elements,dev_data,pow,powplus1);
 				checkCUDAErrorFn("down sweep failed!");
-				pow >>= 1;
 			}
-			printf("fin downsweep\n");
-			memory_debug(n, dev_data, odata, idata);
+			//printf("fin downsweep\n");
+			//memory_debug(n, dev_data, odata, idata);
 			// need to run inclusive to exclusive
-			kernel_inclusive_to_exclusive <<< fullBlocksPerGrid, blockSize >> > (n,dev_data,dev_out,inc_byte);
+			//kernel_inclusive_to_exclusive <<< fullBlocksPerGrid, blockSize >> > (n,dev_data,dev_out,inc_byte);
 
 			printf("fin in to ex\n");
-			memory_debug(n, dev_out, odata, idata);
-			cudaMemcpy(odata, dev_out, n * sizeof(int), cudaMemcpyDeviceToHost);
+			//memory_debug(n, dev_out, odata, idata);
+			cudaMemcpy(odata, dev_data, n * sizeof(int), cudaMemcpyDeviceToHost);
 			checkCUDAErrorFn("copy out failed!");
 
 			cudaFree(dev_data);
 			checkCUDAErrorFn("free input failed!");
 
-			cudaFree(dev_out);
-			checkCUDAErrorFn("free input failed!");
+			//cudaFree(dev_out);
+			//checkCUDAErrorFn("free input failed!");
 
             timer().endGpuTimer();
         }
