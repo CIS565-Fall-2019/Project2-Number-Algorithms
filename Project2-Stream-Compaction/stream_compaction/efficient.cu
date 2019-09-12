@@ -114,24 +114,18 @@ namespace StreamCompaction {
 			}
 		}
 
-        /**
-         * Performs prefix-sum (aka scan) on idata, storing the result into odata.
-         */
-        void scan(int n, int *odata, const int *idata) {
-            timer().startGpuTimer();
-
+		void __scan(int n,int* odata,const int* idata)
+		{
 			int* dev_data;
-			int* dev_out;
 			int pow = 0;
 			int byte[1] = { 0 };
-			int* inc_byte;
 
 			//const int log_n_ceil = ilog2ceil(n);
 
 			//printf("log ceil %d\n", log_n_ceil);
 			//const int pow2RoundedSize = 1 << log_n_ceil;
 			//printf("log ceil %d\n", pow2RoundedSize);
-			
+
 			//const int numbytes_pow2roundedsize = pow2RoundedSize * sizeof(int);
 			//const int numbytes_ForCopying = n * sizeof(int);
 
@@ -139,10 +133,10 @@ namespace StreamCompaction {
 			// so we have to do an extra loop log2size will be 512 in this case
 			int rounded_depth = ilog2ceil(n);
 			int rounded_elements = 1 << rounded_depth;
-			dim3 fullBlocksPerGrid = ((rounded_elements + blockSize - 1) / blockSize);
+			dim3 fullBlocksPerGrid((rounded_elements + blockSize - 1) / blockSize);
 
 			//int last_in = idata[]
-            // need a slightly bigger buffer since if we have 257 elements well go up to 
+			// need a slightly bigger buffer since if we have 257 elements well go up to 
 			// iteration 512
 			cudaMalloc((void**)&dev_data, rounded_elements * sizeof(int));
 			checkCUDAErrorFn("malloc temp in failed!");
@@ -151,47 +145,46 @@ namespace StreamCompaction {
 			//kernel_calloc<< < fullBlocksPerGrid, blockSize >> > kernel_calloc(dev_data, rounded_depth);
 
 			// copy data to device n or n*size? check
-			cudaMemcpy(dev_data, idata, rounded_elements * sizeof(int), cudaMemcpyHostToDevice);
+			cudaMemcpy(dev_data, idata, n * sizeof(int), cudaMemcpyHostToDevice);
 			checkCUDAErrorFn("copy failed!");
-			
+
 			// pad if we need to 
-			kernel_padd_0s<< < fullBlocksPerGrid, blockSize >> > (dev_data, n, rounded_elements);
+			kernel_padd_0s << < fullBlocksPerGrid, blockSize >> > (dev_data, n, rounded_elements);
 
 			//cudaMemcpy(inc_byte, &idata[n-1], sizeof(int), cudaMemcpyHostToDevice);
 			//checkCUDAErrorFn("copy failed!");
 
-		
-			for (int i = 0; i <= rounded_depth-1; i++)
+
+			for (int i = 0; i <= rounded_depth - 1; i++)
 			{
 				pow = (1 << i);
-				int powplus1 = (1 << (i+1));
+				int powplus1 = (1 << (i + 1));
 				//printf("i %d  -> depth %d \n ", other_pow, pow2);
-				kernel_upsweep << < fullBlocksPerGrid, blockSize >> > (rounded_elements, dev_data, pow, powplus1);
+				kernel_upsweep << < fullBlocksPerGrid, blockSize >> > (n, dev_data, pow, powplus1);
 				checkCUDAErrorFn("up sweep failed!");
 			}
 
-	
+
 			//memory_debug(n, dev_data, odata, idata);
 
-			// write one single byte to the last entry ... 
-			cudaMemcpy(&dev_data[n-1], &byte[0], sizeof(int), cudaMemcpyHostToDevice);
+			// write one single byte to the LAST entry ... even if it was rounded and you just padded 
+			cudaMemcpy(&dev_data[rounded_elements - 1], &byte[0], sizeof(int), cudaMemcpyHostToDevice);
 			checkCUDAErrorFn("copy last byte failed!");
 			//printf("write last byte\n");
 			//memory_debug(n, dev_data, odata, idata);
 			//printf("starting downsweep\n");
-			for (int i = rounded_depth-1; i >= 0; i--)
+			for (int i = rounded_depth - 1; i >= 0; i--)
 			{
 				pow = (1 << (i));
 				int powplus1 = (1 << (i + 1));
-				kernel_downsweep << < fullBlocksPerGrid, blockSize >> > (rounded_elements,dev_data,pow,powplus1);
+				kernel_downsweep << < fullBlocksPerGrid, blockSize >> > (rounded_elements, dev_data, pow, powplus1);
 				checkCUDAErrorFn("down sweep failed!");
 			}
 			//printf("fin downsweep\n");
 			//memory_debug(n, dev_data, odata, idata);
 			// need to run inclusive to exclusive
 			//kernel_inclusive_to_exclusive <<< fullBlocksPerGrid, blockSize >> > (n,dev_data,dev_out,inc_byte);
-
-			printf("fin in to ex\n");
+			//printf("fin in to ex\n");
 			//memory_debug(n, dev_out, odata, idata);
 			cudaMemcpy(odata, dev_data, n * sizeof(int), cudaMemcpyDeviceToHost);
 			checkCUDAErrorFn("copy out failed!");
@@ -201,6 +194,15 @@ namespace StreamCompaction {
 
 			//cudaFree(dev_out);
 			//checkCUDAErrorFn("free input failed!");
+		}
+
+        /**
+         * Performs prefix-sum (aka scan) on idata, storing the result into odata.
+         */
+        void scan(int n, int *odata, const int *idata) {
+            timer().startGpuTimer();
+
+			__scan(n, odata, idata);
 
             timer().endGpuTimer();
         }
