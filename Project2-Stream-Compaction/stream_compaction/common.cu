@@ -25,15 +25,15 @@ namespace StreamCompaction {
         __global__ void kernMapToBoolean(int n, int *bools, const int *idata) 
         {
             // TODO
-            /*
-			tid = (blockIdx.x * blockDim.x) + threadIdx.x;
+            
+			int tid = (blockIdx.x * blockDim.x) + threadIdx.x;
             
             if (tid >= n)
             {
                 return;
             }
             
-            bools[tid] = (idata != 0) ? 1 : 0;
+            bools[tid] = (idata[tid] != 0) ? 1 : 0;
             
 //             if(idata[tid] != 0)
 //             {
@@ -44,7 +44,7 @@ namespace StreamCompaction {
 //                 bools[tid] = 0;
 //             }
             
-            return;*/
+            return;
         }
 
         /**
@@ -55,7 +55,7 @@ namespace StreamCompaction {
                 const int *idata, const int *bools, const int *indices) 
         {
             // TODO
-           /* tid = (blockIdx.x * blockDim.x) + threadIdx.x;
+            int tid = (blockIdx.x * blockDim.x) + threadIdx.x;
             
             if (tid >= n)
             {
@@ -64,10 +64,10 @@ namespace StreamCompaction {
             
             if( bools[tid] == 1)
             {
-                odata[indices[idx]] = idata[tid]; 
+                odata[indices[tid]] = idata[tid]; 
             }
             return;
-            */
+            
         }
 
     }

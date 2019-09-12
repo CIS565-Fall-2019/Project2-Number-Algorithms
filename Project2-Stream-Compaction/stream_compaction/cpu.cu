@@ -36,12 +36,6 @@ namespace StreamCompaction {
             	// TODO
 			__scan( n, odata, idata );
 
-			//for (int i = 0; i < n; i++)
-			//{
-		//		printf("odata[%d] %d ",i, odata[i]);
-	//			printf("idata[%d] %d\n",i, idata[i]);
-//			}
-
 	        timer().endCpuTimer();
         }
 
