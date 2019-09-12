@@ -12,6 +12,13 @@ namespace StreamCompaction {
 	        return timer;
         }
 
+		void scanHelper(int n, int *odata, const int *idata) {
+			odata[0] = 0;
+			for (int i = 1; i < n; i++) {
+				odata[i] = odata[i - 1] + idata[i - 1];
+			}
+		}
+
         /**
          * CPU scan (prefix sum).
          * For performance analysis, this is supposed to be a simple for loop.
@@ -19,11 +26,7 @@ namespace StreamCompaction {
          */
         void scan(int n, int *odata, const int *idata) {
 	        timer().startCpuTimer();
-            // TODO
-			odata[0] = 0;
-			for (int i = 1; i < n; i++) {
-				odata[i] = odata[i - 1] + idata[i - 1];
-			}
+			scanHelper(n, odata, idata);
 	        timer().endCpuTimer();
         }
 
@@ -34,7 +37,6 @@ namespace StreamCompaction {
          */
         int compactWithoutScan(int n, int *odata, const int *idata) {
 	        timer().startCpuTimer();
-            // TODO
 			int k = 0;
 			for (int i = 0; i < n; i++) {
 				if (idata[i] != 0) {
@@ -52,16 +54,17 @@ namespace StreamCompaction {
          */
         int compactWithScan(int n, int *odata, const int *idata) {
 	        timer().startCpuTimer();
-	        // TODO
 			int *map_array = new int[n];
 			int *scanned = new int[n];
+
+			// mapping to boolean
 			for (int i = 0; i < n; i++) {
 				map_array[i] = idata[i] != 0 ? 1 : 0;
 			}
-			scanned[0] = 0;
-			for (int i = 1; i < n; i++) {
-				scanned[i] = scanned[i - 1] + map_array[i - 1];
-			}
+			// scanning exclusively
+			scanHelper(n, scanned, map_array);
+
+			//scatter results
 			int k = 0;
 			for (int i = 0; i < n; i++) {
 				if (map_array[i]) {
@@ -69,8 +72,8 @@ namespace StreamCompaction {
 					odata[scanned[i]] = idata[i];
 				}
 			}
-			delete[] map_array;
-			delete[] scanned;
+			delete[n] map_array;
+			delete[n] scanned;
 	        timer().endCpuTimer();
             return k;
         }
