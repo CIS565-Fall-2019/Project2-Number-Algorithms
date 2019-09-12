@@ -3,6 +3,8 @@
 #include "common.h"
 #include "naive.h"
 
+
+#define checkCUDAError(msg) checkCUDAErrorFn(msg, FILENAME, __LINE__)
 /*! Block size used for CUDA kernel launch. */
 #define blockSize 128
 
@@ -28,40 +30,54 @@ namespace StreamCompaction {
 
 		}
 
+		__global__ void kernRightShift(int N, int *odata, int *idata) {
+			int index = threadIdx.x + (blockIdx.x * blockDim.x);
+			if (index >= N) {
+				return;
+			}
+			if (index == 0) {
+				odata[index] = 0;
+			}
+			odata[index + 1] = idata[index];
+			
+		}
+
         /**
          * Performs prefix-sum (aka scan) on idata, storing the result into odata.
          */
         void scan(int n, int *odata, const int *idata) {
 			int *dev_idata;
 			int *dev_odata;
-			int *temp;
 
 			cudaMalloc((void**)&dev_idata, n * sizeof(int));
-			//checkCUDAErrorWithLine("cudaMalloc dev_idata failed!");
+			checkCUDAError("cudaMalloc dev_idata failed!");
 
 			cudaMalloc((void**)&dev_odata, n * sizeof(int));
-			//checkCUDAErrorWithLine("cudaMalloc dev_odata failed!");
+			checkCUDAError("cudaMalloc dev_odata failed!");
 
 			cudaMemcpy(dev_idata, idata, sizeof(int) * n, cudaMemcpyHostToDevice);
+			checkCUDAError("Memcpy idata failed!");
 
 			dim3 threadsPerBlock(blockSize);
 			dim3 fullBlocksPerGrid((n + blockSize - 1) / blockSize);
 
 			timer().startGpuTimer();
-            // TODO
+            // TODO ilog2ceil(n)
 			for (int d = 1; d <= ilog2ceil(n); d++) {
-				//int p = 1 << (d - 1);
-				int p = pow(2,d-1);
-				kernScan << <fullBlocksPerGrid, threadsPerBlock >> > (n, p, dev_odata, dev_idata);
-				cudaThreadSynchronize();
-				temp = dev_idata;
-				dev_idata = dev_odata;
-				dev_odata = temp;
+				int p = 1 << (d - 1);
+				//int p = pow(2,d-1);
+				kernScan<<<fullBlocksPerGrid, threadsPerBlock >>>(n, p, dev_odata, dev_idata);
+				checkCUDAError("kernel kernScan failed!");
+
+				std::swap(dev_idata, dev_odata);
 			}
+
+			kernRightShift << <fullBlocksPerGrid, threadsPerBlock >> > (n, dev_odata, dev_idata);
+			checkCUDAError("kernel   kernRightShift failed!");
             timer().endGpuTimer();
 
-			cudaMemcpy(odata + 1, dev_idata, sizeof(int) * n - 1, cudaMemcpyDeviceToHost);
-			odata[0] = 0;
+			cudaMemcpy(odata, dev_odata, sizeof(int) * n, cudaMemcpyDeviceToHost);
+			checkCUDAError("Memcpy odata failed!");
 
 			cudaFree(dev_idata);
 			cudaFree(dev_odata);
