@@ -2,6 +2,7 @@
 #include <cuda_runtime.h>
 #include "common.h"
 #include "efficient.h"
+#include <iostream>
 #define checkCUDAErrorWithLine(msg) checkCUDAError(msg, __LINE__)
 
 namespace StreamCompaction {
@@ -15,21 +16,21 @@ namespace StreamCompaction {
 		}
 		/*2 scan phases, see (link)[https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch39.html] for more details*/
 		__global__ void reduce_parallel(int n, int *data, int d) {
-			int index = (blockDim.x * blockIdx.x + threadIdx.x)*(int)powf(2, d + 1);
+			int tmp_d = 1 << (d + 1);
+			int index = (blockDim.x * blockIdx.x + threadIdx.x)*tmp_d;
 			if (index >= n )
 				return;
-			data[index + (int)powf(2, d + 1) - 1] += data[index + (int)powf(2, d) - 1];
+			data[index + tmp_d - 1] += data[index + (tmp_d>>1) - 1];
 		}
 
 		__global__ void downsweep_parallel(int n, int *data, int d) {
-			int int_2dp1 = (int)powf(2, d + 1);
-			int int_2d = (int)powf(2, d);
-			int index = (blockDim.x * blockIdx.x + threadIdx.x)*int_2dp1;
+			int new_d = 1<<(d + 1);
+			int index = (blockDim.x * blockIdx.x + threadIdx.x)*new_d;
 			if (index >= n)
 				return;
-			int t = data[index + int_2d - 1];
-			data[index + int_2d - 1] = data[index + int_2dp1 - 1];
-			data[index + (int)int_2dp1 - 1] += t;
+			int t = data[index + (new_d>>1) - 1];
+			data[index + (new_d>>1) - 1] = data[index + new_d - 1];
+			data[index + new_d - 1] += t;
 		}
 		/**
 		 * Performs prefix-sum (aka scan) on idata, storing the result into odata.
@@ -39,16 +40,16 @@ namespace StreamCompaction {
 			// allocate pointers to memory and copy data over
 			int *dev_odata;
 			int blocks = 0;
-			int closest_pow2 = pow(2, ilog2ceil(n));
+			int closest_pow2 = 1<<ilog2ceil(n);
 			cudaMalloc((void**)&dev_odata, closest_pow2 * sizeof(int));
 			checkCUDAErrorWithLine("malloc failed!");
 			cudaMemcpy(dev_odata, idata, closest_pow2 * sizeof(int), cudaMemcpyHostToDevice);
 			checkCUDAErrorWithLine("memcpy failed!");
 			// reduce phase
-			//ceil(log2(n) - 1) - 1 // so we dont need to do the last round of computation because we zero it anyway
+			// so we dont need to do the last round of computation because we zero it anyway
 			for (int d = 0; d <= ilog2ceil(closest_pow2) - 2; d++) {
 				// compute number of threads to spawn
-				blocks = ceil((pow(2, ceil(log2(closest_pow2 / pow(2, d + 1)))) + block_size - 1) / block_size);
+				blocks = ceil((closest_pow2 / (1<<(d + 1)) + block_size - 1) / block_size);
 				reduce_parallel <<<blocks, block_size >>> (closest_pow2, dev_odata, d);
 				checkCUDAErrorWithLine("reduce phase failed!");
 			}
@@ -56,7 +57,7 @@ namespace StreamCompaction {
 			// zero last value
 			cudaMemset(dev_odata + (closest_pow2 - 1), 0, 1 * sizeof(int));
 			for (int d = ceil(log2(closest_pow2) - 1); d >= 0; d--) {
-				blocks = ceil((pow(2, ceil(log2(closest_pow2 / pow(2, d + 1)))) + block_size - 1) / block_size);
+				blocks = ceil((closest_pow2 / (1 << (d + 1)) + block_size - 1) / block_size);
 				downsweep_parallel <<<blocks, block_size >>> (closest_pow2, dev_odata, d);
 				checkCUDAErrorWithLine("downsweep phase failed!");
 			}
@@ -66,40 +67,29 @@ namespace StreamCompaction {
 			timer().endGpuTimer();
 		}
 
+		/*Copy of scan but only works with cuda pointers*/
 		void dev_scan(int n, int *dev_odata) {
 			// allocate pointers to memory and copy data over
-			int blocks;
+			int blocks = 0;
+			int closest_pow2 = 1 << ilog2ceil(n);
 			// reduce phase
-			for (int d = 0; d <= ilog2ceil(n) - 2; d++) {
+			// so we dont need to do the last round of computation because we zero it anyway
+			for (int d = 0; d <= ilog2ceil(closest_pow2) - 2; d++) {
 				// compute number of threads to spawn
-				blocks = ceil((pow(2, ceil(log2(n / pow(2, d + 1)))) + block_size - 1) / block_size);
-				reduce_parallel << <blocks, block_size >> > (n, dev_odata, d);
+				blocks = (closest_pow2 / (1 << (d + 1)) + block_size - 1) / block_size;
+				reduce_parallel << <blocks, block_size >> > (closest_pow2, dev_odata, d);
 				checkCUDAErrorWithLine("reduce phase failed!");
 			}
 			// down-sweep phase
 			// zero last value
-			cudaMemset(dev_odata + (n - 1), 0, 1 * sizeof(int));
-			for (int d = ceil(log2(n) - 1); d >= 0; d--) {
-				blocks = ceil((pow(2, ceil(log2(n / pow(2, d + 1)))) + block_size - 1) / block_size);
-				downsweep_parallel << <blocks, block_size >> > (n, dev_odata, d);
+			cudaMemset(dev_odata + (closest_pow2 - 1), 0, 1 * sizeof(int));
+			for (int d = ceil(log2(closest_pow2) - 1); d >= 0; d--) {
+				blocks = (closest_pow2 / (1 << (d + 1)) + block_size - 1) / block_size;
+				downsweep_parallel << <blocks, block_size >> > (closest_pow2, dev_odata, d);
 				checkCUDAErrorWithLine("downsweep phase failed!");
 			}
 		}
 
-		__global__ void mask_gen(int n, const int *data, int *mask) {
-			int index = (blockDim.x * blockIdx.x + threadIdx.x);
-			if (index >= n)
-				return;
-			mask[index] = (data[index] != 0) ? 1 : 0;
-		}
-
-		__global__ void scatter(int n, int* dev_mask, int *dev_data, int *dev_odata) {
-			int index = (blockDim.x * blockIdx.x + threadIdx.x);
-			if (index >= n)
-				return;
-			if (dev_data[index] != 0)
-				dev_odata[dev_mask[index] + 1] = dev_data[index];
-		}
 		/**
 		 * Performs stream compaction on idata, storing the result into odata.
 		 * All zeroes are discarded.
@@ -111,30 +101,35 @@ namespace StreamCompaction {
 		 */
 		int compact(int n, int *odata, const int *idata) {
 			timer().startGpuTimer();
-			int closest_pow2 = pow(2, ilog2ceil(n));
-			int *dev_idata, *dev_odata, *dev_mask;
+			int closest_pow2 = 1<<ilog2ceil(n);
+			int *dev_idata, *dev_odata, *dev_mask, *dev_indices;
 			int blocks = ceil((closest_pow2 + block_size - 1) / block_size);
 			cudaMalloc((void**)&dev_idata, closest_pow2 * sizeof(int));
 			cudaMalloc((void**)&dev_odata, closest_pow2 * sizeof(int));
 			cudaMalloc((void**)&dev_mask, closest_pow2 * sizeof(int));
+			cudaMalloc((void**)&dev_indices, closest_pow2 * sizeof(int));
 			// copy over idata
 			cudaMemcpy(dev_idata, idata, n * sizeof(int), cudaMemcpyHostToDevice);
 			checkCUDAErrorWithLine("mask gen failed!");
-			mask_gen <<<blocks, block_size >>> (n, dev_idata, dev_mask);
+			Common::kernMapToBoolean <<<blocks, block_size >> > (n, dev_mask, dev_idata);
 			checkCUDAErrorWithLine("mask gen failed!");
 			// scan the mask array (can be done in parallel by using a balanced binary tree)
-			dev_scan(closest_pow2, dev_mask);
+			cudaMemcpy(dev_indices, dev_mask, closest_pow2 * sizeof(int), cudaMemcpyDeviceToDevice);
+			dev_scan(closest_pow2, dev_indices);
 			checkCUDAErrorWithLine("dev scan failed!");
-			// Scatter array (go to each position and copy the value) (super easy to parallelize)
-			scatter << <blocks, block_size >> > (n, dev_mask, dev_idata, dev_odata);
+			// Scatter array (go to each position and copy the value)
+			Common::kernScatter<<<blocks, block_size >> > (closest_pow2, dev_odata, dev_idata, dev_mask, dev_indices);
+
 			checkCUDAErrorWithLine("scatter failed!");
 			//read data back
-			cudaMemcpy(odata, dev_mask, n * sizeof(int), cudaMemcpyDeviceToHost);
-			int res = odata[n - 1];
+			int res;
+			cudaMemcpy(&res, dev_indices + n - 1, sizeof(int), cudaMemcpyDeviceToHost);
+			res = idata[n - 1] ? res + 1 : res;
 			cudaMemcpy(odata, dev_odata, n * sizeof(int), cudaMemcpyDeviceToHost);
 			cudaFree(dev_odata);
 			cudaFree(dev_idata);
 			cudaFree(dev_mask);
+			cudaFree(dev_indices);
 			timer().endGpuTimer();
 			return res;
 		}
