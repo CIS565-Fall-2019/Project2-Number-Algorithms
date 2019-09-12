@@ -243,17 +243,20 @@ namespace StreamCompaction {
 			//int last_in = idata[]
 			// need a slightly bigger buffer since if we have 257 elements well go up to 
 			// iteration 512
-			cudaMalloc((void**)&dev_boolbuff, n * sizeof(int));
+			cudaMalloc((void**)&dev_boolbuff, rounded_elements * sizeof(int));
 			checkCUDAErrorFn("malloc dev_boolbuff in failed!");
-			cudaMalloc((void**)&dev_map, n * sizeof(int));
+			cudaMalloc((void**)&dev_map, rounded_elements * sizeof(int));
 			checkCUDAErrorFn("malloc dev_map in failed!");
 			cudaMalloc((void**)&dev_out, n * sizeof(int));
 			checkCUDAErrorFn("malloc dev_out in failed!");
-			cudaMalloc((void**)&dev_in, n * sizeof(int));
+			cudaMalloc((void**)&dev_in, rounded_elements * sizeof(int));
 			checkCUDAErrorFn("malloc dev_in in failed!");
 
 			cudaMemcpy(dev_in, idata, n * sizeof(int), cudaMemcpyHostToDevice);
-			checkCUDAErrorFn("copy failed!");
+			checkCUDAErrorFn("dev_in copy failed!");
+
+			// pad if we need to 
+			kernel_padd_0s << < fullBlocksPerGrid, blockSize >> > (dev_in, n, rounded_elements);
 
 			// stores 1s and zeros in the boolbuffer
 			// have [3,0,4,0,0,4,0,6,0]
@@ -262,7 +265,7 @@ namespace StreamCompaction {
 
 			// need to retain this bool data for the kernscatter
 			cudaMemcpy(dev_map, dev_boolbuff, n * sizeof(int), cudaMemcpyDeviceToDevice);
-			checkCUDAErrorFn("copy failed!");
+			checkCUDAErrorFn("dev_map copy failed!");
 
 			// dev scan takes in device buffers create our map
 			// have [1,0,1,0,0,1,0,1,0]
