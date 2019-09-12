@@ -108,6 +108,14 @@ namespace StreamCompaction {
 			    return prev_elapsed_time_gpu_milliseconds;
 		    }
 
+			bool getCpuTimerStarted() {
+				return cpu_timer_started;
+			}
+
+			bool getGpuTimerStarted() {
+				return gpu_timer_started;
+			}
+
 		    // remove copy and move functions
 		    PerformanceTimer(const PerformanceTimer&) = delete;
 		    PerformanceTimer(PerformanceTimer&&) = delete;
