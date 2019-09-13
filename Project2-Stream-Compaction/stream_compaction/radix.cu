@@ -30,16 +30,30 @@ namespace Sorting {
 			else
 				dev_odata[dev_f[index]] = data;
 		}
-		void sort(int n, int *odata, int *idata) {
-			int loop_count = std::numeric_limits<int>::digits;
+		int countBits(int n)
+		{
+			int count = 0;
+			// While loop will run until we get n = 0
+			while (n)
+			{
+				count++;
+				// We are shifting n to right by 1 
+				// place as explained above
+				n = n >> 1;
+			}
+			return count;
+		}
+		void sort(int n, int *odata, int *idata, int max_value) {
+			int loop_count = countBits(max_value);//std::numeric_limits<int>::digits;
 			int mask = 1, total_falses, tmp;
 			int blocks = ceil((n + block_size - 1) / block_size);
 			int *dev_data, *dev_f, *dev_t, *dev_data2;
 			int *dev_mask;
-			cudaMalloc((void**)dev_data, n*sizeof(int));
-			cudaMalloc((void**)dev_data2, n * sizeof(int));
-			cudaMalloc((void**)dev_mask, n * sizeof(int));
-			cudaMalloc((void**)dev_f, n * sizeof(int));
+			cudaMalloc((void**)&dev_data, n*sizeof(int));
+			cudaMalloc((void**)&dev_data2, n * sizeof(int));
+			cudaMalloc((void**)&dev_mask, n * sizeof(int));
+			cudaMalloc((void**)&dev_f, n * sizeof(int));
+			cudaMalloc((void**)&dev_t, n * sizeof(int));
 			// copy over idata
 			cudaMemcpy(dev_data, idata, n * sizeof(int), cudaMemcpyHostToDevice);
 			for (int i = 0; i < loop_count; i++, mask <<= 1) {
@@ -56,6 +70,14 @@ namespace Sorting {
 				// copy data2 over to data
 				cudaMemcpy(dev_data, dev_data2, n * sizeof(int), cudaMemcpyDeviceToDevice);
 			}
+			// we are done sorting, copy back
+			cudaMemcpy(odata, dev_data, n * sizeof(int), cudaMemcpyDeviceToHost);
+			// free everything
+			cudaFree(dev_data);
+			cudaFree(dev_data2);
+			cudaFree(dev_mask);
+			cudaFree(dev_f);
+			cudaFree(dev_t);
 		}
 	}
 }

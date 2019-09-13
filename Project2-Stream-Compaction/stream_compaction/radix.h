@@ -4,6 +4,6 @@
 
 namespace Sorting {
 	namespace Radix {
-		void sort(int n, int *odata, int *idata);
+		void sort(int n, int *odata, int *idata, int max_value);
 	}
 }
