@@ -9,9 +9,12 @@
 #include <algorithm>
 #include <chrono>
 #include <stdexcept>
+#include <vector>
 
 #define FILENAME (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
 #define checkCUDAError(msg) checkCUDAErrorFn(msg, FILENAME, __LINE__)
+
+typedef std::vector<uint8_t> uint8_v;
 
 /**
  * Check for CUDA errors; print and exit if there was a problem.
