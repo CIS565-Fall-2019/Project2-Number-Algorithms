@@ -20,51 +20,36 @@ namespace StreamCompaction {
 			// Allocate buffers on GPU and move data in
 			const size_t ARR_LEN = n * sizeof(int);
 			const int NUM_THREADS = n;
-			const int NUM_BLOCKS = 1;
+			const int NUM_BLOCKS = 1; // TODO: How to best comute Blocks/BlockSize?
 			int* dev_odata;
 			int* dev_tmp;
 
+			// Allocate our arrays
 			cudaMalloc(&dev_odata, ARR_LEN);
 			cudaMalloc(&dev_tmp,   ARR_LEN);
 
 			// Copy input to odata buffer
 			// After each loop of the algorithm we will swap tmp and odata
 			// So that the final result will always be located in the dev_odata buffer.
-
 			cudaMemcpy(dev_odata, idata, ARR_LEN, ::cudaMemcpyHostToDevice);
 			cudaMemcpy(dev_tmp,   idata, ARR_LEN, ::cudaMemcpyHostToDevice);
 
 			// Algorithm adapted from GPU Gems 3, Section 39.2.1
-			/*
-				1: for d = 1 to log2 n do
-				2:   for all k in parallel do
-				3:     if k >= 2^(d-1)  then
-				4:     x[k] = x[k – 2^(d-1)] + x[k]
-			*/
             timer().startGpuTimer();
-			int* INSPECT_TMP = (int*)malloc(n * sizeof(int));
-			int* INSPECT_ODATA = (int*)malloc(n * sizeof(int));
 			for (int d = 1; d <= ilog2ceil(n); d++) {
 				std::swap(dev_tmp, dev_odata);
-#if _DEBUG
-				cudaMemcpy(INSPECT_ODATA, dev_odata, ARR_LEN, ::cudaMemcpyDeviceToHost);
-				cudaMemcpy(INSPECT_TMP, dev_tmp, ARR_LEN, ::cudaMemcpyDeviceToHost);
-#endif
 				kernScanStep<<<NUM_BLOCKS, NUM_THREADS >>>(n, d, dev_odata, dev_tmp);
-#if _DEBUG
-				cudaMemcpy(INSPECT_ODATA, dev_odata, ARR_LEN, ::cudaMemcpyDeviceToHost);
-				cudaMemcpy(INSPECT_TMP, dev_tmp, ARR_LEN, ::cudaMemcpyDeviceToHost);
-#endif
-				cudaDeviceSynchronize();
 			}
+
+			// Algorithm above produced inclusive scan, adjust to exclusive.
 			std::swap(dev_tmp, dev_odata);
 			kernInclusiveToExclusive<<<NUM_BLOCKS, NUM_THREADS>>>(n, dev_odata, dev_tmp);
 			cudaMemset(dev_odata, 0, sizeof(int)); // Set first element to 0 (identity)
+
             timer().endGpuTimer();
 
 			// Copy back to host and free memory
 			cudaMemcpy(odata, dev_odata, ARR_LEN, ::cudaMemcpyDeviceToHost);
-
 			cudaFree(dev_tmp);
 			cudaFree(dev_odata);
         }

@@ -42,40 +42,27 @@ namespace StreamCompaction {
 
 			// 0) Correct length to be Power of 2
 			const int N = nextPowerOfTwo(n); // Returns 'n' if input is already a power of 2.
+			
+			// TODO: How to best comute Blocks/BlockSize?
+			const int NUM_THREADS = n;
+			const int NUM_BLOCKS = 1;
 
 			// 1) Initialize Memory
 			int* dev_data = 0;
 			cudaMalloc(&dev_data, N * sizeof(int));
 			cudaMemset(dev_data + n, 0, (N - n) * sizeof(int));
-			checkCUDAError("CUDA memset 1 failed");
 			cudaMemcpy(dev_data, idata, n * sizeof(int), ::cudaMemcpyHostToDevice);
 
 			// 2) Upsweep
 			timer().startGpuTimer();
-			int* INSPECT = (int*)malloc(N * sizeof(int));
 			for (int d = 0; d <= ilog2ceil(N) - 1; d++) {
-				const int NUM_THREADS = N;
-				const int NUM_BLOCKS = 1;
-
-				// Kernel Call
-				cudaMemcpy(INSPECT, dev_data, N * sizeof(int), ::cudaMemcpyDeviceToHost);
 				kernWorkEffScanUpsweep<<<NUM_BLOCKS, NUM_THREADS>>>(n, d, dev_data, dev_data);
-				cudaMemcpy(INSPECT, dev_data, N * sizeof(int), ::cudaMemcpyDeviceToHost);
-				cudaDeviceSynchronize();
 			}
 
 			// 3) Downsweep
-			cudaMemset(dev_data + (N-1), 0, 1*sizeof(int));
-			checkCUDAError("CuDA memset 2 failed");
+			cudaMemset(dev_data + (N-1), 0, 1*sizeof(int)); // Set last element to 0
 			for (int d = ilog2ceil(N) - 1; d >= 0; d--) {
-				const int NUM_THREADS = N;
-				const int NUM_BLOCKS = 1;
-
-				// Kernel Call
-				cudaMemcpy(INSPECT, dev_data, N * sizeof(int), ::cudaMemcpyDeviceToHost);
-				kernWorkEffScanDownsweep << <NUM_BLOCKS, NUM_THREADS >> > (n, d, dev_data, dev_data);
-				cudaMemcpy(INSPECT, dev_data, N * sizeof(int), ::cudaMemcpyDeviceToHost);
-				cudaDeviceSynchronize();
+				kernWorkEffScanDownsweep<<<NUM_BLOCKS, NUM_THREADS>>>(n, d, dev_data, dev_data);
 			}
 			
 			// 4) Cleanup
