@@ -25,7 +25,7 @@ namespace StreamCompaction {
 		}
 		__global__ void right_shift(int n, int *odata, const int *idata, int amount) {
 			int index = blockDim.x * blockIdx.x + threadIdx.x;
-			if (index > n)
+			if (index >= n)
 				return;
 			if (index < amount)
 				odata[index] = 0;

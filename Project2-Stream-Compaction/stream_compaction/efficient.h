@@ -10,4 +10,9 @@ namespace StreamCompaction {
 
         int compact(int n, int *odata, const int *idata);
     }
+	namespace SharedMemory {
+		StreamCompaction::Common::PerformanceTimer& timer();
+
+		void scan(int n, int *odata, int *idata);
+	}
 }
