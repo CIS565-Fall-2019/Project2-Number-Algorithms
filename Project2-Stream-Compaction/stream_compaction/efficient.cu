@@ -257,5 +257,41 @@ namespace StreamCompaction {
 			delete block_offset;
 			timer().endGpuTimer();
 		}
+		void dev_scan(int n, int *dev_odata, int *dev_idata) {
+			timer().startGpuTimer();
+			// allocate pointers to memory and copy data over
+			int *dev_block_sum, *dev_block_offset;
+			int *block_sum, *block_offset;
+			int closest_pow2 = 1 << ilog2ceil(n);
+			int blocks = ceil((closest_pow2 + block_size - 1) / block_size);
+			// allocate buffers
+			// allocate block global buffers
+			cudaMalloc((void**)&dev_block_sum, blocks * sizeof(int)); // each block gets 1 number to fill in 
+			cudaMalloc((void**)&dev_block_offset, blocks * sizeof(int));
+			// cpu scan buffers
+			block_sum = new int[blocks]();
+			block_offset = new int[blocks]();
+			checkCUDAErrorWithLine("malloc failed!");
+			// copy over raw data
+			// large prescan, pre alloc shared memory
+			dev_scan << <blocks, (block_size >> 1) >> > (n, dev_odata, dev_idata, dev_block_sum); //todo maybe change back n to closest_pow2
+			checkCUDAErrorWithLine("prescan fn failed!");
+			// cpu scan the remaining blocks, because otherwise it could become recursive for large numbers
+			cudaMemcpy(block_sum, dev_block_sum, blocks * sizeof(int), cudaMemcpyDeviceToHost);
+			checkCUDAErrorWithLine("memcpy to cpu failed!");
+			StreamCompaction::CPU::scan(blocks, block_offset, block_sum);
+			// copy data back over to cuda
+			cudaMemcpy(dev_block_offset, block_offset, blocks * sizeof(int), cudaMemcpyHostToDevice);
+			checkCUDAErrorWithLine("memcpy from cpu failed!");
+			// add dev_block_offset to each block
+			add_offset << <blocks, block_size >> > (n, dev_odata, dev_block_offset);
+			checkCUDAErrorWithLine("add_offset fn failed!");
+			// free memory
+			cudaFree(dev_block_sum);
+			cudaFree(dev_block_offset);
+			delete block_sum;
+			delete block_offset;
+			timer().endGpuTimer();
+		}
 	}
 }

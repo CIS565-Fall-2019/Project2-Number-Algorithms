@@ -14,5 +14,6 @@ namespace StreamCompaction {
 		StreamCompaction::Common::PerformanceTimer& timer();
 
 		void scan(int n, int *odata, int *idata);
+		void dev_scan(int n, int *odata, int *idata);
 	}
 }
