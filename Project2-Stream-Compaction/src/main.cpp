@@ -12,9 +12,12 @@
 #include <stream_compaction/efficient.h>
 #include <stream_compaction/thrust.h>
 #include <stream_compaction/radix.h>
+#include <thrust/sort.h>
 #include "testing_helpers.hpp"
-#define max_value 50
-const int SIZE = 1 << 4; // feel free to change the size of array
+#define max_value_scan 50
+#define max_value_compaction 4
+#define max_value_sorting 500
+const int SIZE = 1<<15; // feel free to change the size of array
 const int NPOT = SIZE - 3; // Non-Power-Of-Two
 int *a = new int[SIZE];
 int *b = new int[SIZE];
@@ -28,7 +31,7 @@ int main(int argc, char* argv[]) {
     printf("** SCAN TESTS **\n");
     printf("****************\n");
 
-    genArray(SIZE - 1, a, max_value);  // Leave a 0 at the end to test that edge case
+    genArray(SIZE - 1, a, 50);  // Leave a 0 at the end to test that edge case
     a[SIZE - 1] = 0;
     printArray(SIZE, a, true);
 
@@ -111,7 +114,7 @@ int main(int argc, char* argv[]) {
 
     // Compaction tests
 
-    genArray(SIZE - 1, a, 4);  // Leave a 0 at the end to test that edge case
+    genArray(SIZE - 1, a, max_value_compaction);  // Leave a 0 at the end to test that edge case
     a[SIZE - 1] = 0;
     printArray(SIZE, a, true);
 
@@ -156,15 +159,37 @@ int main(int argc, char* argv[]) {
     //printArray(count, c, true);
     printCmpLenResult(count, expectedNPOT, b, c);
 
+
 	// radix sort tests
+	genArray(SIZE - 1, a, max_value_sorting);  // Leave a 0 at the end to test that edge case
+	a[SIZE - 1] = 0;
+	printArray(SIZE, a, true);
+	// generate 2 ground truths using thrust sort (one for powers of 2 and the other one for non powers of 2)
+	int *gt_pot = new int[SIZE]();
+	std::memcpy(gt_pot, a, SIZE * sizeof(int));
+	thrust::sort(gt_pot, gt_pot + SIZE);
+	int *gt_npot = new int[NPOT]();
+	std::memcpy(gt_npot, a, NPOT * sizeof(int));
+	thrust::sort(gt_npot, gt_npot + NPOT);
+
 	zeroArray(SIZE, c);
 	printDesc("radix sort, power-of-two");
-	Sorting::Radix::sort(SIZE, c, a, max_value);
+	Sorting::Radix::sort(SIZE, c, a, max_value_sorting);
 	printArray(SIZE, c, true);
-	printElapsedTime(StreamCompaction::Thrust::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
+	printCmpResult(SIZE, c, gt_pot);
+	printElapsedTime(Sorting::Radix::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
+
+	zeroArray(SIZE, c);
+	printDesc("radix sort, power-of-two");
+	Sorting::Radix::sort(NPOT, c, a, max_value_sorting);
+	printArray(NPOT, c, true);
+	printCmpResult(NPOT, c, gt_npot);
+	printElapsedTime(Sorting::Radix::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
 
     system("pause"); // stop Win32 console from closing on exit
 	delete[] a;
 	delete[] b;
 	delete[] c;
+	delete[] gt_pot;
+	delete[] gt_npot;
 }

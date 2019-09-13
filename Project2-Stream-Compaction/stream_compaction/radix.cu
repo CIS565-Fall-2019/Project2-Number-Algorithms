@@ -44,6 +44,7 @@ namespace Sorting {
 			return count;
 		}
 		void sort(int n, int *odata, int *idata, int max_value) {
+			timer().startGpuTimer();
 			int loop_count = countBits(max_value);//std::numeric_limits<int>::digits;
 			int mask = 1, total_falses, tmp;
 			int blocks = ceil((n + block_size - 1) / block_size);
@@ -78,6 +79,13 @@ namespace Sorting {
 			cudaFree(dev_mask);
 			cudaFree(dev_f);
 			cudaFree(dev_t);
+			timer().endGpuTimer();
+		}
+		using StreamCompaction::Common::PerformanceTimer;
+		PerformanceTimer& timer()
+		{
+			static PerformanceTimer timer;
+			return timer;
 		}
 	}
 }

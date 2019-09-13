@@ -4,6 +4,7 @@
 
 namespace Sorting {
 	namespace Radix {
+		StreamCompaction::Common::PerformanceTimer& timer();
 		void sort(int n, int *odata, int *idata, int max_value);
 	}
 }

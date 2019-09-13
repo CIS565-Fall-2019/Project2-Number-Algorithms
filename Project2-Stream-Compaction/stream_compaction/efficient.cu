@@ -253,8 +253,8 @@ namespace StreamCompaction {
 			cudaFree(dev_idata);
 			cudaFree(dev_block_sum);
 			cudaFree(dev_block_offset);
-			delete block_sum;
-			delete block_offset;
+			delete[] block_sum;
+			delete[] block_offset;
 			timer().endGpuTimer();
 		}
 		void dev_scan(int n, int *dev_odata, int *dev_idata) {
@@ -289,8 +289,8 @@ namespace StreamCompaction {
 			// free memory
 			cudaFree(dev_block_sum);
 			cudaFree(dev_block_offset);
-			delete block_sum;
-			delete block_offset;
+			delete[] block_sum;
+			delete[] block_offset;
 			timer().endGpuTimer();
 		}
 	}

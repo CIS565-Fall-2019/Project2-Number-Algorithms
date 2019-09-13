@@ -70,8 +70,8 @@ namespace StreamCompaction {
 					odata[scan_data[i] + 1] = idata[i]; 
 			}
 			int res = scan_data[n - 1];
-			delete scan_data;
-			delete mask;
+			delete[] scan_data;
+			delete[] mask;
 	        timer().endCpuTimer();
             return res;
         }
