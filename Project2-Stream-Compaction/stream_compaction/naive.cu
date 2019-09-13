@@ -82,7 +82,7 @@ namespace StreamCompaction {
 			dim3 tpb = dim3(threadsPerBlock);
 			dim3 bpg = dim3(BLOCKSIZE);
 
-            timer().startGpuTimer();
+
 			//Allocate memory
 			cudaMalloc((void**)& kern_idata, n * sizeof(int));
 			checkCUDAErrorFn("cudaMalloc kern_idata failed!\n", NULL, __LINE__);
@@ -93,11 +93,15 @@ namespace StreamCompaction {
 			cudaMemcpy(kern_idata, idata, n * sizeof(int), cudaMemcpyHostToDevice);
 			checkCUDAErrorFn("cudaMemcpy kern_idata failed!\n", NULL, __LINE__);
 
+			timer().startGpuTimer();
+
 
 			int numLevels = ilog2ceil(n);
 
 			kScan<<<tpb, bpg>>>(n, kern_idata, kern_odata, numLevels);
 			checkCUDAErrorFn("kScan failed!\n", NULL, __LINE__);
+
+			timer().endGpuTimer();
 
 			cudaMemcpy(odata, kern_odata, n * sizeof(int), cudaMemcpyDeviceToHost);
 			checkCUDAErrorFn("cudaMemcpy kern_odata failed!\n", NULL, __LINE__);
@@ -105,15 +109,6 @@ namespace StreamCompaction {
 			cudaFree(kern_idata);
 			cudaFree(kern_odata);
 
-            
-            timer().endGpuTimer();
-			/*
-			printf("NAIVE KERNEL:\n");
-			for (int i = 0; i < n; i++) {
-				printf("\tdata[%d]:\t%d\t%d\n", i, idata[i], odata[i]);
-
-			}//for
-			*/
         }
     }
 }

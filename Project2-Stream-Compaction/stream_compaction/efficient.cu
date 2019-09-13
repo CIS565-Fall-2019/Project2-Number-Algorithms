@@ -117,19 +117,11 @@ namespace StreamCompaction {
 		// CPU (MAIN) FUNCTIONS
 		//###########################
 
-        /**
-         * Performs prefix-sum (aka scan) on idata, storing the result into odata.
-         */
-        void scan(int n, int *odata, const int *idata) {
-            timer().startGpuTimer();
-			doscan(n, odata, idata);
-            timer().endGpuTimer();
-        }//scan
 
 		/**
-		* Does the actual work for scan; separated so it can be called by the stream compaction function (maybe)
+		* Performs prefix-sum (aka scan) on idata, storing the result into odata.
 		*/
-		void doscan(int n, int* odata, const int* idata) {
+		void scan(int n, int* odata, const int* idata) {
 			int numLevels = ilog2ceil(n);
 			int N = 1 << numLevels;//pad out to this many elements
 			int numToFake = N - n;
@@ -148,6 +140,8 @@ namespace StreamCompaction {
 			checkCUDAErrorFn("cudaMemcpy kern_idata failed!\n", NULL, __LINE__);
 			cudaMemcpy(&(kern_idata[n]), fakeZeroes, numToFake * sizeof(int), cudaMemcpyHostToDevice);
 
+			timer().startGpuTimer();
+
 			//Upsweep on kern_idata
 			upsweep<<<tpb, bpg>>>(N, numLevels, kern_idata);
 			checkCUDAErrorFn("upsweep failed!\n", NULL, __LINE__);
@@ -162,6 +156,8 @@ namespace StreamCompaction {
 			//actual downsweep
 			downsweep<<<tpb, bpg>>> (N, numLevels, kern_idata);
 			checkCUDAErrorFn("upsweep failed!\n", NULL, __LINE__);
+
+			timer().endGpuTimer();
 
 			cudaMemcpy(odata, kern_idata, n * sizeof(int), cudaMemcpyDeviceToHost);
 			checkCUDAErrorFn("cudaMemcpy kern_idata failed!\n", NULL, __LINE__);
@@ -181,13 +177,11 @@ namespace StreamCompaction {
          * @returns      The number of elements remaining after compaction.
          */
         int compact(int n, int *odata, const int *idata) {
-            timer().startGpuTimer();
+
 
 			int numLevels = ilog2ceil(n);
 			int N = 1 << numLevels;//pad out to this many elements
 			int numToFake = N - n;
-			int* fakeZeroes = (int*)malloc(numToFake * sizeof(int));
-			for (int i = 0; i < numToFake; i++) fakeZeroes[i] = 0;
 
 			int threadsPerBlock = (n + BLOCKSIZE - 1) / BLOCKSIZE;
 			dim3 tpb = dim3(threadsPerBlock);
@@ -202,9 +196,13 @@ namespace StreamCompaction {
 			checkCUDAErrorFn("cudaMalloc kern_idata failed!\n", NULL, __LINE__);
 			cudaMalloc((void**)& kern_tdata, N * sizeof(int));
 			checkCUDAErrorFn("cudaMalloc kern_odata failed!\n", NULL, __LINE__);
+			cudaMalloc((void**)& kern_odata, n * sizeof(int));
+			checkCUDAErrorFn("cudaMalloc kern_odata failed!\n", NULL, __LINE__);
 
 			cudaMemcpy(kern_idata, idata, n * sizeof(int), cudaMemcpyHostToDevice);
 			checkCUDAErrorFn("cudaMemcpy kern_idata failed!\n", NULL, __LINE__);
+
+			timer().startGpuTimer();
 
 			//make our temporary binary array
 			makeTempArray<<<tpbN, bpgN>>>(n, N, kern_idata, kern_tdata);
@@ -234,12 +232,11 @@ namespace StreamCompaction {
 			cudaMemcpy(&outputSize, &kern_tdata[n - 1], sizeof(int), cudaMemcpyDeviceToHost);
 			if (idata[n - 1]) outputSize++;//necessary because tdata holds the exclusive scan, not inclusive
 
-			//allocate our output array
-			cudaMalloc((void**)& kern_odata, outputSize * sizeof(int));
-			checkCUDAErrorFn("cudaMalloc kern_odata failed!\n", NULL, __LINE__);
 
 			//actually scatter
 			scatter<<<tpb, bpg>>>(n, kern_idata, kern_tdata, kern_odata);
+
+			timer().endGpuTimer();
 
 			cudaMemcpy(odata, kern_odata, outputSize * sizeof(int), cudaMemcpyDeviceToHost);
 			checkCUDAErrorFn("cudaMemcpy failed!\n", NULL, __LINE__);
@@ -252,7 +249,7 @@ namespace StreamCompaction {
 			cudaFree(kern_odata);
 			checkCUDAErrorFn("cudaFree failed!\n", NULL, __LINE__);
 
-            timer().endGpuTimer();
+
 			return outputSize;
         }
     }
