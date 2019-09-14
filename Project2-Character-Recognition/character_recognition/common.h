@@ -14,6 +14,9 @@
 #define FILENAME (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
 #define checkCUDAError(msg) checkCUDAErrorFn(msg, FILENAME, __LINE__)
 
+//Just guessing at what's appropriate here, will benchmark later (read: never)
+#define BLOCKSIZE 512
+
 typedef std::vector<uint8_t> uint8_v;
 
 /**
@@ -127,3 +130,19 @@ namespace Common {
 	    float prev_elapsed_time_gpu_milliseconds = 0.f;
     };
 }
+
+/**
+* This class wraps up various data we have regarding our input into one package
+*/
+class InputData {
+public:
+	InputData();//constructor
+	int value;//0-indexed "character value"
+	int numElements;
+	int width;
+	int height;
+	uint8_v data;
+
+public:
+	void fillArray(uint8_t* dest);
+};//InputData
