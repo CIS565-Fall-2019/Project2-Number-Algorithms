@@ -31,6 +31,9 @@ namespace StreamCompaction {
 			if (idata[index] != 0) {
 				bools[index] = 1;
 			}
+			else {
+				bools[index] = 0;
+			}
         }
 
         /**

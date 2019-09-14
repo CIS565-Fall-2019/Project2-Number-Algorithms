@@ -38,9 +38,6 @@ namespace StreamCompaction {
          * Performs prefix-sum (aka scan) on idata, storing the result into odata.
          */
         void scan(int n, int *odata, const int *idata) {
-            timer().startGpuTimer();
-			int iterations = ilog2ceil(n);
-
 			cudaMalloc((void**)&dev_A, n * sizeof(int));
 			checkCUDAErrorWithLine("cudaMalloc dev_A failed!");
 
@@ -49,27 +46,16 @@ namespace StreamCompaction {
 
 			cudaMemcpy(dev_A, idata, sizeof(int) * n, cudaMemcpyHostToDevice);
 
+			timer().startGpuTimer();
+			int iterations = ilog2ceil(n);
 			for (int d = 1; d <= iterations; d++) {
 				dim3 fullBlocksPerGrid((n + blockSize - 1) / blockSize);
 				updateSum << <fullBlocksPerGrid, blockSize >> > (n, d, dev_A, dev_B);
 				std::swap(dev_A, dev_B);
-				/*if (d % 2 == 0) {
-					updateSum << <fullBlocksPerGrid, blockSize >> > (n, d, dev_A, dev_B);
-				}
-				else {
-					updateSum << <fullBlocksPerGrid, blockSize >> > (n, d, dev_B, dev_A);
-				}*/
 			}
-
-			/*if ((iterations) % 2 == 0) {
-				cudaMemcpy(odata, dev_B, sizeof(int) * n, cudaMemcpyDeviceToHost);
-			}
-			else {
-				cudaMemcpy(odata, dev_A, sizeof(int) * n, cudaMemcpyDeviceToHost);
-			}*/
-			cudaMemcpy(odata+1, dev_A, sizeof(int) * (n-1), cudaMemcpyDeviceToHost);
-			odata[0] = 0;
             timer().endGpuTimer();
+			cudaMemcpy(odata + 1, dev_A, sizeof(int) * (n - 1), cudaMemcpyDeviceToHost);
+			odata[0] = 0;
         }
     }
 }
