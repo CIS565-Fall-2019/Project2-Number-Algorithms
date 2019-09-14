@@ -17,7 +17,7 @@ namespace StreamCompaction {
         __global__ void kernMapToBoolean(int N, int* arr, int* boolArr)
         {
             int index = (blockIdx.x * blockDim.x) + threadIdx.x;
-            if (index > N) return;
+            if (index >= N) return;
 
             boolArr[index] = arr[index];
             if (boolArr[index] != 0)
@@ -29,10 +29,10 @@ namespace StreamCompaction {
         __global__ void kernUpSweep(int N, int d, int* arr)
         {
             int index = (blockIdx.x * blockDim.x) + threadIdx.x;
-            if (index > N) return;
+            if (index >= N) return;
 
-            int powDPlus = pow(float(2), float(d + 1));
-            int powD = pow(float(2), float(d));
+            int powDPlus = 1 << (d+1);
+            int powD = 1 << d;
 
             if (index % powDPlus == 0)
             {
@@ -49,8 +49,8 @@ namespace StreamCompaction {
             int index = (blockIdx.x * blockDim.x) + threadIdx.x;
             if (index > N) return;
 
-            int powDPlus = pow(float(2), float(d + 1));
-            int powD = pow(float(2), float(d));
+            int powDPlus = 1 << (d + 1);
+            int powD = 1 << d;
 
             if (index % powDPlus == 0)
             {
@@ -63,7 +63,7 @@ namespace StreamCompaction {
         __global__ void kernInclusiveToExclusive(int N, int* arr)
         {
             int index = (blockIdx.x * blockDim.x) + threadIdx.x;
-            if (index > N) return;
+            if (index >= N) return;
 
             arr[index] -= arr[0];
         }
@@ -71,7 +71,7 @@ namespace StreamCompaction {
         __global__ void kernScatter(int N, int* idata, int* boolArr, int* scanArr, int* odata)
         {
             int index = (blockIdx.x * blockDim.x) + threadIdx.x;
-            if (index > N) return;
+            if (index >= N) return;
 
             if (boolArr[index] == 1)
             {
@@ -84,10 +84,18 @@ namespace StreamCompaction {
          * Performs prefix-sum (aka scan) on idata, storing the result into odata.
          */
         void scan(int n, int *odata, const int *idata) {
+            int pow2Length = 1 << ilog2ceil(n);
+            int* idataPow2 = new int[pow2Length];
+            memcpy(idataPow2, idata, n * sizeof(int));
+            for (int i = n; i < pow2Length; i++)
+            {
+                idataPow2[i] = 0;
+            }
+
             int* dev_arr;
 
-            cudaMalloc((void**)&dev_arr, n * sizeof(int));
-            cudaMemcpy(dev_arr, idata, sizeof(int) * n, cudaMemcpyHostToDevice);
+            cudaMalloc((void**)&dev_arr, pow2Length * sizeof(int));
+            cudaMemcpy(dev_arr, idataPow2, sizeof(int) * n, cudaMemcpyHostToDevice);
             
             timer().startGpuTimer();
             
@@ -103,9 +111,9 @@ namespace StreamCompaction {
 
             kernInclusiveToExclusive << <n, blockSize >> > (n, dev_arr);
 
-            cudaMemcpy(odata, dev_arr, sizeof(int) * n, cudaMemcpyDeviceToHost);
-
             timer().endGpuTimer();
+
+            cudaMemcpy(odata, dev_arr, sizeof(int) * n, cudaMemcpyDeviceToHost);
 
             cudaFree(dev_arr);
         }
