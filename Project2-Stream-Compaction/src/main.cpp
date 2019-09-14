@@ -17,8 +17,8 @@
 #define max_value_scan 50
 #define max_value_compaction 4
 #define max_value_sorting 500
-const int SIZE = 1<<15; // feel free to change the size of array
-const int NPOT = SIZE - 3; // Non-Power-Of-Two
+const unsigned long int SIZE = 1<<15; // feel free to change the size of array
+const unsigned long unsigned long int NPOT = SIZE - 3; // Non-Power-Of-Two
 int *a = new int[SIZE];
 int *b = new int[SIZE];
 int *c = new int[SIZE];
@@ -118,7 +118,7 @@ int main(int argc, char* argv[]) {
     a[SIZE - 1] = 0;
     printArray(SIZE, a, true);
 
-    int count, expectedCount, expectedNPOT;
+	unsigned long int count, expectedCount, expectedNPOT;
 
     // initialize b using StreamCompaction::CPU::compactWithoutScan you implement
     // We use b for further comparison. Make sure your StreamCompaction::CPU::compactWithoutScan is correct.
@@ -159,11 +159,15 @@ int main(int argc, char* argv[]) {
     //printArray(count, c, true);
     printCmpLenResult(count, expectedNPOT, b, c);
 
-
+	printf("\n");
+	printf("*****************************\n");
+	printf("** RADIX SORT TESTS **\n");
+	printf("*****************************\n");
 	// radix sort tests
 	genArray(SIZE - 1, a, max_value_sorting);  // Leave a 0 at the end to test that edge case
 	a[SIZE - 1] = 0;
 	printArray(SIZE, a, true);
+	printf("Data generation and results computed using thrust\n");
 	// generate 2 ground truths using thrust sort (one for powers of 2 and the other one for non powers of 2)
 	int *gt_pot = new int[SIZE]();
 	std::memcpy(gt_pot, a, SIZE * sizeof(int));

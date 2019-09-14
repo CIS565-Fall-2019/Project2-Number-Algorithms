@@ -17,7 +17,7 @@ namespace StreamCompaction {
         /**
          * Performs prefix-sum (aka scan) on idata, storing the result into odata.
          */
-        void scan(int n, int *odata, const int *idata) {
+        void scan(unsigned long int n, int *odata, const int *idata) {
             timer().startGpuTimer();
 			int *dev_odata, *dev_idata;
 			cudaMalloc((void**)&dev_odata, n * sizeof(int));

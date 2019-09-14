@@ -18,17 +18,17 @@ namespace StreamCompaction {
 			return timer;
 		}
 		/*2 scan phases, see (link)[https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch39.html] for more details*/
-		__global__ void reduce_parallel(int n, int *data, int d) {
-			int tmp_d = 1 << (d + 1);
-			int index = (blockDim.x * blockIdx.x + threadIdx.x)*tmp_d;
+		__global__ void reduce_parallel(unsigned long int n, int *data, int d) {
+			unsigned long int tmp_d = 1 << (d + 1);
+			unsigned long int index = (blockDim.x * blockIdx.x + threadIdx.x)*tmp_d;
 			if (index >= n )
 				return;
 			data[index + tmp_d - 1] += data[index + (tmp_d>>1) - 1];
 		}
 
-		__global__ void downsweep_parallel(int n, int *data, int d) {
-			int new_d = 1<<(d + 1);
-			int index = (blockDim.x * blockIdx.x + threadIdx.x)*new_d;
+		__global__ void downsweep_parallel(unsigned long int n, int *data, int d) {
+			unsigned long int new_d = 1<<(d + 1);
+			unsigned long int index = (blockDim.x * blockIdx.x + threadIdx.x)*new_d;
 			if (index >= n)
 				return;
 			int t = data[index + (new_d>>1) - 1];
@@ -38,12 +38,12 @@ namespace StreamCompaction {
 		/**
 		 * Performs prefix-sum (aka scan) on idata, storing the result into odata.
 		 */
-		void scan(int n, int *odata, const int *idata) {
+		void scan(unsigned long int n, int *odata, const int *idata) {
 			timer().startGpuTimer();
 			// allocate pointers to memory and copy data over
 			int *dev_odata;
-			int blocks = 0;
-			int closest_pow2 = 1<<ilog2ceil(n);
+			unsigned long int blocks = 0;
+			unsigned long int closest_pow2 = 1<<ilog2ceil(n);
 			cudaMalloc((void**)&dev_odata, closest_pow2 * sizeof(int));
 			checkCUDAErrorWithLine("malloc failed!");
 			cudaMemcpy(dev_odata, idata, n * sizeof(int), cudaMemcpyHostToDevice);
@@ -59,7 +59,7 @@ namespace StreamCompaction {
 			// down-sweep phase
 			// zero last value
 			cudaMemset(dev_odata + (closest_pow2 - 1), 0, 1 * sizeof(int));
-			for (int d = ceil(log2(closest_pow2) - 1); d >= 0; d--) {
+			for (int d = ilog2ceil(closest_pow2) - 1; d >= 0; d--) {
 				blocks = ceil((closest_pow2 / (1 << (d + 1)) + block_size - 1) / block_size);
 				downsweep_parallel <<<blocks, block_size >>> (closest_pow2, dev_odata, d);
 				checkCUDAErrorWithLine("downsweep phase failed!");
@@ -71,10 +71,10 @@ namespace StreamCompaction {
 		}
 
 		/*Copy of scan but only works with cuda pointers*/
-		void dev_scan(int n, int *dev_odata) {
+		void dev_scan(unsigned long int n, int *dev_odata) {
 			// allocate pointers to memory and copy data over
-			int blocks = 0;
-			int closest_pow2 = 1 << ilog2ceil(n);
+			unsigned long int blocks = 0;
+			unsigned long int closest_pow2 = 1 << ilog2ceil(n);
 			// reduce phase
 			// so we dont need to do the last round of computation because we zero it anyway
 			for (int d = 0; d <= ilog2ceil(closest_pow2) - 2; d++) {
@@ -102,11 +102,11 @@ namespace StreamCompaction {
 		 * @param idata  The array of elements to compact.
 		 * @returns      The number of elements remaining after compaction.
 		 */
-		int compact(int n, int *odata, const int *idata) {
+		unsigned long int compact(unsigned long int n, int *odata, const int *idata) {
 			timer().startGpuTimer();
-			int closest_pow2 = 1<<ilog2ceil(n);
+			unsigned long int closest_pow2 = 1<<ilog2ceil(n);
 			int *dev_idata, *dev_odata, *dev_mask, *dev_indices;
-			int blocks = ceil((closest_pow2 + block_size - 1) / block_size);
+			unsigned long int blocks = ceil((closest_pow2 + block_size - 1) / block_size);
 			cudaMalloc((void**)&dev_idata, closest_pow2 * sizeof(int));
 			cudaMalloc((void**)&dev_odata, closest_pow2 * sizeof(int));
 			cudaMalloc((void**)&dev_mask, closest_pow2 * sizeof(int));
@@ -147,30 +147,30 @@ namespace StreamCompaction {
 		#define LOG_NUM_BANKS 4
 		#define CONFLICT_FREE_OFFSET(n) \
 			((n) >> NUM_BANKS + (n) >> (2 * LOG_NUM_BANKS))
-		__global__ void dev_scan(int n, int *dev_odata, int *dev_idata, int *dev_block_sum)
+		__global__ void dev_scan(unsigned long int n, int *dev_odata, int *dev_idata, int *dev_block_sum)
 		{
 			/* Extriemly heavly based on https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch39.html
 			   Main change is to use block_size instead of n and then put the sums of each block into a new array and scaning the array
 			*/
 			// Declare Share Memory
 			__shared__ int temp[block_size + NUM_BANKS];
-			int thid = threadIdx.x;
-			int bid = blockIdx.x;
-			int scan_offset = bid * block_size;
+			unsigned long int thid = threadIdx.x;
+			unsigned long int bid = blockIdx.x;
+			unsigned long int scan_offset = bid * block_size;
 			int offset = 1; // to make this an exclusive scan
-			int ai = thid<<1;
-			int bi = ai + 1;
-			int bankOffsetA = CONFLICT_FREE_OFFSET(ai);
-			int bankOffsetB = CONFLICT_FREE_OFFSET(bi);
+			unsigned long int ai = thid<<1;
+			unsigned long int bi = ai + 1;
+			unsigned long int bankOffsetA = CONFLICT_FREE_OFFSET(ai);
+			unsigned long int bankOffsetB = CONFLICT_FREE_OFFSET(bi);
 			temp[ai + bankOffsetA] = dev_idata[ai + scan_offset];
 			temp[bi + bankOffsetB] = dev_idata[bi + scan_offset];
-			for (int d = block_size >> 1; d > 0; d >>= 1)                    // build sum in place up the tree
+			for (unsigned long int d = block_size >> 1; d > 0; d >>= 1)                    // build sum in place up the tree
 			{
 				__syncthreads();
 				if (thid < d)
 				{
-					int ai = offset * ((thid<<1) + 1) - 1;
-					int bi = offset * ((thid << 1) + 2) - 1;
+					unsigned long int ai = offset * ((thid<<1) + 1) - 1;
+					unsigned long int bi = offset * ((thid << 1) + 2) - 1;
 					ai += CONFLICT_FREE_OFFSET(ai);
 					bi += CONFLICT_FREE_OFFSET(bi);
 					temp[bi] += temp[ai];
@@ -185,14 +185,14 @@ namespace StreamCompaction {
 				temp[block_size - 1 + CONFLICT_FREE_OFFSET(block_size - 1)] = 0; 
 			}
 			// downsweep
-			for (int d = 1; d < block_size; d<<=1) // traverse down tree & build scan
+			for (unsigned long int d = 1; d < block_size; d<<=1) // traverse down tree & build scan
 			{
 				offset >>= 1;
 				__syncthreads();
 				if (thid < d)
 				{
-					int ai = offset * ((thid << 1) + 1) - 1;
-					int bi = offset * ((thid << 1) + 2) - 1;
+					unsigned long int ai = offset * ((thid << 1) + 1) - 1;
+					unsigned long int bi = offset * ((thid << 1) + 2) - 1;
 					ai += CONFLICT_FREE_OFFSET(ai);
 					bi += CONFLICT_FREE_OFFSET(bi);
 					float t = temp[ai];
@@ -204,22 +204,22 @@ namespace StreamCompaction {
 			dev_odata[ai + scan_offset] = temp[ai + bankOffsetA];
 			dev_odata[bi + scan_offset] = temp[bi + bankOffsetB];
 		}
-		__global__ void add_offset(int n, int *data, int *dev_block_offset) {
-			int bid = blockIdx.x;
-			int index = blockDim.x * bid + threadIdx.x;
+		__global__ void add_offset(unsigned long int n, int *data, int *dev_block_offset) {
+			unsigned long int bid = blockIdx.x;
+			unsigned long int index = blockDim.x * bid + threadIdx.x;
 			if (index >= n)
 				return;
 			// add value to current section
 			if (bid != 0) // to save a bunch of useless reads and write
 				data[index] += dev_block_offset[bid];
 		}
-		void scan(int n, int *odata, int *idata) {
+		void scan(unsigned long int n, int *odata, int *idata) {
 			timer().startGpuTimer();
 			// allocate pointers to memory and copy data over
 			int *dev_odata, *dev_idata, *dev_block_sum, *dev_block_offset;
 			int *block_sum, *block_offset;
-			int closest_pow2 = 1 << ilog2ceil(n);
-			int blocks = ceil((closest_pow2 + block_size - 1) / block_size);
+			unsigned long int closest_pow2 = 1 << ilog2ceil(n);
+			unsigned long int blocks = ceil((closest_pow2 + block_size - 1) / block_size);
 			// allocate buffers
 			cudaMalloc((void**)&dev_odata, closest_pow2 * sizeof(int));
 			cudaMalloc((void**)&dev_idata, closest_pow2 * sizeof(int));
@@ -257,13 +257,13 @@ namespace StreamCompaction {
 			delete[] block_offset;
 			timer().endGpuTimer();
 		}
-		void dev_scan(int n, int *dev_odata, int *dev_idata) {
+		void dev_scan(unsigned long int n, int *dev_odata, int *dev_idata) {
 			timer().startGpuTimer();
 			// allocate pointers to memory and copy data over
 			int *dev_block_sum, *dev_block_offset;
 			int *block_sum, *block_offset;
-			int closest_pow2 = 1 << ilog2ceil(n);
-			int blocks = ceil((closest_pow2 + block_size - 1) / block_size);
+			unsigned long int closest_pow2 = 1 << ilog2ceil(n);
+			unsigned long int blocks = ceil((closest_pow2 + block_size - 1) / block_size);
 			// allocate buffers
 			// allocate block global buffers
 			cudaMalloc((void**)&dev_block_sum, blocks * sizeof(int)); // each block gets 1 number to fill in 

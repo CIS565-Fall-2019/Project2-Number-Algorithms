@@ -6,14 +6,14 @@ namespace StreamCompaction {
     namespace Efficient {
         StreamCompaction::Common::PerformanceTimer& timer();
 
-        void scan(int n, int *odata, const int *idata);
+        void scan(unsigned long int n, int *odata, const int *idata);
 
-        int compact(int n, int *odata, const int *idata);
+		unsigned long int compact(unsigned long int n, int *odata, const int *idata);
     }
 	namespace SharedMemory {
 		StreamCompaction::Common::PerformanceTimer& timer();
 
-		void scan(int n, int *odata, int *idata);
-		void dev_scan(int n, int *odata, int *idata);
+		void scan(unsigned long int n, int *odata, int *idata);
+		void dev_scan(unsigned long int n, int *odata, int *idata);
 	}
 }

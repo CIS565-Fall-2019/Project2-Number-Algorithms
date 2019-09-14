@@ -14,8 +14,8 @@ namespace StreamCompaction {
             return timer;
         }
         // TODO: __global__
-		__global__ void naive_parallel_scan(int n, int *odata, const int *idata, int d) {
-			int index = blockDim.x * blockIdx.x + threadIdx.x;
+		__global__ void naive_parallel_scan(unsigned long int n, int *odata, const int *idata, int d) {
+			unsigned long int index = blockDim.x * blockIdx.x + threadIdx.x;
 			if (index >= n)
 				return;
 			if (index >= d)
@@ -23,8 +23,8 @@ namespace StreamCompaction {
 			else
 				odata[index] = idata[index];
 		}
-		__global__ void right_shift(int n, int *odata, const int *idata, int amount) {
-			int index = blockDim.x * blockIdx.x + threadIdx.x;
+		__global__ void right_shift(unsigned long int n, int *odata, const int *idata, int amount) {
+			unsigned long int index = blockDim.x * blockIdx.x + threadIdx.x;
 			if (index >= n)
 				return;
 			if (index < amount)
@@ -35,10 +35,10 @@ namespace StreamCompaction {
         /**
          * Performs prefix-sum (aka scan) on idata, storing the result into odata.
          */
-        void scan(int n, int *odata, const int *idata) {
+        void scan(unsigned long int n, int *odata, const int *idata) {
             timer().startGpuTimer();
 			int blocksize = 128;
-			int blocks = (n + blocksize - 1) / blocksize;
+			unsigned long int blocks = (n + blocksize - 1) / blocksize;
 			// allocate data
 			int *dev_odata, *dev_odata_2;
 			cudaMalloc((void**)&dev_odata, n * sizeof(int));
@@ -48,8 +48,8 @@ namespace StreamCompaction {
 			// copy data over
 			cudaMemcpy(dev_odata, idata, n*sizeof(int), cudaMemcpyHostToDevice);
 			checkCUDAErrorWithLine("memcpy failed!");
-			int uppper_limit = 1 << ilog2ceil(n);
-			for (int d = 1; d <= uppper_limit; d<<=1) {
+			unsigned long int uppper_limit = 1 << ilog2ceil(n);
+			for (unsigned long int d = 1; d <= uppper_limit; d<<=1) {
 				naive_parallel_scan <<<blocks, blocksize >> > (n, dev_odata_2, dev_odata, d);
 				checkCUDAErrorWithLine("fn failed!");
 				std::swap(dev_odata, dev_odata_2);

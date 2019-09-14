@@ -8,20 +8,20 @@
 namespace Sorting {
 	namespace Radix {
 		#define block_size 128
-		__global__ void mask_generation(int n, int *dev_mask, int *dev_idata, int bitmask) {
-			int index = blockDim.x * blockIdx.x + threadIdx.x;
+		__global__ void mask_generation(unsigned long int n, int *dev_mask, int *dev_idata, int bitmask) {
+			unsigned long int index = blockDim.x * blockIdx.x + threadIdx.x;
 			if (index >= n)
 				return;
 			dev_mask[index] = !((bool)(dev_idata[index] & bitmask));
 		}
-		__global__ void true_index_generation(int n, int *dev_t, int *dev_f, int total_falses) {
-			int index = blockDim.x * blockIdx.x + threadIdx.x;
+		__global__ void true_index_generation(unsigned long int n, int *dev_t, int *dev_f, int total_falses) {
+			unsigned long int index = blockDim.x * blockIdx.x + threadIdx.x;
 			if (index >= n)
 				return;
 			dev_t[index] = index - dev_f[index] + total_falses;
 		}
-		__global__ void reshuffle_mask(int n, int *dev_odata, int *dev_idata, int *dev_t, int *dev_f, int mask) {
-			int index = blockDim.x * blockIdx.x + threadIdx.x;
+		__global__ void reshuffle_mask(unsigned long int n, int *dev_odata, int *dev_idata, int *dev_t, int *dev_f, int mask) {
+			unsigned long int index = blockDim.x * blockIdx.x + threadIdx.x;
 			if (index >= n)
 				return;
 			int data = dev_idata[index];
@@ -43,11 +43,12 @@ namespace Sorting {
 			}
 			return count;
 		}
-		void sort(int n, int *odata, int *idata, int max_value) {
+		void sort(unsigned long int n, int *odata, int *idata, int max_value) {
 			timer().startGpuTimer();
 			int loop_count = countBits(max_value);//std::numeric_limits<int>::digits;
-			int mask = 1, total_falses, tmp;
-			int blocks = ceil((n + block_size - 1) / block_size);
+			int mask = 1;
+			unsigned long int total_falses, tmp;
+			unsigned long int blocks = ceil((n + block_size - 1) / block_size);
 			int *dev_data, *dev_f, *dev_t, *dev_data2;
 			int *dev_mask;
 			cudaMalloc((void**)&dev_data, n*sizeof(int));

@@ -18,23 +18,23 @@
  */
 void checkCUDAErrorFn(const char *msg, const char *file = NULL, int line = -1);
 
-inline int ilog2(int x) {
-    int lg = 0;
+inline int ilog2(unsigned long int x) {
+	unsigned long int lg = 0;
     while (x >>= 1) {
         ++lg;
     }
     return lg;
 }
 
-inline int ilog2ceil(int x) {
+inline int ilog2ceil(unsigned long int x) {
     return x == 1 ? 0 : ilog2(x - 1) + 1;
 }
 
 namespace StreamCompaction {
     namespace Common {
-        __global__ void kernMapToBoolean(int n, int *bools, const int *idata);
+        __global__ void kernMapToBoolean(unsigned long int n, int *bools, const int *idata);
 
-        __global__ void kernScatter(int n, int *odata,
+        __global__ void kernScatter(unsigned long int n, int *odata,
                 const int *idata, const int *bools, const int *indices);
 
 	    /**
