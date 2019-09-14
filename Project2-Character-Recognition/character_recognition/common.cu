@@ -13,3 +13,4 @@ void checkCUDAErrorFn(const char *msg, const char *file, int line) {
     fprintf(stderr, ": %s: %s\n", msg, cudaGetErrorString(err));
     exit(EXIT_FAILURE);
 }
+

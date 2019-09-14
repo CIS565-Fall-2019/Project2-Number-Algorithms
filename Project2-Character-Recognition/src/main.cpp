@@ -10,10 +10,9 @@
 #include <character_recognition/mlp.h>
 #include <character_recognition/common.h>
 #include "testing_helpers.hpp"
-#include <cublas.h>
 
-#define HIDDEN_LAYER_SIZE 100
-#define NUMBER_OF_CLASSES 52
+#define HIDDEN_LAYER_SIZE 5
+#define NUMBER_OF_CLASSES 8
 
 #define LEARNING_RATE 0.01
 #define NUMBER_OF_EPOCHS 100
@@ -22,12 +21,12 @@ int main(int argc, char* argv[]) {
 	//Load data to arrays
 	float* input;
 	int* true_labels;
-
+	printf("MAIN \n");
 	//Initialize network
-	CharacterRecognition::initialize_network(NUMBER_OF_CLASSES, HIDDEN_LAYER_SIZE, LEARNING_RATE);
+	CharacterRecognition::initialize_network(10, 50, NUMBER_OF_CLASSES, HIDDEN_LAYER_SIZE, LEARNING_RATE);
 
 	//Call training loop
-	CharacterRecognition::train(input, true_labels, NUMBER_OF_EPOCHS);
+	//CharacterRecognition::train(input, true_labels, NUMBER_OF_EPOCHS);
 
 	
 

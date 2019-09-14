@@ -13,6 +13,6 @@ namespace CharacterRecognition {
 	void initialize_network(int classes, int hidden_size, int lr);
 	float train(float* input, int* true_labels, int number_of_epochs);
 	float test(float* test_input);*/
-	void initialize_network(int classes, int hidden_size, int lr);
+	void initialize_network(int instances, int features, int classes, int hidden_size, int lr);
 	float train(float* input, int* true_labels, int number_of_epochs);
 }
