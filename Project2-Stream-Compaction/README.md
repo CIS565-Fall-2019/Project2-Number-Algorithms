@@ -11,7 +11,7 @@ CUDA Stream Compaction
 
 ### Output Screenshots(2^14 elements)
 
-![](img/screen_shot_output.png)
+![](img/screen_shot_output.PNG)
 
 
 
