@@ -83,9 +83,8 @@ namespace StreamCompaction {
                 }
             
             }
-	        // TODO
 	        timer().endCpuTimer();
-            int returned_val = scattered_array[n - 1] + bool_array[n-1]; //index start from 0
+            int returned_val = scattered_array[n - 1]; //the scan gives us the length of the output array
             free(bool_array);
             free(scattered_array);
             return returned_val;
