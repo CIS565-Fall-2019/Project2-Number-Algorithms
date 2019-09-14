@@ -50,6 +50,11 @@ InputData readFile(std::string filename) {
 
 		retval.data.push_back((uint8_t)nextval);
 	}//for
+	for (int i = 0; i < retval.numElements; i++) {
+		retval.fData.push_back((float)(retval.data[i] / 255.0));
+	}//for
+
+	retval.fillActivationArray(&(retval.resultArray));
 
 	std::fclose(infile);
 
@@ -66,12 +71,29 @@ InputData readFile(std::string filename) {
 //###############################
 int main(int argc, char* argv[]) {
 
-	fs::path trialPath = rootPath / fs::path("01info.txt");
+	InputData_v allRecords = InputData_v();
 
-	InputData testData = readFile(trialPath.string());
+	fs::path trialPath;
+	InputData testData;
+	trialPath = rootPath / fs::path("01info.txt");
+	testData = readFile(trialPath.string());
+	allRecords.push_back(testData);
+	trialPath = rootPath / fs::path("02info.txt");
+	testData = readFile(trialPath.string());
+	allRecords.push_back(testData);
+	trialPath = rootPath / fs::path("03info.txt");
+	testData = readFile(trialPath.string());
+	allRecords.push_back(testData);
+	trialPath = rootPath / fs::path("04info.txt");
+	testData = readFile(trialPath.string());
+	allRecords.push_back(testData);
+	trialPath = rootPath / fs::path("05info.txt");
+	testData = readFile(trialPath.string());
+	allRecords.push_back(testData);
 
-	CharacterRecognition::testMatrixMultiply();
+	float resultArray[52] = {};
 
+	CharacterRecognition::trainWeights(allRecords, 1000);
 
 
 }//main

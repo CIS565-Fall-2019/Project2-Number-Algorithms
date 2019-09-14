@@ -6,7 +6,37 @@
 namespace CharacterRecognition {
     Common::PerformanceTimer& timer();
 
-	void testMatrixMultiply();
+	void kmallocBuffers(int inputSize, int resultSize);
+	void kfreeBuffers();
+
+	/**
+	Fills the buffer with random values between the two provided values
+	*/
+	void gpuFillRand(float* A, int nr_rows_A, int nr_cols_A, float lo = 0.0, float hi = 1.0);
+
+	/**
+	Does the necessary model training so it can recognize characters, hopefully
+
+	@param records Array full of records to be used as training data
+	@param numIterations How many times to run the forward/back propagation
+	*/
+	void trainWeights(InputData_v records, int numIterations = 100);
+
+	/**
+	Forward-propagate in host memory space
+	Returns an array with the error bars
+	*/
+	float_v forwardPropagateH(InputData x, float* resultArray, cublasHandle_t* handle = NULL);
+
+	/**
+	Gives the error value between the two data points
+	*/
+	float_v calcErrorSingle(InputData record, float* resultArray, float* kResultArray = NULL);
+
+	/**
+	Calculates the sum of all run error functions, squared
+	*/
+	float_v calcSumSquareErrors(float_vv errorVals);
 
 	/**
 	Transposes A "in place" in kernel space
@@ -26,5 +56,5 @@ namespace CharacterRecognition {
 	*/
 	void matMul(cublasHandle_t* handle, const float* A, const float* B, float* C, int m, int k, int n, float* Cswap = NULL);
 
-    // TODO: implement required elements for MLP sections 1 and 2 here
+
 }

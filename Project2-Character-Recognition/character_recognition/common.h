@@ -17,7 +17,9 @@
 //Just guessing at what's appropriate here, will benchmark later (read: never)
 #define BLOCKSIZE 512
 
-typedef std::vector<uint8_t> uint8_v;
+typedef std::vector<uint8_t>	uint8_v;
+typedef std::vector<float>		float_v;
+typedef std::vector<float_v>	float_vv;
 
 /**
  * Check for CUDA errors; print and exit if there was a problem.
@@ -142,7 +144,20 @@ public:
 	int width;
 	int height;
 	uint8_v data;
+	float_v fData;
+	float_v resultArray;
 
 public:
+	/**
+	Puts the stored internal data into a regular array
+	Assumes enough memory has been allocated
+	*/
 	void fillArray(uint8_t* dest);
+	/**
+	Creates a "correct" activation array,
+	Which is all zeroes except where our feature is
+	*/
+	void fillActivationArray(float_v* dest);
 };//InputData
+
+typedef std::vector<InputData> InputData_v;
