@@ -83,10 +83,66 @@ namespace StreamCompaction {
          * @returns      The number of elements remaining after compaction.
          */
         int compact(int n, int *odata, const int *idata) {
+			const int NUM_THREADS = n;
+			const int NUM_BLOCKS = 1;
+
+			// Sim8ilar to CPU implementation, except we use CUDA kernels
+			// instead of for-loops
+
+			// 0) Correct length to be Power of 2
+			const int N = nextPowerOfTwo(n); // Returns 'n' if input is already a power of 2.
+
+			int* INSPECT = (int*)malloc(N * sizeof(int));
+
+			// Prepare memory
+			int* dev_odata;
+			int* dev_idata;
+			int* dev_map;
+			int* dev_indicies;
+
+			cudaMalloc(&dev_odata, N * sizeof(int));
+			cudaMalloc(&dev_idata, N * sizeof(int));
+			cudaMalloc(&dev_map, N * sizeof(int));
+			cudaMalloc(&dev_indicies, N * sizeof(int));
+
+			cudaMemcpy(dev_idata, idata, N * sizeof(int), ::cudaMemcpyHostToDevice);
+
             timer().startGpuTimer();
-            // TODO
+            // 1) Map
+			Common::kernMapToBoolean << <NUM_BLOCKS, NUM_THREADS >> > (N, dev_map, dev_idata);
+			cudaMemcpy(INSPECT, dev_idata, N * sizeof(int), ::cudaMemcpyDeviceToHost);
+			cudaMemcpy(INSPECT, dev_map, N * sizeof(int), ::cudaMemcpyDeviceToHost);
+
+			// 2) Scan
+			// 2a) Upsweep
+			cudaMemcpy(dev_indicies, dev_map, N * sizeof(int), ::cudaMemcpyDeviceToDevice);
+			for (int d = 0; d <= ilog2ceil(N) - 1; d++) {
+				kernWorkEffScanUpsweep << <NUM_BLOCKS, NUM_THREADS >> > (N, d, dev_indicies, dev_indicies);
+			}
+			// 2b) Downsweep
+			cudaMemset(dev_indicies + (N - 1), 0, 1 * sizeof(int)); // Set last element to 0
+			for (int d = ilog2ceil(N) - 1; d >= 0; d--) {
+				kernWorkEffScanDownsweep << <NUM_BLOCKS, NUM_THREADS >> > (N, d, dev_indicies, dev_indicies);
+			}
+			cudaMemcpy(INSPECT, dev_indicies, N * sizeof(int), ::cudaMemcpyDeviceToHost);
+
+			// 3) Scatter
+			Common::kernScatter << <NUM_BLOCKS, NUM_THREADS >> > (N, dev_odata, dev_idata, dev_map, dev_indicies);
             timer().endGpuTimer();
-            return -1;
+
+			// Copy back to host
+			cudaMemcpy(odata, dev_odata, N * sizeof(int), ::cudaMemcpyDeviceToHost);
+
+			// Get number of elements from indicies
+			int num_elements = 0;
+			cudaMemcpy(&num_elements, dev_indicies + N - 1, sizeof(int), ::cudaMemcpyDeviceToHost);
+
+			cudaFree(dev_odata);
+			cudaFree(dev_idata);
+			cudaFree(dev_map);
+			cudaFree(dev_indicies);
+
+            return num_elements;
         }
 
 		__global__ void kernWorkEffScanUpsweep(const int N, const int D, int *out, const int* in) {
