@@ -31,8 +31,7 @@ namespace StreamCompaction {
 		 * Performs prefix-sum (aka scan) on idata, storing the result into odata.
 		 */
 		void scan(int n, int *odata, const int *idata) {
-			timer().startGpuTimer();
-			// TODO
+			// Memory Allocation and Copying
 			int *adata;
 			int *bdata;
 			cudaMalloc((void**)&adata, n * sizeof(int));
@@ -41,17 +40,20 @@ namespace StreamCompaction {
 			checkCUDAErrorFn("cudaMalloc bdata failed!");
 			cudaMemcpy(adata, idata, sizeof(int) * n, cudaMemcpyHostToDevice);
 
+			timer().startGpuTimer();
+			// TODO
 			dim3 fullBlocksPerGrid((n + blockSize - 1) / blockSize);
 			for (int d = 1; d <= ilog2ceil(n); d++) {
 				kernelUpdateStep <<<fullBlocksPerGrid, blockSize >>> (n, d, bdata, adata);
 				std::swap(adata, bdata);
-				//cudaMemcpy(adata, bdata, sizeof(int) * n, cudaMemcpyDeviceToDevice); // Add this comparison 
 			}
-			cudaMemcpy(odata + 1, adata, sizeof(int) * (n - 1), cudaMemcpyDeviceToHost);
+			timer().endGpuTimer();
+
+			// Memory De-allocation and copying
 			odata[0] = 0;
+			cudaMemcpy(odata + 1, adata, sizeof(int) * (n - 1), cudaMemcpyDeviceToHost);
 			cudaFree(adata);
 			cudaFree(bdata);
-			timer().endGpuTimer();
 		}
 	}
 }
