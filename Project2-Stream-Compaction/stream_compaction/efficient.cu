@@ -202,8 +202,12 @@ namespace StreamCompaction {
 			cudaFree(dev_idata);
 			cudaFree(dev_indices);
 			cudaFree(dev_odata);
-
-			return indices[n-1];
+			if (idata[n - 1] != 0) {
+				return indices[n - 1] + 1;
+			}
+			else {
+				return indices[n - 1];
+			}
         }
     }
 }
