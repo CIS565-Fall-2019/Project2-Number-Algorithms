@@ -13,3 +13,7 @@ Notably, I needed to add the following line to `CMakeLists.txt`:
 `link_directories(${CUDA_TOOLKIT_ROOT_DIR}/lib/x64)`
 Additionally, under the `target_link_libraries` function, I added links to the `cublas` and `curand` libraries
 
+### ML value notes
+* Currently using a Sum of Squared Errors function (reducing it by half for convenience)
+* Final fully-connected layer currently `10201` values multiplied y a `10201 x 52` matrix to get my length-`52` feature vector
+
