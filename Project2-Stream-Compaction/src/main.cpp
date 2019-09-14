@@ -117,6 +117,7 @@ int main(int argc, char* argv[]) {
     expectedCount = count;
     printArray(count, b, true);
     printCmpLenResult(count, expectedCount, b, b);
+	printf("Finished.\n\n");
 
     zeroArray(SIZE, c);
     printDesc("cpu compact without scan, non-power-of-two");
@@ -125,6 +126,7 @@ int main(int argc, char* argv[]) {
     expectedNPOT = count;
     printArray(count, c, true);
     printCmpLenResult(count, expectedNPOT, b, c);
+	printf("Finished.\n\n");
 
     zeroArray(SIZE, c);
     printDesc("cpu compact with scan");
@@ -132,6 +134,7 @@ int main(int argc, char* argv[]) {
     printElapsedTime(StreamCompaction::CPU::timer().getCpuElapsedTimeForPreviousOperation(), "(std::chrono Measured)");
     printArray(count, c, true);
     printCmpLenResult(count, expectedCount, b, c);
+	printf("Finished.\n\n");
 
     zeroArray(SIZE, c);
     printDesc("work-efficient compact, power-of-two");
