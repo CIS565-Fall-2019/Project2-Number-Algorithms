@@ -6,8 +6,13 @@
 namespace StreamCompaction {
     namespace Efficient {
         using StreamCompaction::Common::PerformanceTimer;
+        using StreamCompaction::Common::kernMapToBoolean;
+        using StreamCompaction::Common::kernScatter;
         //intermediate arrays
         int* temp_out;
+        int* temp_bool;
+        int* temp_scattered;
+        int* temp_in;
 
         PerformanceTimer& timer()
         {
@@ -23,7 +28,7 @@ namespace StreamCompaction {
             }
             //no need to store the idata to temp_in, it is already there
             int pow_d = pow_d_plus_one / 2;
-            //by 2^(d+1) means that able to be divided by 2^(d+1)
+            //by 2^(d+1) means a stride of two
             if (index % pow_d_plus_one == 0)  idata[index + pow_d_plus_one - 1] += idata[index + pow_d - 1];
         }
 
@@ -54,7 +59,7 @@ namespace StreamCompaction {
             int powd = std::pow(2, logn);
             //init temp_out
             cudaMalloc((void**)&temp_out, powd * sizeof(int));
-            checkCUDAError("cudaMalloc device_out failed!");            
+            checkCUDAError("cudaMalloc temp_out failed!");            
             //assign idata value to temp_out
             cudaMemcpy(temp_out, idata, n * sizeof(int), cudaMemcpyHostToDevice);
 
@@ -97,9 +102,64 @@ namespace StreamCompaction {
          */
         int compact(int n, int *odata, const int *idata) {
             timer().startGpuTimer();
-            // TODO
+            int logn = ilog2ceil(n);
+            int powd = std::pow(2, logn);
+            //initialize intermediate arrays
+            cudaMalloc((void**)&temp_bool, powd * sizeof(int));
+            checkCUDAError("cudaMalloc temp_bool failed!");
+            cudaMalloc((void**)&temp_scattered, powd * sizeof(int));
+            checkCUDAError("cudaMalloc temp_scattered failed!");
+            cudaMalloc((void**)&temp_in, powd * sizeof(int));
+            checkCUDAError("cudaMalloc temp_in failed!");
+            cudaMalloc((void**)&temp_out, powd * sizeof(int));
+            checkCUDAError("cudaMalloc temp_out failed!");
+            cudaMemcpy(temp_in, idata, n * sizeof(int), cudaMemcpyHostToDevice);
+            checkCUDAError("cudaMemcpy idata to temp_in failed!");
+            int gridSize = (n + BLOCK_SIZE - 1) / BLOCK_SIZE;
+            dim3 blocksPerGrid(gridSize);
+            dim3 threadsPerBlock(BLOCK_SIZE);
+
+            //map values to bool array
+            Common::kernMapToBoolean << < blocksPerGrid, threadsPerBlock >> > (n, temp_bool, temp_in);
+            
+            //assign bool value to temp_scattered
+            cudaMemcpy(temp_scattered, temp_bool, n * sizeof(int), cudaMemcpyDeviceToDevice);
+            checkCUDAError("cudaMemcpy temp_scattered failed!");
+            //apply scan on bool array
+            int ceil = logn - 1;
+            for (int offset = 0; offset <= ceil; ++offset) {
+                const int pow_d_plus_one = std::pow(2, offset + 1);
+                //set last element to zero in temp_out in kernel
+                kernComputePartialUpSweep << < blocksPerGrid, threadsPerBlock >> > (n, pow_d_plus_one, temp_scattered);
+            }
+
+            //assign 0 to root element
+            int last_value = 0;
+            cudaMemset(temp_scattered + powd - 1, last_value, sizeof(int));
+            checkCUDAError("cudaMemSet temp_scattered last value to 0 failed!");
+            for (int offset = ceil; offset >= 0; --offset) {
+                const int pow_d_plus_one = std::pow(2, offset + 1);
+                kernComputePartialDownSweep << < blocksPerGrid, threadsPerBlock >> > (n, pow_d_plus_one, temp_scattered);
+            }
+
+            //got the correct indices of non-zero element in the array
+            //map to odata
+            Common::kernScatter << < blocksPerGrid, threadsPerBlock >> > (n, temp_out, temp_in, temp_bool, temp_scattered);
+
             timer().endGpuTimer();
-            return -1;
+            //copy from temp_out to odata
+            cudaMemcpy(odata, temp_out, n * sizeof(int), cudaMemcpyDeviceToHost);
+            checkCUDAError("cudaMemcpy temp_out to odata failed!");
+
+            int last_scattered = 0;
+            int last_bool = 0;
+            cudaMemcpy(&last_scattered, &temp_scattered[n - 1], sizeof(int), cudaMemcpyDeviceToHost);
+            cudaMemcpy(&last_bool, &temp_bool[n - 1], sizeof(int), cudaMemcpyDeviceToHost);
+            int odata_size = last_scattered + last_bool;
+
+            cudaFree(temp_bool);
+            cudaFree(temp_scattered);
+            return odata_size;
         }
     }
 }

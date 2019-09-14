@@ -77,22 +77,15 @@ namespace StreamCompaction {
             for (int idx = 0; idx < n; ++idx)
             {
                 int curr_odata_idx = scattered_array[idx];
-                if (idx == n - 1)
+                if (bool_array[idx] != 0)
                 {
-                    if (curr_odata_idx != scattered_array[idx - 1]) odata[curr_odata_idx] = idata[idx];
-                }
-                else
-                {
-                    if (scattered_array[idx] != scattered_array[idx + 1])
-                    {
-                        odata[curr_odata_idx] = idata[idx];
-                    }
+                    odata[curr_odata_idx] = idata[idx];
                 }
             
             }
 	        // TODO
 	        timer().endCpuTimer();
-            int returned_val = scattered_array[n - 1]; //index start from 0
+            int returned_val = scattered_array[n - 1] + bool_array[n-1]; //index start from 0
             free(bool_array);
             free(scattered_array);
             return returned_val;
