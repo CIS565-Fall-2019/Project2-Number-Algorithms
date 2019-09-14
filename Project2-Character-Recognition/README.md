@@ -10,6 +10,6 @@ CUDA Character Recognition
 ### CMake Notes
 
 Notably, I needed to add the following line to `CMakeLists.txt`:
-`ink_directories(${CUDA_TOOLKIT_ROOT_DIR}/lib/x64)`
+`link_directories(${CUDA_TOOLKIT_ROOT_DIR}/lib/x64)`
 Additionally, under the `target_link_libraries` function, I added links to the `cublas` and `curand` libraries
 
