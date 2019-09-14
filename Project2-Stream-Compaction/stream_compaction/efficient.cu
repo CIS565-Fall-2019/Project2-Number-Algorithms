@@ -3,7 +3,7 @@
 #include "common.h"
 #include "efficient.h"
 
-# define blockSize 32
+# define blockSize 128
 
 namespace StreamCompaction {
     namespace Efficient {
@@ -13,18 +13,6 @@ namespace StreamCompaction {
             static PerformanceTimer timer;
             return timer;
         }
-
-		void printArray(int n, int *a, bool abridged = false) {
-			printf("    [ ");
-			for (int i = 0; i < n; i++) {
-				if (abridged && i + 2 == 15 && n > 16) {
-					i = n - 2;
-					printf("... ");
-				}
-				printf("%3d ", a[i]);
-			}
-			printf("]\n");
-		}
 
 		int *dev_arr1;
 		int *dev_arr2;
@@ -72,14 +60,6 @@ namespace StreamCompaction {
          */
         void scan(int n, int *odata, const int *idata) {
 
-			bool stopTimer = false;
-			try {
-				timer().startGpuTimer();
-			}
-			catch (const std::runtime_error& exception) {
-				stopTimer = true;
-			}
-
 			int diff = (1 << ilog2ceil(n)) - n;
 			int N = n + diff;
 
@@ -90,6 +70,15 @@ namespace StreamCompaction {
 			checkCUDAErrorFn("Copying idata to arr1 failed");
 			
 			dim3 fullBlocksPerGrid((N + blockSize - 1) / blockSize);
+
+			bool stopTimer = false;
+			try {
+				timer().startGpuTimer();
+			}
+			catch (const std::runtime_error& exception) {
+				stopTimer = true;
+			}
+
 
 			if (diff) {
 				kernZeroPadding << <fullBlocksPerGrid, blockSize >>> (n,N,dev_arr1);
@@ -109,13 +98,15 @@ namespace StreamCompaction {
 				checkCUDAErrorFn("Kernel Down Sweep Failed");
 			}
 
+
+			if (!stopTimer)
+				timer().endGpuTimer();
+
 			cudaMemcpy(odata, dev_arr1, sizeof(int) * n, cudaMemcpyDeviceToHost);
 			checkCUDAErrorFn("Copying back to Host failed");
 	
 			cudaFree(dev_arr1);
 
-			if(!stopTimer)
-				timer().endGpuTimer();
 
         }
 
@@ -165,6 +156,8 @@ namespace StreamCompaction {
 			Common::kernScatter << <fullBlocksPerGrid, blockSize >> > (n,dev_odata,dev_arr2,dev_bools,dev_indices);
 			checkCUDAErrorFn("Kernel Scatter failed");
 
+			timer().endGpuTimer();
+
 			int length = indices[n - 1];
 
 			if (idata[n - 1])
@@ -178,8 +171,6 @@ namespace StreamCompaction {
 			cudaFree(dev_bools);
 			cudaFree(dev_indices);
 			cudaFree(dev_odata);
-
-            timer().endGpuTimer();
             return length;
         }
     }

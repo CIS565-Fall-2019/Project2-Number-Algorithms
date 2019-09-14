@@ -3,7 +3,7 @@
 #include "common.h"
 #include "naive.h"
 
-# define blockSize 32
+# define blockSize 128
 
 namespace StreamCompaction {
     namespace Naive {
@@ -42,7 +42,7 @@ namespace StreamCompaction {
          * Performs prefix-sum (aka scan) on idata, storing the result into odata.
          */
         void scan(int n, int *odata, const int *idata) {
-            timer().startGpuTimer();
+
 			dim3 fullBlocksPerGrid((n + blockSize - 1) / blockSize);
 			
 			cudaMalloc((void**)&dev_arr1, n * sizeof(int));
@@ -57,6 +57,8 @@ namespace StreamCompaction {
 			cudaMemcpy(dev_arr2, idata, sizeof(int) * n, cudaMemcpyHostToDevice);
 			checkCUDAErrorFn("Memory copy idata to arr2 failed");
 
+			timer().startGpuTimer();
+
 			for (int d = 1; d <= ilog2ceil(n); d++) {
 				int pos = 1 << (d - 1);
 
@@ -70,13 +72,14 @@ namespace StreamCompaction {
 			kernShiftRight << <fullBlocksPerGrid, blockSize >> > (n, dev_arr2, dev_arr1);
 			checkCUDAErrorFn("Kernel Scan failed");
 
+			timer().endGpuTimer();
+
 			cudaMemcpy(odata, dev_arr2, sizeof(int) * n, cudaMemcpyDeviceToHost);
 			checkCUDAErrorFn("Copying back to Host failed");
 
 			cudaFree(dev_arr1);
 			cudaFree(dev_arr2);
 
-            timer().endGpuTimer();
         }
     }
 }
