@@ -4,6 +4,13 @@
 
 namespace CharacterRecognition {
     Common::PerformanceTimer& timer();
-	void init();
-    // TODO: implement required elements for MLP sections 1 and 2 here
+	// Initializes 
+	// 1. CUBLAS Handle
+	// 2. Weight Matrices
+	void init(int input_size, int hidden_size, int output_size);
+
+	void train(float* idata, float* ilabel, int num_instances, int epochs, float learning_rate);
+
+	// Frees memory and destroys CUBLAS handle
+	void free();
 }
