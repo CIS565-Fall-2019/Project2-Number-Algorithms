@@ -20,3 +20,15 @@ However, I HAVE elected to process the images on the front end through some comm
 
 There is the slight hiccup that I am not sure how to property back-propogate through a convolutional layer and update convolution kernel weights. That said, I stand by the decision, as the resultant data sets have more activated information than the original data.
 
+
+### Training Time Analysis
+To analyze how my network performed for training, I decided to train it only on the first 8 letters, so that I could get some good data about how various parameters affected training time. This would then help determine the best way to structure the network for the larger, 52-letter dataset.
+
+For each trial, I ran up to `10,000` iterations, with each iteration being a batch of all 8 input data sets, after which I updated the weights with the total error from all of that batch of runs. If it ran for more than `10,000` iterations, I considered it "done," effectively unconverged (even if the total error was, still, slowly approaching 0).
+
+I ran each until the sum of the squared errors for the whole set was less than some constant, in this case invoked via `#define GOODENOUGH 0.00001`.
+
+#### Hidden Layer Size
+
+The "hidden layer" that came out of my convolutional layers was a fixed size based on the structure of convolutional kernels and max pooling (a little over `6500` elements). However, this left one hidden layer that could be tuned to a specific number of elements. I first ran a number of trials to determine how many elements would lead to the fastest training, with regards to the output vector size.
+
