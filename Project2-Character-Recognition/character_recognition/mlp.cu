@@ -23,5 +23,11 @@ namespace CharacterRecognition {
     }
     */
 
+	void mlp(int n, int *odata, const int *idata) {
+
+	}
+
 	// TODO: implement required elements for MLP sections 1 and 2 here
+
+
 }

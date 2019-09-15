@@ -63,11 +63,11 @@ namespace StreamCompaction {
 			cudaMemcpy(dev_inputArray, idata, n * sizeof(int), cudaMemcpyHostToDevice);
 
 			bool newTimer = true;
-			if (timer().getCpuTimerStarted()) {
+			if (timer().getGpuTimerStarted()) {
 				newTimer = false;
 			}
 			if (newTimer) {
-				timer().startCpuTimer();
+				timer().startGpuTimer();
 			}
 			for (int d = 0; d < ilog2ceil(n); ++d) {
 				int power = pow(2, d);
@@ -95,7 +95,7 @@ namespace StreamCompaction {
 
             // TODO
 			if (newTimer) {
-				timer().endCpuTimer();
+				timer().endGpuTimer();
 			}
 			cudaFree(dev_inputArray);
         }
