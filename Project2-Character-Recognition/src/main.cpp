@@ -54,7 +54,7 @@ InputData readFile(std::string filename) {
 		retval.fData.push_back((float)(retval.data[i] / 255.0));
 	}//for
 
-	retval.fillActivationArray(&(retval.resultArray));
+	retval.fillActivationArray();
 
 	std::fclose(infile);
 
@@ -89,20 +89,14 @@ int main(int argc, char* argv[]) {
 	float resultArray[RSIZE] = {};
 
 	CharacterRecognition::kmallocBuffers();
-
-	CharacterRecognition::trainWeights(allRecords, 1500);
+	//CharacterRecognition::testMatMul();
+	
+	CharacterRecognition::trainWeights(allRecords, 5000);
 
 	//Print how we're doing, results-wise
-	for (int i = 0; i < allRecords.size(); i++) {
-		float_v errorResult = CharacterRecognition::forwardPropagate(allRecords[i], resultArray);
-		printf("=========RESULT FOR RECORD %d==============\n", i);
-		for (int i = 0; i < RSIZE; i++) {
-			printf("@%02d:  %0.4f\t", i, resultArray[i]);
-			if ((i + 1) % 4 == 0) {
-				printf("\n");
-			}
-		}//for
-	}//for
+	CharacterRecognition::printForwardResults(allRecords);
+
+	//CharacterRecognition::printWeights();
 
 	CharacterRecognition::kfreeBuffers();
 

@@ -15,13 +15,13 @@
 #define FILENAME (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
 #define checkCUDAError(msg) checkCUDAErrorFn(msg, FILENAME, __LINE__)
 
-#define DEBUGGINGTRANSFERS 1
+#define DEBUGGINGTRANSFERS 0
 
 //Just guessing at what's appropriate here, will benchmark later (read: never)
 #define BLOCKSIZE 512
 
 //development defines
-#define RSIZE 8
+#define RSIZE 4
 #define NUMTRAINING 2
 
 
@@ -180,7 +180,7 @@ public:
 	Creates a "correct" activation array,
 	Which is all zeroes except where our feature is
 	*/
-	void fillActivationArray(float_v* dest);
+	void fillActivationArray();
 };//InputData
 
 typedef std::vector<InputData> InputData_v;

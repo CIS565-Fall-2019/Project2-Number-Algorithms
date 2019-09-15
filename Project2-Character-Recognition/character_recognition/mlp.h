@@ -15,6 +15,16 @@ namespace CharacterRecognition {
 	void gpuFillRand(float* A, int nr_rows_A, int nr_cols_A, float lo = 0.0, float hi = 1.0);
 
 	/**
+	Prints the weights on the back half of the network, for... debugging?
+	*/
+	void printWeights();
+
+	/**
+	Prints a run through of all the input through the current weights
+	*/
+	void printForwardResults(InputData_v allRecords);
+
+	/**
 	Does the necessary model training so it can recognize characters, hopefully
 
 	@param records Array full of records to be used as training data
@@ -65,6 +75,11 @@ namespace CharacterRecognition {
 	@param C		Location for the output matrix, with dimensionx mxn
 	*/
 	void matMul(cublasHandle_t* handle, const float* A, const float* B, float* C, int m, int k, int n);
+
+	/**
+	Function to make sure our matrix multiplication is operating correctly
+	*/
+	void testMatMul();
 
 
 }

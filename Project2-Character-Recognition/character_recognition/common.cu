@@ -27,16 +27,16 @@ void InputData::fillArray(uint8_t* dest) {
 	memcpy(dest, this->data.data(), this->numElements * sizeof(uint8_t));
 }//fillArray
 
-void InputData::fillActivationArray(float_v* dest) {
+void InputData::fillActivationArray() {
 
-	dest->clear();
+	this->resultArray.clear();
 
 	for (int i = 0; i < RSIZE; i++) {
 		if (i == this->value) {
-			dest->push_back(1.0);
+			this->resultArray.push_back(1.0);
 		}//if
 		else {
-			dest->push_back(0.0);
+			this->resultArray.push_back(0.0);
 		}//else
 	}//for
 }//fillActivationArray

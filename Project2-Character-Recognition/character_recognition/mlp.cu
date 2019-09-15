@@ -8,8 +8,8 @@
 #include "mlp.h"
 
 #define ALLOWKERNEL5 0
-#define RANDSEED 0x0bad1bad2bad123
-#define LAMBDA 0.01 //the learning delta
+#define RANDSEED 0x0bad1bad2bad126
+#define LAMBDA 0.1 //the learning delta
 
 //These are definitions for index math in the 1d-2d world
 #define UL(idx, w) (idx - w - 1)
@@ -49,7 +49,7 @@ namespace CharacterRecognition {
 
 #define F1SIZE (CONVPOOLSIZE)
 
-#define F2SIZE 1000
+#define F2SIZE 200
 #define W1SIZE (F1SIZE * F2SIZE)
 
 #ifndef RSIZE
@@ -96,6 +96,7 @@ namespace CharacterRecognition {
 	float* dR;//result
 	float* dRA;//result(activated)
 	float* dRE;//result error
+	float* dRT;//result (true)
 
 	//Convolution kernel initialization
 	filter3 kern1 = {	1.0 / 16,	1.0 / 8,	1.0 / 16,
@@ -155,6 +156,8 @@ namespace CharacterRecognition {
 		checkCUDAErrorFn("cudaMalloc failed\n", NULL, __LINE__);
 		cudaMalloc((void**)& dRA, RSIZE * sizeof(float));
 		checkCUDAErrorFn("cudaMalloc failed\n", NULL, __LINE__);
+		cudaMalloc((void**)& dRT, RSIZE * sizeof(float));
+		checkCUDAErrorFn("cudaMalloc failed\n", NULL, __LINE__);
 
 	}//kmallocBuffers
 
@@ -188,6 +191,8 @@ namespace CharacterRecognition {
 		cudaFree(dRE);
 		checkCUDAErrorFn("cudaFree failed\n", NULL, __LINE__);
 		cudaFree(dRA);
+		checkCUDAErrorFn("cudaFree failed\n", NULL, __LINE__);
+		cudaFree(dRT);
 		checkCUDAErrorFn("cudaFree failed\n", NULL, __LINE__);
 
 	}//kfreeBuffers
@@ -225,12 +230,22 @@ namespace CharacterRecognition {
 		resultsIA[index] = ex / ((ex + 1) * (ex + 1));
 	}//kActivateInverse
 
-
-
-
 	//##################################
 	// HOST HELPER FUNCTIONS
 	//##################################
+
+	void printWeights() {
+		float weights[W2SIZE] = {};
+		cudaMemcpy(weights, dW2, W2SIZE * sizeof(float), cudaMemcpyDeviceToHost);
+
+		for (int i = 0; i < F2SIZE; i++) {
+			int iOffset = i * RSIZE;
+			for (int j = 0; j < RSIZE; j++) {
+				printf("%.02f  ", weights[iOffset + j]);
+			}//for
+			printf("\n");
+		}//for
+	}//printWeights
 
 	void activateResults(float* results, float* resultsActivated, int numResults) {
 		dim3 tpb = dim3(BLOCKSIZE);
@@ -240,11 +255,20 @@ namespace CharacterRecognition {
 		checkCUDAErrorFn("kActivateResults failed\n", NULL, __LINE__);
 	}//activateResults
 
+	void calculateError(cublasHandle_t* handle, float* resultsActivated, float* resultsTrue, float* resultsDiff, int numResults) {
+		cudaMemcpy(resultsDiff, resultsTrue, numResults * sizeof(float), cudaMemcpyDeviceToDevice);
+		checkCUDAErrorFn("Cudamemcpy failed\n", NULL, __LINE__);
+
+		float alpha = -1.0;
+		cublasSaxpy(*handle, numResults, &alpha, resultsActivated, 1, resultsDiff, 1);
+	}//calculateError
+
 	__global__ void shiftByFactor(float* A, int N, float mulFactor, float offset) {
 		int index = getIndex();
 		if (index > N) return;
 		A[index] = mulFactor * A[index] + offset;
 	}//shiftByFactor
+
 
 	void gpuFillRand(float* A, int nr_rows_A, int nr_cols_A, float lo, float hi){
 		curandGenerator_t prng;
@@ -299,10 +323,11 @@ namespace CharacterRecognition {
 			retval.push_back(error);
 		}//for
 
-		if (kResultArray) {
-			cudaMemcpy(kResultArray, retval.data(), trueResult.size() * sizeof(float), cudaMemcpyHostToDevice);
-			checkCUDAErrorFn("cudaMemcpy failed\n", NULL, __LINE__);
-		}//if
+		//TODO: delete this
+		//if (kResultArray) {
+		//	cudaMemcpy(kResultArray, retval.data(), trueResult.size() * sizeof(float), cudaMemcpyHostToDevice);
+		//	checkCUDAErrorFn("cudaMemcpy failed\n", NULL, __LINE__);
+		//}//if
 
 		return retval;
 	}//calcError
@@ -340,7 +365,7 @@ namespace CharacterRecognition {
 
 		float rA = thetaA[r];
 		float psi = (rA * (1 - rA)) * omega[r];
-		weightChange[index] = LAMBDA * psi * data[c];
+		weightChange[index] += LAMBDA * psi * data[c];
 		psiOut[r] = psi;
 		return;
 
@@ -356,7 +381,7 @@ namespace CharacterRecognition {
 
 		float rA = thetaA[r];
 		float psi = (rA * (1 - rA)) * omegaError[r];
-		weightChange[index] = LAMBDA * data[c] * psi;
+		weightChange[index] += LAMBDA * data[c] * psi;
 		psiOut[r] = psi;
 		return;
 
@@ -381,9 +406,28 @@ namespace CharacterRecognition {
 
 	}//calcWeightChange
 
+	void applyWeightChanges(cublasHandle_t* handle, float* weight, float* delta, int weightSize) {
+		float alpha = 1.0;
+		cublasSaxpy(*handle, weightSize, &alpha, delta , 1, weight, 1);
+		checkCUDAErrorFn("saxpy failed\n", NULL, __LINE__);
+	}//applyWeightChanges
+
+	void clearWeightChanges(float* wDelta, int wDeltaSize) {
+		cudaMemset(wDelta, 0, wDeltaSize * sizeof(float));
+		checkCUDAErrorFn("CudaMemset failed\n", NULL, __LINE__);
+	}//clearWeightChanges
+
 	//##################################
 	// HOST MAIN FUNCTIONS
 	//##################################
+
+	void applyAllWeightChanges(cublasHandle_t* handle) {
+		applyWeightChanges(handle, dW2, dW2D, W2SIZE);
+		applyWeightChanges(handle, dW1, dW1D, W1SIZE);
+		cudaDeviceSynchronize();
+		clearWeightChanges(dW2D, W2SIZE);
+		clearWeightChanges(dW1D, W1SIZE);
+	}//applyAllWeightChanges
 
 	void backPropagate(cublasHandle_t* handle) {
 		/*
@@ -404,33 +448,18 @@ namespace CharacterRecognition {
 		if (handle == NULL) {
 			handling = true; handle = &mHandle; cublasCreate(handle);
 		}//if
-		float alpha = 1.0;
-
-		float testOut[F2SIZE];
 
 		//final layer weight delta calculation
 		calcWeightChange2(dRA, dRE, dF2A, F2SIZE, RSIZE, dW2D, dPi);
-		//apply the weight change
-		cublasSaxpy(*handle, W2SIZE, &alpha, dW2D, 1, dW2, 1);
 
 		//calculate Omega_j off the psi_i values
-		matMul(handle, dW2, dPi, dOj, F2SIZE, RSIZE, 1);
+		//matMul(handle, dW2, dPi, dOj, F2SIZE, RSIZE, 1);
+		matMul(handle, dPi, dW2, dOj, 1, RSIZE, F2SIZE);//go the other way because IT CANT HURT I GUESS
 		checkCUDAErrorFn("matMul failed\n", NULL, __LINE__);
-
-		//DEBUG OUTPUT
-		cudaMemcpy(testOut, dPi, RSIZE * sizeof(float), cudaMemcpyDeviceToHost);
-		checkCUDAErrorFn("cudamemcpy failed\n", NULL, __LINE__);
 
 		//next-to-last layer weight delta calculation
 		calcWeightChange1(dF2A, dOj, dF1, F1SIZE, F2SIZE, dW1D, dPj);
 		checkCUDAErrorFn("calcWeightChange failed\n", NULL, __LINE__);
-		//apply the weight change
-		cublasSaxpy(*handle, W1SIZE, &alpha, dW1D, 1, dW1, 1);
-		checkCUDAErrorFn("saxpy failed\n", NULL, __LINE__);
-
-		cudaMemcpy(testOut, dW1, F2SIZE * sizeof(float), cudaMemcpyDeviceToHost);
-		checkCUDAErrorFn("cudamemcpy failed\n", NULL, __LINE__);
-
 
 		if (handling) {
 			cublasDestroy(*handle);
@@ -445,14 +474,25 @@ namespace CharacterRecognition {
 			handle = &mHandle;
 			cublasCreate(handle);
 		}//if
-		float* dataPtr = x.fData.data();
-		float testOut[F2SIZE] = {};
 
-		printFloatPic(dataPtr, 101, 101);
+		float dataPtr[F0SIZE];
+		float truePtr[RSIZE];
+		memcpy(dataPtr, x.fData.data(), F0SIZE * sizeof(float));
+		memcpy(truePtr, x.resultArray.data(), RSIZE * sizeof(float));
+
+
+#if DEBUGGINGTRANSFERS
+		float testOut[F2SIZE] = {};
+#endif
+
+		//printFloatPic(dataPtr, 101, 101);
 
 		//load data into kernel memory
 		cudaMemcpy(dF0, dataPtr, F0SIZE * sizeof(float), cudaMemcpyHostToDevice);
 		checkCUDAErrorFn("cudaMemcpy failed\n", NULL, __LINE__);
+		cudaMemcpy(dRT, truePtr, RSIZE * sizeof(float), cudaMemcpyHostToDevice);
+		checkCUDAErrorFn("cudaMemcpy failed\n", NULL, __LINE__);
+		
 
 		//convolve step
 		convolveStep(dF0, F0SIZE, dC0, dF1, POOLWIDTH);
@@ -461,12 +501,6 @@ namespace CharacterRecognition {
 		//Fully connected layer w/ W1
 		matMul(handle, dF1, dW1, dF2, 1, F1SIZE, F2SIZE);
 		checkCUDAErrorFn("matMul failed\n", NULL, __LINE__);
-
-#if DEBUGGINGTRANSFERS
-		//DEBUG OUTPUT
-		cudaMemcpy(testOut, dW1, F2SIZE * sizeof(float), cudaMemcpyDeviceToHost);
-		checkCUDAErrorFn("cudaMemcpy failed\n", NULL, __LINE__);
-#endif
 
 		//activate the first results
 		activateResults(dF2, dF2A, F2SIZE);
@@ -480,6 +514,10 @@ namespace CharacterRecognition {
 		activateResults(dR, dRA, RSIZE);
 		checkCUDAErrorFn("activateResults failed\n", NULL, __LINE__);
 
+		//calculate error
+		calculateError(handle, dRA, dRT, dRE, RSIZE);
+		checkCUDAErrorFn("calcError failed\n", NULL, __LINE__);
+
 		cudaMemcpy(resultArray, dRA, RSIZE * sizeof(float), cudaMemcpyDeviceToHost);
 		checkCUDAErrorFn("cudaMemcpy failed\n", NULL, __LINE__);
 
@@ -487,7 +525,7 @@ namespace CharacterRecognition {
 			cublasDestroy(*handle);
 		}//if
 
-		return calcErrorSingle(x, resultArray, dRE);
+		return calcErrorSingle(x, resultArray);
 	}//forwardPropH
 
 	void trainWeights(InputData_v records, int numIterations) {
@@ -502,36 +540,57 @@ namespace CharacterRecognition {
 		gpuFillRand(dW1, F1SIZE, F2SIZE, -1.0, 1.0);
 		gpuFillRand(dW2, F2SIZE, RSIZE, -1.0, 1.0);
 
+		printForwardResults(records);//see our starting point
+
+		std::vector<int> indexVector = std::vector<int>();
+		for (int i = 0; i < records.size(); i++) indexVector.push_back(i);
+
 		for (int iter = 0; iter < numIterations; iter++) {
 			float_vv errorValues = float_vv();
+			float energy;
 
-			//go forward
-			int recordNum = iter % records.size();//which image we're training on
-			float_v errorVal = forwardPropagate(records[recordNum], results, &handle);
+			//std::random_shuffle(indexVector.begin(), indexVector.end());//not relevant currently
 
-			/*
-			errorValues.push_back(errorVal);
+			for (int j = 0; j < records.size(); j++) {
+				//go forward
+				int recordNum = indexVector[j];
+				float_v errorVal = forwardPropagate(records[recordNum], results, &handle);
+				errorValues.push_back(errorVal);
+
+				energy = calcEnergy(errorVal);
+				//printf("\ti#%04d: r#%02d: Calculated energy is %.8f\n", iter, recordNum, energy);
+
+				//go backwards
+				backPropagate(&handle);
+			}//for
+
+			applyAllWeightChanges(&handle);
+
 			float_v sseError = calcSumSquareErrors(errorValues);
-			*/
-			if (iter == 0) {
-				printf("==========RESULTS=========\n");
-				for (int i = 0; i < RSIZE; i++) {
-					printf("@%02d:  %f\t", i, results[i]);
-					if ((i + 1) % 4 == 0) {
-						printf("\n");
-					}
-				}//for
+			energy = calcEnergy(sseError);
+			if (iter % 10 == 0){
+				printf("i#%04d: Total energy is %.8f\n", iter, energy);
 			}//if
-			float energy = calcEnergy(errorVal);
-			printf("@%03d: r#%02d: Calculated energy is %.8f\n", iter, recordNum, energy);
-
-			//go backwards
-			backPropagate(&handle);
 		}//for
 
 		cublasDestroy(handle);
 
 	}//trainWeights
+
+	void printForwardResults(InputData_v allRecords) {
+		float resultArray[RSIZE];
+		for (int i = 0; i < allRecords.size(); i++) {
+			float_v errorResult = CharacterRecognition::forwardPropagate(allRecords[i], resultArray);
+			printf("=========RESULT FOR RECORD %d==============\n", i);
+			for (int i = 0; i < RSIZE; i++) {
+				printf("@%02d:  %0.4f\t", i, resultArray[i]);
+				if ((i + 1) % 4 == 0) {
+					printf("\n");
+				}
+			}//for
+			printf("\n");
+		}//for
+	}//printForwardResults
 
 
 
@@ -664,16 +723,55 @@ namespace CharacterRecognition {
 #if DEBUGGINGTRANSFERS
 		//DEBUGGING
 		for (int i = 0; i < NUMFILTERS; i++) {
-			printf("================FILTER %d===============\n", i);
+			//printf("================FILTER %d===============\n", i);
 			cudaMemcpy(convolveOutput, outputLayer + outputPooledBlockSize * i,
 				outputPooledBlockSize * sizeof(float), cudaMemcpyDeviceToHost);
 			checkCUDAErrorFn("cudaMemcpy failed\n", NULL, __LINE__);
-			printFloatPic(convolveOutput, outputPooledBlockWidth, outputPooledBlockWidth);
+			//printFloatPic(convolveOutput, outputPooledBlockWidth, outputPooledBlockWidth);
 		}//for
 #endif
 
 		return outputLayerSize;
 	}//convolveStep
+
+	void testMatMul() {
+		cublasHandle_t handle;
+		cublasCreate(&handle);
+		float f2[F2SIZE] = {};
+		float w2[W2SIZE] = {};
+		float r[RSIZE] = {};
+		float rgpu[RSIZE] = {};
+
+		gpuFillRand(dF2, 1, F2SIZE);
+		gpuFillRand(dW2, F2SIZE, RSIZE);
+		matMul(&handle, dF2, dW2, dR, 1, F2SIZE, RSIZE);
+		cudaMemcpy(rgpu, dR, RSIZE * sizeof(float), cudaMemcpyDeviceToHost);
+		checkCUDAErrorFn("cudaMemcpy failed\n", NULL, __LINE__);
+		cudaMemcpy(f2, dF2, F2SIZE * sizeof(float), cudaMemcpyDeviceToHost);
+		checkCUDAErrorFn("cudaMemcpy failed\n", NULL, __LINE__);
+		cudaMemcpy(w2, dW2, W2SIZE * sizeof(float), cudaMemcpyDeviceToHost);
+		checkCUDAErrorFn("cudaMemcpy failed\n", NULL, __LINE__);
+
+		//cpu-style try the multiplcation
+		for (int i = 0; i < 1; i++) {
+			for (int j = 0; j < RSIZE; j++) {
+				float sum = 0;
+				for (int k = 0; k < F2SIZE; k++) {
+					sum += f2[i * F2SIZE + k] * w2[k * RSIZE + j];
+				}//for intermediary
+				r[i * RSIZE + j] = sum;
+			}//for end cols
+		}//for end rows
+
+		for (int i = 0; i < RSIZE; i++) {
+			printf("gpu:%.04f\tcpu:%.04f\n", rgpu[i], r[i]);
+		}//for
+
+
+
+
+		cublasDestroy(handle);
+	}//testMatMul
 
 
 }//CharacterRecognition
