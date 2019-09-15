@@ -39,6 +39,7 @@ void InputData::fillActivationArray() {
 			this->resultArray.push_back(0.0);
 		}//else
 	}//for
+	//this->resultArray.push_back(1.0);//BIAS TERM
 }//fillActivationArray
 
 char getShade(float input, float scale = 1.0) {

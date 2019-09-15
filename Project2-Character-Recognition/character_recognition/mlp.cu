@@ -8,8 +8,8 @@
 #include "mlp.h"
 
 #define ALLOWKERNEL5 0
-#define RANDSEED 0x0bad1bad2bad126
-#define LAMBDA 0.1 //the learning delta
+#define RANDSEED 0x0bad1bad2bad127
+#define LAMBDA 0.2 //the learning delta
 
 //These are definitions for index math in the 1d-2d world
 #define UL(idx, w) (idx - w - 1)
@@ -47,16 +47,18 @@ namespace CharacterRecognition {
 #define SINCONVPOOLSIZE (SINCONVRAWSIZE / (POOLWIDTH * POOLWIDTH))
 #define CONVPOOLSIZE (SINCONVPOOLSIZE * NUMFILTERS)
 
-#define F1SIZE (CONVPOOLSIZE)
+#define F1SIZE (CONVPOOLSIZE + 1)
+//#define F1SIZE (6535)
 
 #define F2SIZE 200
+#define F2SIZEA (F2SIZE + 1)
 #define W1SIZE (F1SIZE * F2SIZE)
 
 #ifndef RSIZE
 #define RSIZE 52
 #endif
 
-#define W2SIZE (F2SIZE * RSIZE)
+#define W2SIZE (F2SIZEA * RSIZE)
 
 
 
@@ -130,7 +132,7 @@ namespace CharacterRecognition {
 		checkCUDAErrorFn("cudaMalloc failed\n", NULL, __LINE__);
 		cudaMalloc((void**)& dC0, CONVRAWSIZE * sizeof(float));
 		checkCUDAErrorFn("cudaMalloc failed\n", NULL, __LINE__);
-		cudaMalloc((void**)& dF1, F1SIZE * sizeof(float));
+		cudaMalloc((void**)& dF1, (F1SIZE + 1) * sizeof(float));
 		checkCUDAErrorFn("cudaMalloc failed\n", NULL, __LINE__);
 		cudaMalloc((void**)& dW1, W1SIZE * sizeof(float));
 		checkCUDAErrorFn("cudaMalloc failed\n", NULL, __LINE__);
@@ -142,7 +144,7 @@ namespace CharacterRecognition {
 		checkCUDAErrorFn("cudaMalloc failed\n", NULL, __LINE__);
 		cudaMalloc((void**)& dF2, F2SIZE * sizeof(float));
 		checkCUDAErrorFn("cudaMalloc failed\n", NULL, __LINE__);
-		cudaMalloc((void**)& dF2A, F2SIZE * sizeof(float));
+		cudaMalloc((void**)& dF2A, F2SIZEA * sizeof(float));
 		checkCUDAErrorFn("cudaMalloc failed\n", NULL, __LINE__);
 		cudaMalloc((void**)& dW2, W2SIZE *sizeof(float));
 		checkCUDAErrorFn("cudaMalloc failed\n", NULL, __LINE__);
@@ -360,8 +362,8 @@ namespace CharacterRecognition {
 		int index = getIndex();
 		if (index >= rmax * cmax) return;
 
-		int r = index / cmax;
-		int c = index % cmax;
+		int c = index / rmax;
+		int r = index % rmax;
 
 		float rA = thetaA[r];
 		float psi = (rA * (1 - rA)) * omega[r];
@@ -376,8 +378,8 @@ namespace CharacterRecognition {
 		int index = getIndex();
 		if (index >= rmax * cmax) return;
 
-		int r = index / cmax;
-		int c = index % cmax;
+		int c = index / rmax;
+		int r = index % rmax;
 
 		float rA = thetaA[r];
 		float psi = (rA * (1 - rA)) * omegaError[r];
@@ -399,6 +401,8 @@ namespace CharacterRecognition {
 		/*
 		result: [0:imax)(52), error: [0:imax)(52), data: [0, jmax)(10201), weightChange (outvar) ixj matrix
 		*/
+		//calcWeightChange2(dRA, dRE, dF2A, F2SIZEA, RSIZE, dW2D, dPi);
+		//		matMul(handle, dF2A, dW2, dR, 1, F2SIZE + 1, RSIZE);
 		dim3 tpb = dim3(BLOCKSIZE);
 		dim3 bpgij = dim3(((imax * jmax) + BLOCKSIZE - 1) / BLOCKSIZE);
 
@@ -430,31 +434,18 @@ namespace CharacterRecognition {
 	}//applyAllWeightChanges
 
 	void backPropagate(cublasHandle_t* handle) {
-		/*
-		Derivative of E wrt weights at (j,i) (up to 10201 and 52, respectively):
-			-sum of sse error * invActivate(result)[i] * hiddenData[j]
-		psi_i = error_i * invActivate(result[i])
-		Theta_i = result[i]
-		omega_i = error_i
-		Psi_j	= Omega_j * invActivate(Theta_j)
-		Theta_j = hiddenData[j]
-		Omega_j = (sum(psi_i) for i)
 
-		weightChange_ji = lambda * hiddenData[j] * psi_i
-		weightChange_kj = lambda * hiddenData[k] * psi_i
-
-		*/
 		cublasHandle_t mHandle; bool handling = false;
 		if (handle == NULL) {
 			handling = true; handle = &mHandle; cublasCreate(handle);
 		}//if
 
 		//final layer weight delta calculation
-		calcWeightChange2(dRA, dRE, dF2A, F2SIZE, RSIZE, dW2D, dPi);
+		calcWeightChange2(dRA, dRE, dF2A, F2SIZEA, RSIZE, dW2D, dPi);
 
 		//calculate Omega_j off the psi_i values
-		//matMul(handle, dW2, dPi, dOj, F2SIZE, RSIZE, 1);
-		matMul(handle, dPi, dW2, dOj, 1, RSIZE, F2SIZE);//go the other way because IT CANT HURT I GUESS
+		matMul(handle, dW2, dPi, dOj, F2SIZE, RSIZE, 1);
+		//matMul(handle, dPi, dW2, dOj, 1, RSIZE, F2SIZE);//go the other way because IT CANT HURT I GUESS
 		checkCUDAErrorFn("matMul failed\n", NULL, __LINE__);
 
 		//next-to-last layer weight delta calculation
@@ -507,7 +498,7 @@ namespace CharacterRecognition {
 		checkCUDAErrorFn("activateResults failed\n", NULL, __LINE__);
 
 		//Fully connected layer w/ W2
-		matMul(handle, dF2A, dW2, dR, 1, F2SIZE, RSIZE);
+		matMul(handle, dF2A, dW2, dR, 1, F2SIZE + 1, RSIZE);
 		checkCUDAErrorFn("matMul failed\n", NULL, __LINE__);
 
 		//Activate results
@@ -542,10 +533,20 @@ namespace CharacterRecognition {
 
 		printForwardResults(records);//see our starting point
 
+		//starting biases
+		float fakeBias = 1.0;
+
+		//add a bias term
+		cudaMemcpy(dF1 + (F1SIZE - 1), &fakeBias, 1 * sizeof(float), cudaMemcpyHostToDevice);
+		checkCUDAErrorFn("cudaMemcpy failed\n", NULL, __LINE__);
+		cudaMemcpy(dF2A + (F2SIZEA - 1), &fakeBias, 1 * sizeof(float), cudaMemcpyHostToDevice);
+		checkCUDAErrorFn("cudaMemcpy failed\n", NULL, __LINE__);
+
 		std::vector<int> indexVector = std::vector<int>();
 		for (int i = 0; i < records.size(); i++) indexVector.push_back(i);
 
 		for (int iter = 0; iter < numIterations; iter++) {
+		//for (int iter = 0; true; iter++) {
 			float_vv errorValues = float_vv();
 			float energy;
 
@@ -697,18 +698,6 @@ namespace CharacterRecognition {
 
 		cudaDeviceSynchronize();
 		
-#if DEBUGGINGTRANSFERS
-		//DEBUGGING
-		float convolveOutput[F0SIZE] = {};
-		for (int i = 0; i < NUMFILTERS; i++) {
-			//printf("================FILTER %d===============\n", i);
-			cudaMemcpy(convolveOutput, outputPoolingLayer + outputPoolingBlockSize * i, 
-				outputPoolingBlockSize * sizeof(float), cudaMemcpyDeviceToHost);
-			checkCUDAErrorFn("cudaMemcpy failed\n", NULL, __LINE__);
-			//printFloatPic(convolveOutput, outputPoolingBlockWidth, outputPoolingBlockWidth);
-		}//for
-#endif
-
 		//pool
 		dim3 tpb = dim3(BLOCKSIZE);
 		dim3 bpg = dim3(((outputPooledBlockSize)+BLOCKSIZE - 1) / BLOCKSIZE);
@@ -719,17 +708,6 @@ namespace CharacterRecognition {
 			kmaxPool<<<bpg, tpb>>>(outputPoolingLayer + iBlockOffset, outputLayer + oBlockOffset, poolWidth, outputPoolingBlockWidth, outputPooledBlockWidth);
 			checkCUDAErrorFn("kmaxpool failed\n", NULL, __LINE__);
 		}//for
-
-#if DEBUGGINGTRANSFERS
-		//DEBUGGING
-		for (int i = 0; i < NUMFILTERS; i++) {
-			//printf("================FILTER %d===============\n", i);
-			cudaMemcpy(convolveOutput, outputLayer + outputPooledBlockSize * i,
-				outputPooledBlockSize * sizeof(float), cudaMemcpyDeviceToHost);
-			checkCUDAErrorFn("cudaMemcpy failed\n", NULL, __LINE__);
-			//printFloatPic(convolveOutput, outputPooledBlockWidth, outputPooledBlockWidth);
-		}//for
-#endif
 
 		return outputLayerSize;
 	}//convolveStep

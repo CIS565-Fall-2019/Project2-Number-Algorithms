@@ -21,8 +21,8 @@
 #define BLOCKSIZE 512
 
 //development defines
-#define RSIZE 4
-#define NUMTRAINING 2
+#define RSIZE 52
+#define NUMTRAINING 52
 
 
 //production defines

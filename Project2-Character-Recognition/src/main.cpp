@@ -91,7 +91,7 @@ int main(int argc, char* argv[]) {
 	CharacterRecognition::kmallocBuffers();
 	//CharacterRecognition::testMatMul();
 	
-	CharacterRecognition::trainWeights(allRecords, 5000);
+	CharacterRecognition::trainWeights(allRecords, 100000);
 
 	//Print how we're doing, results-wise
 	CharacterRecognition::printForwardResults(allRecords);
