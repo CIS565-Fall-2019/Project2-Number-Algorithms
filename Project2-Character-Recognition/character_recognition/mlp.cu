@@ -3,6 +3,7 @@
 #include <curand.h>
 #include <cublas_v2.h>
 #include "common.h"
+#include "functions.h"
 #include "mlp.h"
 #include "device_launch_parameters.h"
 #include <thrust/device_vector.h>
@@ -13,9 +14,9 @@
 int INPUT_LAYER_SIZE;
 int HIDDEN_LAYER_SIZE;
 int OUTPUT_LAYER_SIZE;
+
 float *weights_IH, *weights_HO, *g_weights_IH, *g_weights_HO, *hidden, *h_sigmoid, *output, *o_softmax;
 cublasHandle_t cublas_handle;
-curandGenerator_t prng;
 
 void print_matrix(const float *devA, int nr_rows_A, int nr_cols_A) {
 	float *A = new float[nr_rows_A*nr_cols_A];
@@ -92,22 +93,16 @@ namespace CharacterRecognition {
 	   4. Apply Softmax and calculate ouput
 	*/
 	// TODO: Can Incorporate Bias
-	void forwardPass(float* idata) {
+	void forwardPass(float* dev_input) {
 		// Matrix Multiply Input Layer and Weights 1
-		gpu_blas_mmul(idata, weights_IH, hidden, 1, INPUT_LAYER_SIZE, HIDDEN_LAYER_SIZE);
-		//printf("Hidden After: ");
-		//print_matrix(hidden, 1, HIDDEN_LAYER_SIZE);
+		gpu_blas_mmul(dev_input, weights_IH, hidden, 1, INPUT_LAYER_SIZE, HIDDEN_LAYER_SIZE);
 		
 		// Apply Sigmoid
 		dim3 hiddenLayerBlocks((HIDDEN_LAYER_SIZE + blockSize - 1) / blockSize);
-		Functions::reluActivation<<<hiddenLayerBlocks, blockSize>>>(hidden, h_sigmoid, 1, HIDDEN_LAYER_SIZE);
-		//printf("Hidden Sigmoid After: ");
-		//print_matrix(h_sigmoid, 1, HIDDEN_LAYER_SIZE);
+		Functions::sigmoidActivation<<<hiddenLayerBlocks, blockSize>>>(hidden, h_sigmoid, 1, HIDDEN_LAYER_SIZE);
 		
 		// Matrix Multiply Hidden layer and Weights 2
 		gpu_blas_mmul(h_sigmoid, weights_HO, output, 1, HIDDEN_LAYER_SIZE, OUTPUT_LAYER_SIZE);
-		//printf("Output After: ");
-		//print_matrix(output, 1, OUTPUT_LAYER_SIZE);
 		
 		// Apply Softmax
 		dim3 outputLayerBlocks((OUTPUT_LAYER_SIZE + blockSize - 1) / blockSize);
@@ -116,8 +111,7 @@ namespace CharacterRecognition {
 		cudaMalloc((void**)&sum, sizeof(float));
 		StreamCompaction::sumArray(OUTPUT_LAYER_SIZE, sum, o_softmax);
 		Functions::Divide << <outputLayerBlocks, blockSize >> > (o_softmax, sum, 1, OUTPUT_LAYER_SIZE);
-		printf("Output Probabilities: ");
-		print_matrix(o_softmax, 1, OUTPUT_LAYER_SIZE);
+		cudaFree(sum);
 	}
 
 	void backwardPropagation(float* dev_input, float* dev_output, float* learning_rate) {
@@ -134,7 +128,7 @@ namespace CharacterRecognition {
 		// Gradient of Loss w.r.t Weight1
 		gpu_blas_mmul(weights_HO, temp_output, temp_hidden, HIDDEN_LAYER_SIZE, OUTPUT_LAYER_SIZE, 1);
 		dim3 hiddenLayerBlocks((HIDDEN_LAYER_SIZE + blockSize - 1) / blockSize);
-		Functions::KernelElementwiseMultiplyRelu << <outputLayerBlocks, blockSize >> > (temp_hidden, h_sigmoid, 1, HIDDEN_LAYER_SIZE);
+		Functions::KernelElementwiseMultiplySigmoid << <outputLayerBlocks, blockSize >> > (temp_hidden, h_sigmoid, 1, HIDDEN_LAYER_SIZE);
 		gpu_blas_mmul(dev_input, temp_hidden, g_weights_IH, INPUT_LAYER_SIZE, 1, HIDDEN_LAYER_SIZE);
 
 		// Gradient Updates
@@ -148,38 +142,70 @@ namespace CharacterRecognition {
 		// Free Memory
 		cudaFree(temp_hidden);
 		cudaFree(temp_output);
+		//print_matrix(weights_HO, HIDDEN_LAYER_SIZE, OUTPUT_LAYER_SIZE);
 	}
 
-	float calculateLoss(int* label, int* prediction) {
-		return -1;
+	void calculateLoss(float* dev_output, float* loss) {
+		// Memory Allocation
+		float *temp_loss, *sum;
+		cudaMalloc((void**)&temp_loss, OUTPUT_LAYER_SIZE * sizeof(float));
+		cudaMalloc((void**)&sum, sizeof(float));
+
+		dim3 outputLayerBlocks((OUTPUT_LAYER_SIZE + blockSize - 1) / blockSize);
+		Functions::CrossEntropyLoss << <OUTPUT_LAYER_SIZE, blockSize >> > (dev_output, o_softmax, temp_loss, 1, OUTPUT_LAYER_SIZE);
+		StreamCompaction::sumArray(OUTPUT_LAYER_SIZE, sum, temp_loss);
+		Functions::Add << <1, 1 >> > (loss, sum, 1, 1);
+
+		cudaFree(temp_loss);
+		cudaFree(sum);
 	}
 
 	void train(float* idata, float* ilabel, int num_instances, int epochs, float learning_rate) {
-		// Create Device Buffers for Input and Output
 		float *dev_input, *dev_output, *dev_lr;
+		// Device Buffer for Input 
 		cudaMalloc((void**)&dev_input, num_instances * INPUT_LAYER_SIZE * sizeof(float));
 		checkCUDAErrorFn("cudaMalloc dev_input failed!");
 		cudaMemcpy(dev_input, idata, num_instances * INPUT_LAYER_SIZE * sizeof(float), cudaMemcpyHostToDevice);
-
+		
+		// Device Buffer for Output 
 		cudaMalloc((void**)&dev_output, num_instances * OUTPUT_LAYER_SIZE * sizeof(float));
 		checkCUDAErrorFn("cudaMalloc dev_output failed!");
 		cudaMemcpy(dev_output, ilabel, num_instances * OUTPUT_LAYER_SIZE * sizeof(float), cudaMemcpyHostToDevice);
 
+		// Device Buffer for Learning Rate 
 		cudaMalloc((void**)&dev_lr, sizeof(float));
 		thrust::device_ptr<float> dev_ptr(dev_lr);
 		thrust::fill(dev_ptr, dev_ptr + 1, learning_rate);
 
 		// Train
+		float *dev_loss;
+		cudaMalloc((void**)&dev_loss, epochs * sizeof(float));
+		cudaMemset(dev_loss, 0, epochs * sizeof(float));
+		float *loss = new float[1];
 		for (int e = 0; e < epochs; e++) {
 			for (int i = 0; i < num_instances; i++) {
-				printf("Input: ");
-				print_matrix(dev_input + (i * INPUT_LAYER_SIZE), 1, INPUT_LAYER_SIZE);
+				//if (e % 100 == 0) {
+				//	printf("Epoch %d Input: ", e);
+				//	print_matrix(dev_input + (i * INPUT_LAYER_SIZE), 1, INPUT_LAYER_SIZE);
+				//}
 				// Forward Pass
 				forwardPass(dev_input + (i * INPUT_LAYER_SIZE));
+
 				// Back Propagation
 				backwardPropagation(dev_input + (i * INPUT_LAYER_SIZE), dev_output + (i * OUTPUT_LAYER_SIZE), dev_lr);
+
+				// Loss Calculation
+				calculateLoss(dev_output + (i * OUTPUT_LAYER_SIZE), dev_loss + e);
+				//if (e % 100 == 0) {
+				//	printf("output probabilities: ");
+				//	print_matrix(o_softmax, 1, OUTPUT_LAYER_SIZE);
+				//}
 			}
+
+			printf("Epoch: %d, Loss:", e);
+			print_matrix(dev_loss+e, 1, 1);
 		}
+		//print_matrix(dev_loss, epochs, 1);
 	}
 
 	void test(int* idata, int* ilabel, int* olabel) {
@@ -213,23 +239,31 @@ namespace CharacterRecognition {
 
 		// Create a handle for CUBLAS
 		cublasCreate(&cublas_handle);
-		// Curand Random Number Generator
+
+		// Curand Random Number Generator and Seed
+		curandGenerator_t prng;
 		curandCreateGenerator(&prng, CURAND_RNG_PSEUDO_DEFAULT);
-		// Seed for Random Number Generator
-		curandSetPseudoRandomGeneratorSeed(prng, (unsigned long long) clock());
+		curandSetPseudoRandomGeneratorSeed(prng, 7);
 
 	    // Initialize weight matrices with random numbers
 		curandGenerateUniform(prng, weights_IH, INPUT_LAYER_SIZE * HIDDEN_LAYER_SIZE);
 		curandGenerateUniform(prng, weights_HO, HIDDEN_LAYER_SIZE * OUTPUT_LAYER_SIZE);
 
 		// Debug/Print
-		print_matrix(weights_IH, INPUT_LAYER_SIZE, HIDDEN_LAYER_SIZE);
-		print_matrix(weights_HO, HIDDEN_LAYER_SIZE, OUTPUT_LAYER_SIZE);
+		//printf("Initial Weight Matrices\n");
+		//print_matrix(weights_IH, INPUT_LAYER_SIZE, HIDDEN_LAYER_SIZE);
+		//print_matrix(weights_HO, HIDDEN_LAYER_SIZE, OUTPUT_LAYER_SIZE);
 	}
 
 	void free() {
 		cudaFree(weights_IH);
 		cudaFree(weights_HO);
+		cudaFree(g_weights_IH);
+		cudaFree(g_weights_HO);
+		cudaFree(hidden);
+		cudaFree(h_sigmoid);
+		cudaFree(output);
+		cudaFree(o_softmax);
 		cublasDestroy(cublas_handle);
 	}
 }

@@ -29,18 +29,6 @@ inline int ilog2(int x) {
 inline int ilog2ceil(int x) {
 	return x == 1 ? 0 : ilog2(x - 1) + 1;
 }
-namespace Functions {
-	__global__ void sigmoidActivation(float * input, float * output, int x_dim, int y_dim);
-	__global__ void reluActivation(float * input, float * output, int x_dim, int y_dim);
-	__global__ void ExponentialActivation(float * input, float * output, int x_dim, int y_dim);
-	__global__ void Divide(float* input, float* constant, int x_dim, int y_dim);
-	__global__ void Multiply(float* input, float* constant, int x_dim, int y_dim);
-	__global__ void Subtract(float* input, float* constant, int x_dim, int y_dim);
-	__global__ void ElementwiseMultiplication(float* input1, float* input2, float* output, int x_dim, int y_dim);
-	__global__ void ElementwiseSubtraction(float* input1, float* input2, float* output, int x_dim, int y_dim);
-	__global__ void KernelElementwiseMultiplySigmoid(float* input_output, float* input, int x_dim, int y_dim);
-	__global__ void KernelElementwiseMultiplyRelu(float* input_output, float* input, int x_dim, int y_dim);
-}
 
 namespace Common {
 	/**

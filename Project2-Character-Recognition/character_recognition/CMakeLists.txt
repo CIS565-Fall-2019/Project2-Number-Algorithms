@@ -1,6 +1,8 @@
 set(SOURCE_FILES
     "common.h"
     "common.cu"
+	"functions.cu"
+	"functions.h"
     "mlp.h"
     "mlp.cu"
     )
