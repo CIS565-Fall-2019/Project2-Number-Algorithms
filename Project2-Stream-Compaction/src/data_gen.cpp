@@ -14,58 +14,90 @@
 #include <stream_compaction/radix.h>
 #include <thrust/sort.h>
 #include "testing_helpers.hpp"
+#include <string>
+#include <fstream>
+using namespace std;
+
 #define max_value_scan 50
 #define max_value_compaction 4
 #define max_value_sorting 500
-const unsigned long int SIZE = 1 << 29; // feel free to change the size of array
-const unsigned long unsigned long int NPOT = SIZE - 3; // Non-Power-Of-Two
-int *a = new int[SIZE];
-int *b = new int[SIZE];
-int *c = new int[SIZE];
+#define cpu_scan false
+#define naive_scan true
+#define efficient_scan true
+#define shared_mem_scan true
+#define thrust_scan true
+#define pow_2 true
+
+void csv_write(float time, unsigned long long size, string file_name){
+	std::ofstream outfile;
+	outfile.open(file_name, std::ios_base::app);
+	outfile <<size<<","<< time<<endl;
+}
+
 
 int main(int argc, char* argv[]) {
-	// Scan tests
-
 	printf("\n");
 	printf("****************\n");
-	printf("** SCAN TESTS **\n");
+	printf("** SCAN Data Gen **\n");
 	printf("****************\n");
-
-	genArray(SIZE - 1, a, 50);  // Leave a 0 at the end to test that edge case
-	a[SIZE - 1] = 0;
-	printArray(SIZE, a, true);
-
-	// initialize b using StreamCompaction::CPU::compactWithoutScan you implement
-   // We use b for further comparison. Make sure your StreamCompaction::CPU::compactWithoutScan is correct.
-	zeroArray(SIZE, b);
-	printDesc("cpu scan, power-of-two");
-	StreamCompaction::CPU::scan(SIZE, b, a);
-	printElapsedTime(StreamCompaction::CPU::timer().getCpuElapsedTimeForPreviousOperation(), "(std::chrono Measured)");
-	printArray(SIZE, b, true);
-	
-	try {
-		zeroArray(SIZE, c);
-		printDesc("naive scan, power-of-two");
-		StreamCompaction::Efficient::scan(SIZE, c, a);
-		printElapsedTime(StreamCompaction::Efficient::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
-		//printArray(SIZE, c, true);
-		printCmpResult(SIZE, b, c);
+	int pow = 4;
+	while (true) {
+		unsigned long int SIZE;
+		cout << pow << endl;
+		if (pow_2)
+			 SIZE = 1 << (pow); // Power of 2
+		else
+			SIZE = (1 << (pow)) - 3; // Non-Power-Of-Two
+		int *a = new int[SIZE];
+		long long *b = new long long[SIZE];
+		long long *c = new long long[SIZE];
+		genArray(SIZE - 1, a, 50);  // Leave a 0 at the end to test that edge case
+		a[SIZE - 1] = 0;
+		// get time
+		float time = -1;
+		// set solution
+		if (cpu_scan) {
+			zeroArray(SIZE, b);
+			StreamCompaction::CPU::scan(SIZE, b, b);
+			time = StreamCompaction::CPU::timer().getCpuElapsedTimeForPreviousOperation();
+			csv_write(time, SIZE, "cpu.csv");
+			cout << "CPU:"; printArray(SIZE, b, true);
+		}
+		if (naive_scan && pow < 30) {
+			zeroArray(SIZE, c);
+			StreamCompaction::Naive::scan(SIZE, c, a);
+			cout << "Nai:"; printCmpResult(SIZE, b, c);
+			time = StreamCompaction::Naive::timer().getGpuElapsedTimeForPreviousOperation();
+			csv_write(time, SIZE, "naive.csv");
+		}
+		else if (efficient_scan)
+			cout << "Nai: Failed" << endl;
+		if (efficient_scan && pow < 30){
+			zeroArray(SIZE, c);
+			StreamCompaction::Efficient::scan(SIZE, c, a);
+			cout << "Eff:"; printCmpResult(SIZE, b, c);
+			time = StreamCompaction::Efficient::timer().getGpuElapsedTimeForPreviousOperation();
+			csv_write(time, SIZE, "eff.csv");
+		}
+		else if (efficient_scan)
+			cout << "Eff: Failed" << endl;
+		if (shared_mem_scan) {
+			zeroArray(SIZE, c);
+			StreamCompaction::SharedMemory::scan(SIZE, c, a);
+			time = StreamCompaction::SharedMemory::timer().getGpuElapsedTimeForPreviousOperation();
+			cout << "ShM:"; printCmpResult(SIZE, b, c);
+			csv_write(time, SIZE, "shared_mem.csv");
+		}
+		if (thrust_scan) {
+			zeroArray(SIZE, c);
+			StreamCompaction::Thrust::scan(SIZE, c, a);
+			time = StreamCompaction::Thrust::timer().getGpuElapsedTimeForPreviousOperation();
+			cout << "Thr:"; printCmpResult(SIZE, b, c);
+			csv_write(time, SIZE, "thrust.csv");
+		}
+		pow++;
+		delete[] a;
+		delete[] b;
+		delete[] c;
 	}
-	catch (...) {
-		std::cout << "Failed to compute, but not dead yet"<<std::endl;
-	}
-
-	zeroArray(SIZE, c);
-	printDesc("Shared memory scan, power-of-two");
-	StreamCompaction::SharedMemory::scan(SIZE, c, a);
-	printElapsedTime(StreamCompaction::SharedMemory::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
-	//printArray(SIZE, c, true);
-	printCmpResult(SIZE, b, c);
-
-	
-
-	system("pause"); // stop Win32 console from closing on exit
-	delete[] a;
-	delete[] b;
-	delete[] c;
 }
