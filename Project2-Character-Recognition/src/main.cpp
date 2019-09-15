@@ -10,41 +10,58 @@
 #include <character_recognition/mlp.h>
 #include <character_recognition/common.h>
 #include "testing_helpers.hpp"
+#include <fstream>
 
-const int SIZE = 1 << 8; // feel free to change the size of array
-const int NPOT = SIZE - 3; // Non-Power-Of-Two
-int *a = new int[SIZE];
-int *b = new int[SIZE];
-int *c = new int[SIZE];
+#define sizeData 10205
+#define numLabels 52
+
+void readData(float *X, float *y) {
+	int c = 0;
+	for (int i = 1; i <= numLabels; i++) {
+		float ascii = 65 + c;
+		if (i % 2 == 0) { c++; }
+		float yi = i % 2 == 0 ? ascii+32 : ascii;
+		y[(i-1)*(numLabels+1)] = yi;
+
+		float xi;
+		std::string n = i < 10 ? "0" + std::to_string(i) : std::to_string(i);
+		std::string filePath = "../data-set/" + n + "info.txt";
+		std::ifstream dataFile(filePath);
+		int k = 0;
+		while (!dataFile.fail() && !dataFile.eof())
+		{
+			dataFile >> xi;
+			X[sizeData*(i-1) + k++] = xi;
+		};
+	}
+}
 
 int main(int argc, char* argv[]) {
-    // Scan tests
-
     printf("\n");
     printf("****************\n");
     printf("** MLP TESTS **\n");
     printf("****************\n");
 
-    genArray(SIZE - 1, a, 50);  // Leave a 0 at the end to test that edge case
-    a[SIZE - 1] = 0;
-    printArray(SIZE, a, true);
+	unsigned int size_X = sizeData*numLabels;
+	unsigned int mem_size_X = sizeof(float) * size_X;
+	float *X = (float *)malloc(mem_size_X);
 
-	printDesc("train");
+	unsigned int size_y = numLabels*numLabels;
+	unsigned int mem_size_y = sizeof(float) * size_y;
+	float *y = (float *)malloc(mem_size_y);
 
-	CharacterRecognition::train();
+	printDesc("reading data");
+	readData(X,y);
 
-	printDesc("test");
-   
+	printDesc("test multiply");
+	CharacterRecognition::testMatrixMultiply();
 
-    //zeroArray(SIZE, c);
-    //printDesc("work-efficient compact, non-power-of-two");
-    //count = StreamCompaction::Efficient::compact(NPOT, c, a);
-    //printElapsedTime(StreamCompaction::Efficient::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
-    ////printArray(count, c, true);
-    //printCmpLenResult(count, expectedNPOT, b, c);
+	printDesc("training");
+	CharacterRecognition::train(X, y, sizeData, 10, numLabels);
+	
+
+	free(X);
+	free(y);
 
     system("pause"); // stop Win32 console from closing on exit
-	delete[] a;
-	delete[] b;
-	delete[] c;
 }
