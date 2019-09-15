@@ -115,7 +115,7 @@ namespace StreamCompaction {
 			int iterations = ilog2(padded_size);
 			dim3 fullBlocksPerGrid((padded_size + blockSize - 1) / blockSize);
 
-			bool optimized = false;
+			bool optimized = true;
 			//Up-Sweep
 			if (optimized) {
 				int number_of_threads = padded_size;
