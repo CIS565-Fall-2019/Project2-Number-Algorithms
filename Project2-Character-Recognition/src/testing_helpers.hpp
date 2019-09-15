@@ -43,17 +43,17 @@ void zeroArray(int n, int *a) {
     }
 }
 
-void onesArray(int n, int *a) {
+void onesArray(int n, float *a) {
 	for (int i = 0; i < n; i++) {
 		a[i] = 1;
 	}
 }
 
-void genArray(int n, int *a, int maxval) {
+void genArray(int n, float *a, int maxval) {
     srand(time(nullptr));
 
     for (int i = 0; i < n; i++) {
-        a[i] = rand() % maxval;
+        a[i] = ((float)rand()) / (float)maxval;
     }
 }
 
