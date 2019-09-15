@@ -17,9 +17,17 @@
 //Just guessing at what's appropriate here, will benchmark later (read: never)
 #define BLOCKSIZE 512
 
+#define RSIZE 4
+
 typedef std::vector<uint8_t>	uint8_v;
 typedef std::vector<float>		float_v;
 typedef std::vector<float_v>	float_vv;
+
+typedef struct filter3 {
+	float kernel[9];
+} filter3;
+
+void printFloatPic(float* begin, int width, int height);
 
 /**
  * Check for CUDA errors; print and exit if there was a problem.

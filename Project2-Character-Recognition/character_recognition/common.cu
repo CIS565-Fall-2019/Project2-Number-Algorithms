@@ -31,7 +31,7 @@ void InputData::fillActivationArray(float_v* dest) {
 
 	dest->clear();
 
-	for (int i = 0; i < 52; i++) {
+	for (int i = 0; i < RSIZE; i++) {
 		if (i == this->value) {
 			dest->push_back(1.0);
 		}//if
@@ -40,3 +40,23 @@ void InputData::fillActivationArray(float_v* dest) {
 		}//else
 	}//for
 }//fillActivationArray
+
+short getShade(float input, float scale = 1.0) {
+	if (input < 0) return '\u0020';
+	else if (input < scale / 4) return '\u2591';
+	else if (input < scale / 2) return '\u2592';
+	else if (input < 3 * scale / 4) return '\u2593';
+	else return '\u2588';
+}//getShade
+
+void printFloatPic(float* begin, int width, int height) {
+	printf("\n");
+	for (int i = 0; i < height; i++) {
+		for (int j = 0; j < width; j++) {
+			float rawVal = begin[i * width + j];
+			printf("%lc", getShade(rawVal));
+		}//for
+		printf("\n");
+	}//for
+	printf("\n");
+}//printFloatPic

@@ -61,10 +61,6 @@ InputData readFile(std::string filename) {
 	return retval;
 }//readFile
 
-//###############################
-// TESTING HELPERS
-//###############################
-
 
 //###############################
 // MAIN
@@ -75,25 +71,37 @@ int main(int argc, char* argv[]) {
 
 	fs::path trialPath;
 	InputData testData;
-	trialPath = rootPath / fs::path("01info.txt");
-	testData = readFile(trialPath.string());
-	allRecords.push_back(testData);
-	trialPath = rootPath / fs::path("02info.txt");
-	testData = readFile(trialPath.string());
-	allRecords.push_back(testData);
-	trialPath = rootPath / fs::path("03info.txt");
-	testData = readFile(trialPath.string());
-	allRecords.push_back(testData);
-	trialPath = rootPath / fs::path("04info.txt");
-	testData = readFile(trialPath.string());
-	allRecords.push_back(testData);
-	trialPath = rootPath / fs::path("05info.txt");
-	testData = readFile(trialPath.string());
-	allRecords.push_back(testData);
+	for (int i = 1; i <= RSIZE; i++) {
+		char numBuffer[11] = {};
+		std::sprintf(numBuffer, "%02dinfo.txt", i);
+		trialPath = rootPath / fs::path(numBuffer);
+		testData = readFile(trialPath.string());
+		allRecords.push_back(testData);
+	}//for
+	//trialPath = rootPath / fs::path("05info.txt");
+	//testData = readFile(trialPath.string());
+	//allRecords.push_back(testData);
 
-	float resultArray[52] = {};
+	allRecords.resize(4);
+
+	float resultArray[RSIZE] = {};
+
+	CharacterRecognition::kmallocBuffers();
 
 	CharacterRecognition::trainWeights(allRecords, 1000);
 
+	//Print how we're doing, results-wise
+	for (int i = 0; i < allRecords.size(); i++) {
+		float_v errorResult = CharacterRecognition::forwardPropagate(allRecords[i], resultArray);
+		printf("=========RESULT FOR RECORD %d==============\n", i);
+		for (int i = 0; i < RSIZE; i++) {
+			printf("@%02d:  %0.4f\t", i, resultArray[i]);
+			if ((i + 1) % 4 == 0) {
+				printf("\n");
+			}
+		}//for
+	}//for
+
+	CharacterRecognition::kfreeBuffers();
 
 }//main

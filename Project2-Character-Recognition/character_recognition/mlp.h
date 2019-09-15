@@ -6,7 +6,7 @@
 namespace CharacterRecognition {
     Common::PerformanceTimer& timer();
 
-	void kmallocBuffers(int inputSize, int resultSize);
+	void kmallocBuffers();
 	void kfreeBuffers();
 
 	/**
@@ -26,7 +26,18 @@ namespace CharacterRecognition {
 	Forward-propagate in host memory space
 	Returns an array with the error bars
 	*/
-	float_v forwardPropagateH(InputData x, float* resultArray, cublasHandle_t* handle = NULL);
+	float_v forwardPropagate(InputData x, float* resultArray, cublasHandle_t* handle = NULL);
+
+	/**
+	Backward-propagate our error to update the relevant weights
+	*/
+	void backPropagate(cublasHandle_t* handle);
+
+	/**
+	For forward propagation, does the steps of convolving and max pooling
+	Does not work backwards in back-propagation (filters remain static)
+	*/
+	int convolveStep(float* inputLayer, int inputLayerSize, float* outputPoolingLayer, float* outputLayer, int poolWidth);
 
 	/**
 	Gives the error value between the two data points
@@ -52,9 +63,8 @@ namespace CharacterRecognition {
 	@param A		The first matrix to multiply, with dimensions mxk
 	@param B		The second matrix to multiply, with dimensions kxn
 	@param C		Location for the output matrix, with dimensionx mxn
-	@param Cswap	Swap-space for the transpose on C; will allocate if none provided
 	*/
-	void matMul(cublasHandle_t* handle, const float* A, const float* B, float* C, int m, int k, int n, float* Cswap = NULL);
+	void matMul(cublasHandle_t* handle, const float* A, const float* B, float* C, int m, int k, int n);
 
 
 }
