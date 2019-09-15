@@ -6,6 +6,8 @@
 namespace StreamCompaction {
     namespace Efficient {
         using StreamCompaction::Common::PerformanceTimer;
+		using namespace StreamCompaction::Common;
+
         PerformanceTimer& timer()
         {
             static PerformanceTimer timer;
@@ -45,7 +47,7 @@ namespace StreamCompaction {
          * Performs prefix-sum (aka scan) on idata, storing the result into odata.
          */
         void scan(int n, int *odata, const int *idata) {
-            timer().startGpuTimer();
+         //   timer().startGpuTimer();
             // TODO
 			int* d_idata;
 			int maxD = ilog2ceil(n);
@@ -75,7 +77,7 @@ namespace StreamCompaction {
 			cudaMemcpy(odata, d_idata, n * sizeof(int), cudaMemcpyDeviceToHost);
 			cudaFree(d_idata);
 
-            timer().endGpuTimer();
+         //   timer().endGpuTimer();
         }
 
         /**
@@ -90,8 +92,45 @@ namespace StreamCompaction {
         int compact(int n, int *odata, const int *idata) {
             timer().startGpuTimer();
             // TODO
+			int numOfCompacted = 0;
+			int* d_idata;
+			int* d_odata;
+			int* d_bools;
+			int* d_indices;
+
+			cudaMalloc(&d_idata, n * sizeof(int));
+			cudaMalloc(&d_odata, n * sizeof(int));
+			cudaMalloc(&d_bools, n * sizeof(int));
+			cudaMalloc(&d_indices, n * sizeof(int));
+
+			cudaMemcpy(d_idata, idata, n * sizeof(int), cudaMemcpyHostToDevice);
+
+			int threadsPerBlock = 512;
+			int blockSize = (n + threadsPerBlock - 1) / threadsPerBlock;
+			kernMapToBoolean<<<blockSize, threadsPerBlock>>>(n, d_bools, d_idata);
+			cudaDeviceSynchronize();
+
+			scan(n, d_indices, d_bools);
+
+			cudaDeviceSynchronize();
+
+			int* lastIndex = d_indices + n - 1;
+			cudaMemcpy(&numOfCompacted, lastIndex, sizeof(int), cudaMemcpyDeviceToHost);
+
+			kernScatter << <blockSize, threadsPerBlock >> > (n, d_odata, d_idata, d_bools, d_indices);
+
+			cudaDeviceSynchronize();
+
+			cudaMemcpy(odata, d_odata, n * sizeof(int), cudaMemcpyDeviceToHost);
+
+			cudaFree(d_idata);
+			cudaFree(d_odata);
+			cudaFree(d_bools);
+			cudaFree(d_indices);
+
             timer().endGpuTimer();
-            return -1;
+
+            return (idata[n-1] > 0 ) ? ( numOfCompacted + 1 ) : numOfCompacted;
         }
     }
 }
