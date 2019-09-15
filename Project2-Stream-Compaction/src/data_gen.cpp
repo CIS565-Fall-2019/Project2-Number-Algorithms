@@ -21,7 +21,7 @@ using namespace std;
 #define max_value_scan 50
 #define max_value_compaction 4
 #define max_value_sorting 500
-#define cpu_scan false
+#define cpu_scan true
 #define naive_scan true
 #define efficient_scan true
 #define shared_mem_scan true
@@ -42,12 +42,14 @@ int main(int argc, char* argv[]) {
 	printf("****************\n");
 	int pow = 4;
 	while (true) {
-		unsigned long int SIZE;
+		unsigned long long int SIZE;
 		cout << pow << endl;
+		if (pow >= 31)
+			pow = 4;
 		if (pow_2)
-			 SIZE = 1 << (pow); // Power of 2
+			 SIZE = std::pow(2,pow); // Power of 2
 		else
-			SIZE = (1 << (pow)) - 3; // Non-Power-Of-Two
+			SIZE = std::pow(2, pow) - 3; // Non-Power-Of-Two
 		int *a = new int[SIZE];
 		int *b = new int[SIZE];
 		int *c = new int[SIZE];

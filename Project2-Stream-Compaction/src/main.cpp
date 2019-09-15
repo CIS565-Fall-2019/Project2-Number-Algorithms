@@ -17,8 +17,8 @@
 #define max_value_scan 50
 #define max_value_compaction 4
 #define max_value_sorting 500
-const unsigned long int SIZE = 1<<15; // feel free to change the size of array
-const unsigned long unsigned long int NPOT = SIZE - 3; // Non-Power-Of-Two
+const unsigned long long int SIZE = 1<<15; // feel free to change the size of array
+const unsigned long long int NPOT = SIZE - 3; // Non-Power-Of-Two
 int *a = new int[SIZE];
 int *b = new int[SIZE];
 int *c = new int[SIZE];
@@ -118,7 +118,7 @@ int main(int argc, char* argv[]) {
     a[SIZE - 1] = 0;
     printArray(SIZE, a, true);
 
-	unsigned long int count, expectedCount, expectedNPOT;
+	unsigned long long int count, expectedCount, expectedNPOT;
 
     // initialize b using StreamCompaction::CPU::compactWithoutScan you implement
     // We use b for further comparison. Make sure your StreamCompaction::CPU::compactWithoutScan is correct.
