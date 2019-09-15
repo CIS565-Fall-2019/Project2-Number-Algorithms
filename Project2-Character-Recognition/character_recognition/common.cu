@@ -42,7 +42,8 @@ void InputData::fillActivationArray(float_v* dest) {
 }//fillActivationArray
 
 char getShade(float input, float scale = 1.0) {
-	std::string shadeString = std::string(" .:-=+*#%@");
+	//std::string shadeString = std::string(" .:-=+*#%@");
+	std::string shadeString = std::string(" .\'`^,:;l!i><~+-?][1(|rnuvczYUJCLQ0mwqpdb#MW&8%B@$");
 	int numLevels = shadeString.size();
 	float step = 1.0 / numLevels;
 

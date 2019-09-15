@@ -448,6 +448,8 @@ namespace CharacterRecognition {
 		float* dataPtr = x.fData.data();
 		float testOut[F2SIZE] = {};
 
+		printFloatPic(dataPtr, 101, 101);
+
 		//load data into kernel memory
 		cudaMemcpy(dF0, dataPtr, F0SIZE * sizeof(float), cudaMemcpyHostToDevice);
 		checkCUDAErrorFn("cudaMemcpy failed\n", NULL, __LINE__);
@@ -662,11 +664,11 @@ namespace CharacterRecognition {
 #if DEBUGGINGTRANSFERS
 		//DEBUGGING
 		for (int i = 0; i < NUMFILTERS; i++) {
-			//printf("================FILTER %d===============\n", i);
+			printf("================FILTER %d===============\n", i);
 			cudaMemcpy(convolveOutput, outputLayer + outputPooledBlockSize * i,
 				outputPooledBlockSize * sizeof(float), cudaMemcpyDeviceToHost);
 			checkCUDAErrorFn("cudaMemcpy failed\n", NULL, __LINE__);
-			//printFloatPic(convolveOutput, outputPooledBlockWidth, outputPooledBlockWidth);
+			printFloatPic(convolveOutput, outputPooledBlockWidth, outputPooledBlockWidth);
 		}//for
 #endif
 
