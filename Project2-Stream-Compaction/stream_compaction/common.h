@@ -32,10 +32,10 @@ inline int ilog2ceil(unsigned long long int x) {
 
 namespace StreamCompaction {
     namespace Common {
-        __global__ void kernMapToBoolean(unsigned long long int n, int *bools, const int *idata);
+        __global__ void kernMapToBoolean(unsigned long long int n, long long *bools, const long long *idata);
 
-        __global__ void kernScatter(unsigned long long int n, int *odata,
-                const int *idata, const int *bools, const int *indices);
+        __global__ void kernScatter(unsigned long long int n, long long *odata,
+                const long long *idata, const long long *bools, const long long *indices);
 
 	    /**
 	    * This class is used for timing the performance

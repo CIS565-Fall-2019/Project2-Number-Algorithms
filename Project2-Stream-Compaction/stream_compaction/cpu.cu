@@ -16,10 +16,10 @@ namespace StreamCompaction {
          * For performance analysis, this is supposed to be a simple for loop.
          * (Optional) For better understanding before starting moving to GPU, you can simulate your GPU scan in this function first.
          */
-        void scan(unsigned long long int n, int *odata, const int *idata, const bool time/* = true*/) {
+        void scan(unsigned long long int n, long long *odata, const long long *idata, const bool time/* = true*/) {
 	        (time == true)?timer().startCpuTimer():0;
 			unsigned long long int running_total = 0; // assumes only positive values
-			for (unsigned long long int i = 0; i < n-1; i++) { // n-1 because we want exclusive not inclusive so last element isn't added
+			for (unsigned long long i = 0; i < n-1; i++) { // n-1 because we want exclusive not inclusive so last element isn't added
 				running_total += idata[i]; // n-1 adds for n size 
 				odata[i+1] = running_total;
 			}
@@ -32,11 +32,11 @@ namespace StreamCompaction {
          *
          * @returns the number of elements remaining after compaction.
          */
-		unsigned long long int compactWithoutScan(unsigned long long int n, int *odata, const int *idata) {
+		unsigned long long int compactWithoutScan(unsigned long long int n, long long *odata, const long long *idata) {
 	        timer().startCpuTimer();
 			unsigned long long int count = 0;
 			unsigned long long int odata_pos = 0;
-			for (unsigned long long int i = 0; i < n; i++)
+			for (unsigned long long i = 0; i < n; i++)
 				if (idata[i] != 0) {
 					count++;
 					odata[++odata_pos] = idata[i];
@@ -50,12 +50,12 @@ namespace StreamCompaction {
          *
          * @returns the number of elements remaining after compaction.
          */
-		unsigned long long int compactWithScan(unsigned long long int n, int *odata, const int *idata) {
+		unsigned long long int compactWithScan(unsigned long long int n, long long *odata, const long long *idata) {
 	        timer().startCpuTimer();
 	        // Step 1, mark each cell with 1/0 if it has a element or not (super easy to parallelize)
-			int* scan_data = new int[n]();
-			int* mask = new int[n]();
-			for (unsigned long long int i = 0; i < n; i++) {
+			long long* scan_data = new long long[n]();
+			long long* mask = new long long[n]();
+			for (unsigned long long i = 0; i < n; i++) {
 				if (idata[i])
 					mask[i] = 1;
 				else
@@ -64,7 +64,7 @@ namespace StreamCompaction {
 			// scan the mask array (can be done in parallel by using a balanced binary tree)
 			scan(n, scan_data, mask, false);
 			// Scatter array (go to each position and copy the value) (super easy to parallelize)
-			for (unsigned long long int i = 0; i < n - 1; i++) {
+			for (unsigned long long i = 0; i < n - 1; i++) {
 				if (idata[i])
 					odata[scan_data[i] + 1] = idata[i]; 
 			}

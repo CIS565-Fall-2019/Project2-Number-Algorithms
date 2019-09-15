@@ -7,6 +7,7 @@
 
 namespace StreamCompaction {
     namespace Naive {
+#define blocksize 128
         using StreamCompaction::Common::PerformanceTimer;
         PerformanceTimer& timer()
         {
@@ -14,7 +15,7 @@ namespace StreamCompaction {
             return timer;
         }
         // TODO: __global__
-		__global__ void naive_parallel_scan(unsigned long long int n, int *odata, const int *idata, int d) {
+		__global__ void naive_parallel_scan(unsigned long long int n, long long *odata, const long long *idata, long d) {
 			unsigned long long int index = blockDim.x * blockIdx.x + threadIdx.x;
 			if (index >= n)
 				return;
@@ -23,7 +24,7 @@ namespace StreamCompaction {
 			else
 				odata[index] = idata[index];
 		}
-		__global__ void right_shift(unsigned long long int n, int *odata, const int *idata, int amount) {
+		__global__ void right_shift(unsigned long long int n, long long *odata, const long long *idata, int amount) {
 			unsigned long long int index = blockDim.x * blockIdx.x + threadIdx.x;
 			if (index >= n)
 				return;
@@ -35,28 +36,27 @@ namespace StreamCompaction {
         /**
          * Performs prefix-sum (aka scan) on idata, storing the result into odata.
          */
-        void scan(unsigned long long int n, int *odata, const int *idata) {
-            timer().startGpuTimer();
-			int blocksize = 128;
+        void scan(unsigned long long int n, long long *odata, const long long *idata) {
+			timer().startGpuTimer();
 			unsigned long long int blocks = (n + blocksize - 1) / blocksize;
 			// allocate data
-			int *dev_odata, *dev_odata_2;
-			cudaMalloc((void**)&dev_odata, n * sizeof(int));
+			long long *dev_odata, *dev_odata_2;
+			cudaMalloc((void**)&dev_odata, n * sizeof(long long));
 			checkCUDAErrorWithLine("malloc failed!");
-			cudaMalloc((void**)&dev_odata_2, n * sizeof(int));
+			cudaMalloc((void**)&dev_odata_2, n * sizeof(long long));
 			checkCUDAErrorWithLine("malloc failed!");
 			// copy data over
-			cudaMemcpy(dev_odata, idata, n*sizeof(int), cudaMemcpyHostToDevice);
+			cudaMemcpy(dev_odata, idata, n*sizeof(long long), cudaMemcpyHostToDevice);
 			checkCUDAErrorWithLine("memcpy failed!");
 			unsigned long long int uppper_limit = 1 << ilog2ceil(n);
-			for (unsigned long long int d = 1; d <= uppper_limit; d<<=1) {
+			for (long d = 1; d <= uppper_limit; d<<=1) {
 				naive_parallel_scan <<<blocks, blocksize >> > (n, dev_odata_2, dev_odata, d);
 				checkCUDAErrorWithLine("fn failed!");
 				std::swap(dev_odata, dev_odata_2);
 			}
-			right_shift << <blocks, blocksize >> > (n, dev_odata_2, dev_odata, 1);
+			right_shift <<<blocks, blocksize >>> (n, dev_odata_2, dev_odata, 1);
 			checkCUDAErrorWithLine("right shift failed failed!");
-			cudaMemcpy(odata, dev_odata_2, n*sizeof(int), cudaMemcpyDeviceToHost);
+			cudaMemcpy(odata, dev_odata_2, n*sizeof(long long), cudaMemcpyDeviceToHost);
 			checkCUDAErrorWithLine("memcpy back failed!");
 			cudaFree(dev_odata);
 			cudaFree(dev_odata_2);

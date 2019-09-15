@@ -18,10 +18,10 @@
 #define max_value_compaction 4
 #define max_value_sorting 500
 const unsigned long long int SIZE = 1<<15; // feel free to change the size of array
-const unsigned long long int NPOT = SIZE - 3; // Non-Power-Of-Two
-int *a = new int[SIZE];
-int *b = new int[SIZE];
-int *c = new int[SIZE];
+const unsigned long long int nPOT = SIZE - 3; // Non-Power-Of-Two
+long long *a = new long long[SIZE];
+long long *b = new long long[SIZE];
+long long *c = new long long[SIZE];
 
 int main(int argc, char* argv[]) {
     // Scan tests
@@ -169,11 +169,11 @@ int main(int argc, char* argv[]) {
 	printArray(SIZE, a, true);
 	printf("Data generation and results computed using thrust\n");
 	// generate 2 ground truths using thrust sort (one for powers of 2 and the other one for non powers of 2)
-	int *gt_pot = new int[SIZE]();
-	std::memcpy(gt_pot, a, SIZE * sizeof(int));
+	long long *gt_pot = new long long[SIZE]();
+	std::memcpy(gt_pot, a, SIZE * sizeof(long long));
 	thrust::sort(gt_pot, gt_pot + SIZE);
-	int *gt_npot = new int[NPOT]();
-	std::memcpy(gt_npot, a, NPOT * sizeof(int));
+	long long *gt_npot = new long long[NPOT]();
+	std::memcpy(gt_npot, a, NPOT * sizeof(long long));
 	thrust::sort(gt_npot, gt_npot + NPOT);
 
 	zeroArray(SIZE, c);

@@ -50,9 +50,9 @@ int main(int argc, char* argv[]) {
 			 SIZE = std::pow(2,pow); // Power of 2
 		else
 			SIZE = std::pow(2, pow) - 3; // Non-Power-Of-Two
-		int *a = new int[SIZE];
-		int *b = new int[SIZE];
-		int *c = new int[SIZE];
+		long long *a = new long long[SIZE];
+		long long *b = new long long[SIZE];
+		long long *c = new long long[SIZE];
 		genArray(SIZE - 1, a, 50);  // Leave a 0 at the end to test that edge case
 		a[SIZE - 1] = 0;
 		// get time
