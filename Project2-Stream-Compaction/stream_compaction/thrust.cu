@@ -28,6 +28,7 @@ namespace StreamCompaction {
             thrust::exclusive_scan(dv_in, dv_in + n, dv_out);
 			cudaMemcpy(odata, dev_odata, sizeof(int) * n, cudaMemcpyDeviceToHost);
 			cudaFree(dev_odata);
+			cudaFree(dev_oddev_idataata);
             timer().endGpuTimer();
         }
     }

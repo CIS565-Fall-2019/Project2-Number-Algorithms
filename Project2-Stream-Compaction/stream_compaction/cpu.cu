@@ -2,7 +2,7 @@
 #include "cpu.h"
 #include <iostream>
 #include "common.h"
-
+// function (in this file) assume zeroed memory
 namespace StreamCompaction {
     namespace CPU {
         using StreamCompaction::Common::PerformanceTimer;
@@ -11,7 +11,6 @@ namespace StreamCompaction {
 	        static PerformanceTimer timer;
 	        return timer;
         }
-
         /**
          * CPU scan (prefix sum).
          * For performance analysis, this is supposed to be a simple for loop.

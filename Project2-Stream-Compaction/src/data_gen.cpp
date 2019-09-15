@@ -49,8 +49,8 @@ int main(int argc, char* argv[]) {
 		else
 			SIZE = (1 << (pow)) - 3; // Non-Power-Of-Two
 		int *a = new int[SIZE];
-		long long *b = new long long[SIZE];
-		long long *c = new long long[SIZE];
+		int *b = new int[SIZE];
+		int *c = new int[SIZE];
 		genArray(SIZE - 1, a, 50);  // Leave a 0 at the end to test that edge case
 		a[SIZE - 1] = 0;
 		// get time
@@ -58,7 +58,7 @@ int main(int argc, char* argv[]) {
 		// set solution
 		if (cpu_scan) {
 			zeroArray(SIZE, b);
-			StreamCompaction::CPU::scan(SIZE, b, b);
+			StreamCompaction::CPU::scan(SIZE, b, a);
 			time = StreamCompaction::CPU::timer().getCpuElapsedTimeForPreviousOperation();
 			csv_write(time, SIZE, "cpu.csv");
 			cout << "CPU:"; printArray(SIZE, b, true);

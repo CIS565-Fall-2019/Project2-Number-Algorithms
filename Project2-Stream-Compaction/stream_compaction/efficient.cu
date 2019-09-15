@@ -46,6 +46,7 @@ namespace StreamCompaction {
 			unsigned long int closest_pow2 = 1<<ilog2ceil(n);
 			cudaMalloc((void**)&dev_odata, closest_pow2 * sizeof(int));
 			checkCUDAErrorWithLine("malloc failed!");
+			// we can use dev_odata to hold idata (because we do the scan inplace)
 			cudaMemcpy(dev_odata, idata, n * sizeof(int), cudaMemcpyHostToDevice);
 			checkCUDAErrorWithLine("memcpy failed!");
 			// reduce phase
@@ -67,6 +68,7 @@ namespace StreamCompaction {
 			//read data back
 			cudaMemcpy(odata, dev_odata, n * sizeof(int), cudaMemcpyDeviceToHost);
 			checkCUDAErrorWithLine("memcpy back failed!");
+			cudaFree(dev_odata);
 			timer().endGpuTimer();
 		}
 
