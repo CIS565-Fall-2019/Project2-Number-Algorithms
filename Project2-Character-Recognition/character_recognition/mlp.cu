@@ -9,7 +9,7 @@
 
 #define ALLOWKERNEL5 0
 #define RANDSEED 0x0bad1bad2bad123
-#define LAMBDA 0.1 //the learning delta
+#define LAMBDA 0.01 //the learning delta
 
 //These are definitions for index math in the 1d-2d world
 #define UL(idx, w) (idx - w - 1)
@@ -40,20 +40,40 @@ namespace CharacterRecognition {
 #define POOLWIDTH 3
 
 #define F0SIZE 10201
+#define F0WIDTH ((int)sqrt(F0SIZE))
 
-#define SINCONVRAWSIZE ((sqrt(F0SIZE) - (KERNWIDTH - 1)) * (sqrt(F0SIZE) - (KERNWIDTH - 1)))
+#define SINCONVRAWSIZE ((F0WIDTH - (KERNWIDTH - 1)) * (F0WIDTH - (KERNWIDTH - 1)))
 #define CONVRAWSIZE (SINCONVRAWSIZE * NUMFILTERS)
-#define SINCONVPOOLSIZE (CONVRAWSIZE / (POOLWIDTH * POOLWIDTH))
+#define SINCONVPOOLSIZE (SINCONVRAWSIZE / (POOLWIDTH * POOLWIDTH))
 #define CONVPOOLSIZE (SINCONVPOOLSIZE * NUMFILTERS)
+
 #define F1SIZE (CONVPOOLSIZE)
 
-#define W1SIZE (F0SIZE * F1SIZE)
+#define F2SIZE 1000
+#define W1SIZE (F1SIZE * F2SIZE)
 
-#define F2SIZE 500
 #ifndef RSIZE
 #define RSIZE 52
 #endif
+
 #define W2SIZE (F2SIZE * RSIZE)
+
+
+
+	void printSizes() {
+		printf("FEATURE VECTORS\n");
+			printf("\tF0Size:\t%d\n", F0SIZE);
+			printf("\tF1Size:\t%d\n", F1SIZE);
+			printf("\tF2Size:\t%d\n", F2SIZE);
+			printf("\tRSize:\t%d\n", RSIZE);
+		printf("WEIGHT MATRICES\n");
+			printf("\tW1Size:\t%d\t(F1Size * F2Size)\n", W1SIZE);
+			printf("\tW2Size:\t%d\t(F2Size * RSize)\n", W2SIZE);
+		printf("SINCONVRAWSIZE: %d\n", SINCONVRAWSIZE);
+		printf("CONVRAWSIZE: %d\n", CONVRAWSIZE);
+		printf("SINCONVPOOLSIZE: %d\n", SINCONVPOOLSIZE);
+		printf("CONVPOOLSIZE: %d\n", CONVPOOLSIZE);
+	}//printSizes
 
 
 
@@ -76,12 +96,6 @@ namespace CharacterRecognition {
 	float* dR;//result
 	float* dRA;//result(activated)
 	float* dRE;//result error
-
-
-
-	//CONVOLUTIONAL MEMORY
-	float* dCR;//convolutional output, raw
-	float* dCP;//convolutional output, pooled
 
 	//Convolution kernel initialization
 	filter3 kern1 = {	1.0 / 16,	1.0 / 8,	1.0 / 16,
@@ -110,6 +124,7 @@ namespace CharacterRecognition {
 	//##################################
 
 	void kmallocBuffers() {
+
 		cudaMalloc((void**)& dF0, F0SIZE * sizeof(float));
 		checkCUDAErrorFn("cudaMalloc failed\n", NULL, __LINE__);
 		cudaMalloc((void**)& dC0, CONVRAWSIZE * sizeof(float));
@@ -191,20 +206,6 @@ namespace CharacterRecognition {
 	//##################################
 	// DEVICE GLOBAL FUNCTIONS
 	//##################################
-
-	__global__ void kTranspose(float* A, float* Aswap, int m, int n) {
-		int index = getIndex();
-		if (index >= m * n) return;
-
-		int srcR = index / n;
-		int srcC = index % n;
-		int dstR = srcC;
-		int dstC = srcR;
-		//int srcIndex = srcR * n + srcC;
-		//int dstIndex = dstR * m + dstC;
-		//Aswap[dstIndex] = A[srcIndex];
-		Aswap[dstR * m + dstC] = A[srcR * n + srcC];
-	}//kTranspose
 
 	/**
 	Performs our activation function on our results to put them in the range between 0 and 1
@@ -294,7 +295,7 @@ namespace CharacterRecognition {
 		float_v retval = float_v();
 		float_v trueResult = record.resultArray;
 		for (int i = 0; i < trueResult.size(); i++) {
-			float error = resultArray[i] - trueResult[i];
+			float error = trueResult[i] - resultArray[i];
 			retval.push_back(error);
 		}//for
 
@@ -339,7 +340,7 @@ namespace CharacterRecognition {
 
 		float rA = thetaA[r];
 		float psi = (rA * (1 - rA)) * omega[r];
-		weightChange[index] = -1.0 * LAMBDA * psi * data[c];
+		weightChange[index] = LAMBDA * psi * data[c];
 		psiOut[r] = psi;
 		return;
 
@@ -355,7 +356,7 @@ namespace CharacterRecognition {
 
 		float rA = thetaA[r];
 		float psi = (rA * (1 - rA)) * omegaError[r];
-		weightChange[index] = -1.0 * LAMBDA * psi * data[c];
+		weightChange[index] = LAMBDA * data[c] * psi;
 		psiOut[r] = psi;
 		return;
 
@@ -401,9 +402,7 @@ namespace CharacterRecognition {
 		*/
 		cublasHandle_t mHandle; bool handling = false;
 		if (handle == NULL) {
-			handling = true;
-			handle = &mHandle;
-			cublasCreate(handle);
+			handling = true; handle = &mHandle; cublasCreate(handle);
 		}//if
 		float alpha = 1.0;
 
@@ -412,7 +411,7 @@ namespace CharacterRecognition {
 		//final layer weight delta calculation
 		calcWeightChange2(dRA, dRE, dF2A, F2SIZE, RSIZE, dW2D, dPi);
 		//apply the weight change
-		cublasSaxpy(*handle, F2SIZE * RSIZE, &alpha, dW2D, 1, dW2, 1);
+		cublasSaxpy(*handle, W2SIZE, &alpha, dW2D, 1, dW2, 1);
 
 		//calculate Omega_j off the psi_i values
 		matMul(handle, dW2, dPi, dOj, F2SIZE, RSIZE, 1);
@@ -423,10 +422,10 @@ namespace CharacterRecognition {
 		checkCUDAErrorFn("cudamemcpy failed\n", NULL, __LINE__);
 
 		//next-to-last layer weight delta calculation
-		calcWeightChange1(dF2A, dOj, dF0, F0SIZE, F2SIZE, dW1D, dPj);
+		calcWeightChange1(dF2A, dOj, dF1, F1SIZE, F2SIZE, dW1D, dPj);
 		checkCUDAErrorFn("calcWeightChange failed\n", NULL, __LINE__);
 		//apply the weight change
-		cublasSaxpy(*handle, F0SIZE * F2SIZE, &alpha, dW1D, 1, dW1, 1);
+		cublasSaxpy(*handle, W1SIZE, &alpha, dW1D, 1, dW1, 1);
 		checkCUDAErrorFn("saxpy failed\n", NULL, __LINE__);
 
 		cudaMemcpy(testOut, dW1, F2SIZE * sizeof(float), cudaMemcpyDeviceToHost);
@@ -449,17 +448,24 @@ namespace CharacterRecognition {
 		float* dataPtr = x.fData.data();
 		float testOut[F2SIZE] = {};
 
+		//load data into kernel memory
 		cudaMemcpy(dF0, dataPtr, F0SIZE * sizeof(float), cudaMemcpyHostToDevice);
 		checkCUDAErrorFn("cudaMemcpy failed\n", NULL, __LINE__);
 
+		//convolve step
+		convolveStep(dF0, F0SIZE, dC0, dF1, POOLWIDTH);
+		checkCUDAErrorFn("convolveStep failed\n", NULL, __LINE__);
+
 		//Fully connected layer w/ W1
-		matMul(handle, dF0, dW1, dF2, 1, F0SIZE, F2SIZE);
+		matMul(handle, dF1, dW1, dF2, 1, F1SIZE, F2SIZE);
 		checkCUDAErrorFn("matMul failed\n", NULL, __LINE__);
 
+#if DEBUGGINGTRANSFERS
 		//DEBUG OUTPUT
 		cudaMemcpy(testOut, dW1, F2SIZE * sizeof(float), cudaMemcpyDeviceToHost);
 		checkCUDAErrorFn("cudaMemcpy failed\n", NULL, __LINE__);
-		
+#endif
+
 		//activate the first results
 		activateResults(dF2, dF2A, F2SIZE);
 		checkCUDAErrorFn("activateResults failed\n", NULL, __LINE__);
@@ -483,6 +489,8 @@ namespace CharacterRecognition {
 	}//forwardPropH
 
 	void trainWeights(InputData_v records, int numIterations) {
+		printSizes();
+
 		cublasHandle_t handle;
 		cublasCreate(&handle);
 
@@ -496,7 +504,8 @@ namespace CharacterRecognition {
 			float_vv errorValues = float_vv();
 
 			//go forward
-			float_v errorVal = forwardPropagate(records[iter % records.size()], results, &handle);
+			int recordNum = iter % records.size();//which image we're training on
+			float_v errorVal = forwardPropagate(records[recordNum], results, &handle);
 
 			/*
 			errorValues.push_back(errorVal);
@@ -512,7 +521,7 @@ namespace CharacterRecognition {
 				}//for
 			}//if
 			float energy = calcEnergy(errorVal);
-			printf("@%03d: Calculated energy is %.8f\n", iter, energy);
+			printf("@%03d: r#%02d: Calculated energy is %.8f\n", iter, recordNum, energy);
 
 			//go backwards
 			backPropagate(&handle);
@@ -522,32 +531,6 @@ namespace CharacterRecognition {
 
 	}//trainWeights
 
-
-	void transpose(float* A, float* Aswap, int m, int n) {
-		int numElements = m * n;
-		dim3 tpb = dim3(BLOCKSIZE);
-		dim3 bpg = dim3((numElements + BLOCKSIZE - 1) / BLOCKSIZE);
-
-		float testArray[2][2];
-
-		cudaMemcpy(testArray, A, 4 * sizeof(float), cudaMemcpyDeviceToHost);
-		checkCUDAErrorFn("cudaMemcpy failed\n", NULL, __LINE__);
-
-		kTranspose << <tpb, bpg >> > (A, Aswap, m, n);
-		checkCUDAErrorFn("kTranspose failed\n", NULL, __LINE__);
-
-		cudaMemcpy(testArray, Aswap, 4 * sizeof(float), cudaMemcpyDeviceToHost);
-		checkCUDAErrorFn("cudaMemcpy failed\n", NULL, __LINE__);
-
-		cudaMemcpy(A, Aswap, numElements * sizeof(float), cudaMemcpyDeviceToDevice);
-		checkCUDAErrorFn("cudaMemcpy failed\n", NULL, __LINE__);
-
-		cudaMemcpy(testArray, A, 4 * sizeof(float), cudaMemcpyDeviceToHost);
-		checkCUDAErrorFn("cudaMemcpy failed\n", NULL, __LINE__);
-
-		return;
-
-	}//transpose
 
 
 	//##################################
@@ -596,12 +579,17 @@ namespace CharacterRecognition {
 		if (index >= odataWidth * odataWidth) return;
 		int idataW = odataWidth + 2;
 
+		int oR = index / odataWidth;
+		int oC = index % odataWidth;
+		int iR = oR + 1;
+		int iC = oC + 1;
+
 		//get ourselves an "idata" index
-		int iindex = (index / odataWidth) * 2 + 1 + idataW;
+		int iindex = iR * idataW + iC;
 
 		float sum = 0;
 
-		uint8_t relData[9];
+		float relData[9];
 		//Flips the kernel here
 		relData[0] = idata[DR(iindex, idataW)];
 		relData[1] = idata[DC(iindex, idataW)];
@@ -615,31 +603,16 @@ namespace CharacterRecognition {
 		for (int i = 0; i < 9; i++) {
 			sum += relData[i] * filter.kernel[i];
 		}//for 9
-#if ALLOWKERNEL5
-		else if (filterWidth == 5) {
-			uint8_t relData[25];
-			//Flips the kernel here (without the macro stuff)
-			for (int i = 0; i < 5; i++) {
-				int iOffset = idataW * (i - 2);
-				for (int j = 0; j < 5; j++) {
-					relData[5 * i + j] = idata[iindex + (j - 2) + iOffset];
-				}//for
-			}//for
-			for (int i = 0; i < 25; i++) {
-				sum += relData[i] * filter[i];
-			}//for 25
-		}//elif 5
-#endif
 
 		odata[index] = sum;
 
 	}//kconvolve
 
-	void convolve(float* idata, float* odata, int odataSize, filter3 kernel) {
+	void convolve(float* idata, float* odata, int oOffset, int odataSize, filter3 kernel) {
 		dim3 tpb = dim3(BLOCKSIZE);
 		dim3 bpg = dim3(((odataSize) + BLOCKSIZE - 1) / BLOCKSIZE);
 
-		kconvolve<<<bpg, tpb>>>(kernel, idata, odata, (int)sqrt(odataSize));
+		kconvolve<<<bpg, tpb>>>(kernel, idata, odata + oOffset, (int)sqrt(odataSize));
 		checkCUDAErrorFn("kconvolve failed\n", NULL, __LINE__);
 	}//convolve
 
@@ -658,10 +631,22 @@ namespace CharacterRecognition {
 
 		//convolve
 		for (int i = 0; i < NUMFILTERS; i++) {
-			convolve(inputLayer, outputPoolingLayer + (i * outputPoolingBlockSize), outputPoolingBlockSize, allKernels[i]);
+			convolve(inputLayer, outputPoolingLayer, i * outputPoolingBlockSize, outputPoolingBlockSize, allKernels[i]);
 		}//for
 
 		cudaDeviceSynchronize();
+		
+#if DEBUGGINGTRANSFERS
+		//DEBUGGING
+		float convolveOutput[F0SIZE] = {};
+		for (int i = 0; i < NUMFILTERS; i++) {
+			//printf("================FILTER %d===============\n", i);
+			cudaMemcpy(convolveOutput, outputPoolingLayer + outputPoolingBlockSize * i, 
+				outputPoolingBlockSize * sizeof(float), cudaMemcpyDeviceToHost);
+			checkCUDAErrorFn("cudaMemcpy failed\n", NULL, __LINE__);
+			//printFloatPic(convolveOutput, outputPoolingBlockWidth, outputPoolingBlockWidth);
+		}//for
+#endif
 
 		//pool
 		dim3 tpb = dim3(BLOCKSIZE);
@@ -674,7 +659,19 @@ namespace CharacterRecognition {
 			checkCUDAErrorFn("kmaxpool failed\n", NULL, __LINE__);
 		}//for
 
+#if DEBUGGINGTRANSFERS
+		//DEBUGGING
+		for (int i = 0; i < NUMFILTERS; i++) {
+			//printf("================FILTER %d===============\n", i);
+			cudaMemcpy(convolveOutput, outputLayer + outputPooledBlockSize * i,
+				outputPooledBlockSize * sizeof(float), cudaMemcpyDeviceToHost);
+			checkCUDAErrorFn("cudaMemcpy failed\n", NULL, __LINE__);
+			//printFloatPic(convolveOutput, outputPooledBlockWidth, outputPooledBlockWidth);
+		}//for
+#endif
+
 		return outputLayerSize;
 	}//convolveStep
+
 
 }//CharacterRecognition

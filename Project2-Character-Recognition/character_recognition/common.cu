@@ -41,12 +41,18 @@ void InputData::fillActivationArray(float_v* dest) {
 	}//for
 }//fillActivationArray
 
-short getShade(float input, float scale = 1.0) {
-	if (input < 0) return '\u0020';
-	else if (input < scale / 4) return '\u2591';
-	else if (input < scale / 2) return '\u2592';
-	else if (input < 3 * scale / 4) return '\u2593';
-	else return '\u2588';
+char getShade(float input, float scale = 1.0) {
+	std::string shadeString = std::string(" .:-=+*#%@");
+	int numLevels = shadeString.size();
+	float step = 1.0 / numLevels;
+
+	float normInput = input / scale;
+	if (normInput < 0.0) normInput = 0.0;
+	if (normInput >= 1.0) normInput = 0.99;
+
+	int inputStep = (int)(normInput / step);
+	return shadeString.at(inputStep);
+
 }//getShade
 
 void printFloatPic(float* begin, int width, int height) {
@@ -54,7 +60,7 @@ void printFloatPic(float* begin, int width, int height) {
 	for (int i = 0; i < height; i++) {
 		for (int j = 0; j < width; j++) {
 			float rawVal = begin[i * width + j];
-			printf("%lc", getShade(rawVal));
+			printf("%c", getShade(rawVal));
 		}//for
 		printf("\n");
 	}//for

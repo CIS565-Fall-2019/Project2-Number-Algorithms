@@ -82,13 +82,15 @@ int main(int argc, char* argv[]) {
 	//testData = readFile(trialPath.string());
 	//allRecords.push_back(testData);
 
-	allRecords.resize(4);
+#ifdef NUMTRAINING
+	allRecords.resize(NUMTRAINING);
+#endif
 
 	float resultArray[RSIZE] = {};
 
 	CharacterRecognition::kmallocBuffers();
 
-	CharacterRecognition::trainWeights(allRecords, 1000);
+	CharacterRecognition::trainWeights(allRecords, 1500);
 
 	//Print how we're doing, results-wise
 	for (int i = 0; i < allRecords.size(); i++) {
