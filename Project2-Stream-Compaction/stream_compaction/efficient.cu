@@ -2,7 +2,7 @@
 #include <cuda_runtime.h>
 #include "common.h"
 #include "efficient.h"
-
+#define blockSize 32
 namespace StreamCompaction {
     namespace Efficient {
         using StreamCompaction::Common::PerformanceTimer;
@@ -11,7 +11,10 @@ namespace StreamCompaction {
             static PerformanceTimer timer;
             return timer;
         }
+
+
 		int *dev_odata;
+		
         /**
          * Performs prefix-sum (aka scan) on idata, storing the result into odata.
          */
@@ -74,7 +77,7 @@ namespace StreamCompaction {
 		 * Performs prefix-sum (aka scan) on idata, storing the result into odata.
 		 */
 		void scan(int n, int *odata, const int *idata) {
-
+			
 
 			bool timer_started = false;
 			try {
@@ -84,7 +87,6 @@ namespace StreamCompaction {
 				timer_started = true;
 			}
 
-			int blockSize = 32;
 			//printArray(n, idata);
 			//int new_n = n;
 			n = 1 << ilog2ceil(n); // make n something that is power of 2
@@ -131,9 +133,54 @@ namespace StreamCompaction {
          */
         int compact(int n, int *odata, const int *idata) {
             timer().startGpuTimer();
+			int *dev_mask;
+			int *dev_idata;
+			int *temp_dev_odata;
+
+			int count;
+
+			cudaMalloc((void**)&dev_mask, n * sizeof(int));
+			cudaMalloc((void**)&dev_idata, n * sizeof(int));
+			cudaMalloc((void**)&temp_dev_odata, n * sizeof(int));
+
+			cudaMemcpy(dev_idata, idata, sizeof(int) * n, cudaMemcpyHostToDevice);
+
+			dim3 fullBlocksPerGrid((n+blockSize - 1) / blockSize);
+
+			StreamCompaction::Common::kernMapToBoolean << <fullBlocksPerGrid, blockSize >> > (n, dev_mask, dev_idata);
+
+			int *temp_idata = new int[n];
+
+
+
+			cudaMemcpy(temp_idata, dev_mask, n * sizeof(int), cudaMemcpyDeviceToHost);
+
+			//printArray(n, temp_idata);
+
+			scan(n, odata, temp_idata);
+
+
+			if (temp_idata[n - 1] == 0) {
+				count = odata[n - 1];
+			}
+			else {
+				count = odata[n - 1] + 1;
+			}
+			
+			//cudaMemcpy(mask_scan, temp_odata, n * sizeof(int), cudaMemcpyHostToDevice);
+
+			StreamCompaction::Common::kernScatter << <fullBlocksPerGrid, blockSize >> > (n, temp_dev_odata, dev_idata, dev_mask, dev_odata);
+
+			cudaMemcpy(odata, temp_dev_odata, n * sizeof(int), cudaMemcpyDeviceToHost);
+
             // TODO
             timer().endGpuTimer();
-            return -1;
+
+			cudaFree(dev_mask);
+			cudaFree(dev_idata);
+			cudaFree(temp_dev_odata);
+
+            return count;
         }
     }
 }
