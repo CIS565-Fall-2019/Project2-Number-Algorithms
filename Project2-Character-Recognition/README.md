@@ -20,6 +20,8 @@ However, I HAVE elected to process the images on the front end through some comm
 
 There is the slight hiccup that I am not sure how to property back-propogate through a convolutional layer and update convolution kernel weights. That said, I stand by the decision, as the resultant data sets have more activated information than the original data.
 
+I added a bias term to the result of these convolutions and poolings, and again inside the hidden layer.
+
 
 ### Training Time Analysis
 To analyze how my network performed for training, I decided to train it only on the first 8 letters, so that I could get some good data about how various parameters affected training time. This would then help determine the best way to structure the network for the larger, 52-letter dataset.
@@ -36,7 +38,7 @@ One frustrating thing about this approach is that the random seed I'm using to g
 
 ...Or at least, that's what I thought, but changing around the seed, while occasionally very important, did not have as much impact as what were occasionally just one-element differences in hidden layer size.
 
-I've attached an unsatisfying chart here, and decided to go with a hidden layer of size equal to 7.5 times the size of the result layer, because I am no data scientist.
+I've attached an unsatisfying chart here, and decided to go with a hidden layer of size equal to 12 times the size of the result layer, because I am no data scientist.
 
 #### LAMBDA value
 
@@ -45,4 +47,11 @@ Rather than tying the training scaling to total error, I decided to keep it to a
 I then endeavored to find a LAMBDA value that would operate well across the training set.
 
 Given the relative simplicity of only eight data points, I chose to increase my sample size to `16` for this next round, to better see the results of the training.
+
+Well, it turns out, that was a bad idea; training took way longer in this case, as the model attempted to fit more and more complex input and output pairings.
+
+#### The Big Training
+I ended up arbitratily deciding on a hidden layer of size `256`, as "roughly 5 times the result vector size" sounded like a metric.
+
+I got it close to good with a lamdba of `0.005`, but then it stalled. I decided to try to get it over that hill with a lambda value of 0.1 for some stretch of time, and it actually worked. I did all of this by running it through training data, saving the weights, and running the weights through again with a different lambda.
 
