@@ -92,6 +92,8 @@ namespace StreamCompaction {
 			    cudaEventRecord(event_end);
 			    cudaEventSynchronize(event_end);
 
+#include "common.h"
+
 			    if (!gpu_timer_started) { throw std::runtime_error("GPU timer not started"); }
 
 			    cudaEventElapsedTime(&prev_elapsed_time_gpu_milliseconds, event_start, event_end);
