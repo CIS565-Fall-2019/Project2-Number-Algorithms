@@ -37,11 +37,14 @@ int main(int argc, char* argv[]) {
 //		uchar * arr = image.isContinuous() ? image.data : image.clone().data;
 //		uint length = image.total()*image.channels();
 //		std::cout << length << std::endl;
-	float data[196] = { 1 };
-	CharacterRecognition::NeuralNet nn;
+	const int inp_dim = 196;
+	float data[inp_dim] = {1};
+	vector<int>layers = {98,65};
+	int classes = 52;
+	CharacterRecognition::NeuralNet nn(inp_dim, classes, layers);
 	float *output = nn.forward(data);
 	float sum = 0;
-	for (int i = 0; i < 52; i++) {
+	for (int i = 0; i < classes; i++) {
 		std::cout << output[i] << std::endl;
 		sum += output[i];
 	}
