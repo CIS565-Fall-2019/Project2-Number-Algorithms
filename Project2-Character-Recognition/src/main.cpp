@@ -14,11 +14,12 @@
 //____CONFIG Neural Network_____________________
 const int N = 4;      // 52;    // Number of examples
 const int D = 2;     //; // Feature length per example
+const int H = 2;     //; // Number of Hidden unit
 const int C = 2;     // NN number of classes
 
-const double LR = 0.1;
+const double LR = 0.01;
 
-const int epochs = 1000;
+const int epochs = 100;
 double *losses = new double[epochs];
 
 double *idata = new double[N*D];
@@ -54,7 +55,7 @@ int main(int argc, char* argv[]) {
 	gtruth[2] = 1;
 	gtruth[3] = 0;
 
-	CharacterRecognition::trainMLP(N, D, C, idata, preds, gtruth, epochs, losses, LR);
+	CharacterRecognition::trainMLP(N, D, H, C, idata, preds, gtruth, epochs, losses, LR);
 
 	printf("\nCompleted XOR Training\n");
 
