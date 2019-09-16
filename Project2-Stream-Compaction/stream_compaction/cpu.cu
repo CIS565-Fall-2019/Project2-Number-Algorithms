@@ -18,9 +18,29 @@ namespace StreamCompaction {
          * (Optional) For better understanding before starting moving to GPU, you can simulate your GPU scan in this function first.
          */
         void scan(int n, int *odata, const int *idata) {
-	        timer().startCpuTimer();
+			bool exception = true;
+			try {
+				timer().startCpuTimer();
+				exception = false;
+			}
+			catch (const std::exception& e) {
+				exception = true;
+			}
+
             // TODO
-	        timer().endCpuTimer();
+			odata[0] = 0;
+			for (int i = 1; i < n; i++) {
+				odata[i] = odata[i - 1] + idata[i-1];
+			}
+
+			try {
+				if (exception == false) {
+					timer().endCpuTimer();
+				}
+			}
+			catch (const std::exception& e) {
+
+			}
         }
 
         /**
@@ -29,10 +49,33 @@ namespace StreamCompaction {
          * @returns the number of elements remaining after compaction.
          */
         int compactWithoutScan(int n, int *odata, const int *idata) {
-	        timer().startCpuTimer();
+
+			bool exception = true;
+			try {
+				timer().startCpuTimer();
+				exception = false;
+			}
+			catch (const std::exception& e) {
+				exception = true;
+			}
+
             // TODO
-	        timer().endCpuTimer();
-            return -1;
+			int compactedIndex = 0;
+			for (int i = 0; i < n; i++) {
+				if (idata[i] != 0) {
+					odata[compactedIndex++] = idata[i];
+				}
+			}
+
+			try {
+				if (exception == false) {
+					timer().endCpuTimer();
+				}
+			}
+			catch (const std::exception& e) {
+
+			}
+            return compactedIndex;
         }
 
         /**
@@ -41,10 +84,41 @@ namespace StreamCompaction {
          * @returns the number of elements remaining after compaction.
          */
         int compactWithScan(int n, int *odata, const int *idata) {
-	        timer().startCpuTimer();
+			bool exception = true;
+			try {
+				timer().startCpuTimer();
+				exception = false;
+			}
+			catch (const std::exception& e) {
+				exception = true;
+			}
+
+			int *binaryMap = new int[n];
+			int *scannedBinaryArray = new int[n];
+			int numOfElements = 0;
 	        // TODO
-	        timer().endCpuTimer();
-            return -1;
+			for (int i = 0; i < n; i++) {
+				binaryMap[i] = idata[i] == 0 ? 0 : 1;
+			}
+
+			scan(n, scannedBinaryArray, binaryMap);
+
+			for (int i = 0; i < n; i++) {
+				if (binaryMap[i] == 1) {
+					odata[scannedBinaryArray[i]] = idata[i];
+					numOfElements++;
+				}
+			}
+
+			try {
+				if (exception == false) {
+					timer().endCpuTimer();
+				}
+			}
+			catch (const std::exception& e) {
+
+			}
+            return numOfElements;
         }
     }
 }
