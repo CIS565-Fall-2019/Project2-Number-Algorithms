@@ -54,34 +54,35 @@ namespace StreamCompaction {
 		}
 
         void sort(int n, int *odata, const int *idata) {
-			int mx = findMax(n, idata);
-			int kbit = ilog2ceil(mx);
-			int maxBinary = 1 << kbit;
+			//int mx = findMax(n, idata);
+			int kbit = ilog2ceil(n);
+			int npad = 1 << kbit;
 
 			int *dev_idata, *dev_odata, *dev_bools, *dev_indices;
-
-			cudaMalloc((void**)&dev_idata, sizeof(int) * maxBinary);
+			cudaMalloc((void**)&dev_idata, sizeof(int) * npad);
 			checkCUDAError("cudaMalloc dev_idata failed!");
-			cudaMalloc((void**)&dev_odata, sizeof(int) * maxBinary);
+			cudaMalloc((void**)&dev_odata, sizeof(int) * npad);
 			checkCUDAError("cudaMalloc dev_odata failed!");
-			cudaMalloc((void**)&dev_bools, sizeof(int) * maxBinary);
+			cudaMalloc((void**)&dev_bools, sizeof(int) * npad);
 			checkCUDAError("cudaMalloc dev_bools failed!");
-			cudaMalloc((void**)&dev_indices, sizeof(int) * maxBinary);
+			cudaMalloc((void**)&dev_indices, sizeof(int) * npad);
 			checkCUDAError("cudaMalloc dev_indices failed!");
 
 			cudaMemcpy(dev_idata, idata, sizeof(int) * n, cudaMemcpyHostToDevice);
 			checkCUDAError("Memcpy idata failed!");
 			
 			dim3 threadsPerBlock(blockSize);
-			dim3 fullBlocksPerGrid((maxBinary + blockSize - 1) / blockSize);
+			dim3 fullBlocksPerGrid((n + blockSize - 1) / blockSize);
 			
-            //timer().startGpuTimer();
+            timer().startGpuTimer();
             for(int i = 0; i <= kbit; i++){
 				kernBitMapToBoolean<< <fullBlocksPerGrid, threadsPerBlock >> > (n, (1 << i), dev_bools, dev_idata);
 				checkCUDAError("Memcpy kernMapToBoolean failed!");
 
-				StreamCompaction::Naive::scan(n, dev_indices, dev_bools);
-				checkCUDAError("Naive scan failed!");
+				cudaMemcpy(dev_indices, dev_bools, sizeof(int) * n, cudaMemcpyDeviceToDevice);
+				checkCUDAError("Memcpy dev_bools to dev_indices failed!");
+				StreamCompaction::Efficient::workEfficientScan(npad, dev_indices, threadsPerBlock, fullBlocksPerGrid);
+				checkCUDAError("Efficient scan failed!");
 
 				int totalFalses, lastBool;
 				cudaMemcpy(&totalFalses, dev_indices + n - 1, sizeof(int), cudaMemcpyDeviceToHost);
@@ -100,7 +101,7 @@ namespace StreamCompaction {
 				checkCUDAError("Memcpy dev_odata to dev_idata failed!");
 			}
 
-            //timer().endGpuTimer();
+            timer().endGpuTimer();
 
 			cudaMemcpy(odata, dev_idata, sizeof(int) * n, cudaMemcpyDeviceToHost);
 

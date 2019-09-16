@@ -20,6 +20,8 @@ int *a = new int[SIZE];
 int *b = new int[SIZE];
 int *c = new int[SIZE];
 
+#define RADIX_CLASS_EXAMPLE 1;
+
 int main(int argc, char* argv[]) {
     // Scan tests
 
@@ -154,26 +156,43 @@ int main(int argc, char* argv[]) {
 	printf("** RADIX SORT TESTS **\n");
 	printf("**********************\n");
 
-	int unsorted_array[] = { 0, 4, 1, 2, 5, 6, 7, 3 };
-	int sorted_array[] = { 0, 1, 2, 3, 4, 5, 6, 7 };
-	int unsorted_arrayNPOT[] = { 0, 4, 1, 2, 5, 6, 3 };
-	int sorted_arrayNPOT[] = { 0, 1, 2, 3, 4, 5, 6 };
-	printArray(8, unsorted_array, true);
-	printArray(8, sorted_array, true);
+	#if RADIX_CLASS_EXAMPLE
+		const int size = 8;
+		const int npot = 7;
+		int unsorted_array[] = { 0, 4, 1, 2, 5, 6, 7, 3 }; //hard coding array to class example
+		int unsorted_arrayNPOT[] = { 0, 4, 1, 2, 5, 6, 3 };
+	#else
+		const int size = SIZE;
+		const int npot = NPOT;
+		int unsorted_array[size];
+		int unsorted_arrayNPOT[npot];
+		memcpy(unsorted_array, a, sizeof(int) * size);
+		memcpy(unsorted_arrayNPOT, a, sizeof(int) * NPOT);
+	#endif // CLASS_EXAMPLE
 
-	zeroArray(8, c);
+	int sorted_array[size];
+	memcpy(sorted_array, unsorted_array, sizeof(int) * size); // copy and sort to compare
+	std::sort(sorted_array, sorted_array + size);
+
+	int sorted_arrayNPOT[npot];
+	memcpy(sorted_arrayNPOT, unsorted_arrayNPOT, sizeof(int) * npot); // copy and sort to compare
+	std::sort(sorted_arrayNPOT, sorted_arrayNPOT + npot);
+
+	printArray(size, unsorted_array, true);
+
+	zeroArray(size, c);
 	printDesc("radix sort, power-of-two");
-	StreamCompaction::Radix::sort(8, c, unsorted_array);
+	StreamCompaction::Radix::sort(size, c, unsorted_array);
 	printElapsedTime(StreamCompaction::Thrust::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
-	printArray(8, c, true);
-	printCmpResult(8, sorted_array, c);
+	printArray(size, c, true);
+	printCmpResult(size, sorted_array, c);
 
-	zeroArray(7, c);
+	zeroArray(npot, c);
 	printDesc("radix sort, non-power-of-two");
-	StreamCompaction::Radix::sort(7, c, unsorted_arrayNPOT);
+	StreamCompaction::Radix::sort(npot, c, unsorted_arrayNPOT);
 	printElapsedTime(StreamCompaction::Thrust::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
-	printArray(7, c, true);
-	printCmpResult(7, sorted_arrayNPOT, c);
+	printArray(npot, c, true);
+	printCmpResult(npot, sorted_arrayNPOT, c);
 
     system("pause"); // stop Win32 console from closing on exit
 	delete[] a;
