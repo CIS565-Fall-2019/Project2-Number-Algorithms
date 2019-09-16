@@ -12,27 +12,24 @@
 #include "testing_helpers.hpp"
 #include <fstream>
 
-#define sizeData 10205
-#define numLabels 52
+#define sizeData 2
+#define numLabels 1
+#define numData 4
+#define hiddenNodes 2
 
 void readData(float *X, float *y) {
-	int c = 0;
-	for (int i = 1; i <= numLabels; i++) {
-		float ascii = 65 + c;
-		if (i % 2 == 0) { c++; }
-		float yi = i % 2 == 0 ? ascii+32 : ascii;
-		y[(i-1)*(numLabels+1)] = yi;
+	for (int i = 0; i < sizeData; i++) {
+		for (int j = 0; j < sizeData; j++) {
+			X[sizeData*(2 * i + j)] = i;
+			X[sizeData*(2 * i + j) + 1] = j;
+			y[2*i + j] = i ^ j;
+		}
+	}
 
-		float xi;
-		std::string n = i < 10 ? "0" + std::to_string(i) : std::to_string(i);
-		std::string filePath = "../data-set/" + n + "info.txt";
-		std::ifstream dataFile(filePath);
-		int k = 0;
-		while (!dataFile.fail() && !dataFile.eof())
-		{
-			dataFile >> xi;
-			X[sizeData*(i-1) + k++] = xi;
-		};
+	for (int i = 0; i <= 1; i++) {
+		for (int j = 0; j <= 1; j++) {
+			std::cout << "data: " << X[sizeData*(2 * i + j)] << X[sizeData*(2 * i + j) + 1] << " label: " << y[2 * i + j] << "\n";
+		}
 	}
 }
 
@@ -42,22 +39,22 @@ int main(int argc, char* argv[]) {
     printf("** MLP TESTS **\n");
     printf("****************\n");
 
-	unsigned int size_X = sizeData*numLabels;
+	unsigned int size_X = sizeData* numData;
 	unsigned int mem_size_X = sizeof(float) * size_X;
 	float *X = (float *)malloc(mem_size_X);
 
-	unsigned int size_y = numLabels*numLabels;
+	unsigned int size_y = numLabels*numData;
 	unsigned int mem_size_y = sizeof(float) * size_y;
 	float *y = (float *)malloc(mem_size_y);
 
 	printDesc("reading data");
 	readData(X,y);
 
-	printDesc("test multiply");
-	CharacterRecognition::testMatrixMultiply();
+	//printDesc("test multiply");
+	//CharacterRecognition::testMatrixMultiply();
 
 	printDesc("training");
-	CharacterRecognition::train(X, y, sizeData, 10, numLabels);
+	CharacterRecognition::train(X, y, sizeData, hiddenNodes, numLabels, numData);
 	
 
 	free(X);
