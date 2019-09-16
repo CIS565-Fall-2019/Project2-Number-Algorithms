@@ -53,18 +53,18 @@ void genArray(int n, float *a, int maxval) {
     srand(time(nullptr));
 
     for (int i = 0; i < n; i++) {
-        a[i] = ((float)rand()) / (float)maxval;
+        a[i] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
     }
 }
 
-void printArray(int n, int *a, bool abridged = false) {
+void printArray(int n,float *a, bool abridged = false) {
     printf("    [ ");
     for (int i = 0; i < n; i++) {
         if (abridged && i + 2 == 15 && n > 16) {
             i = n - 2;
             printf("... ");
         }
-        printf("%3d ", a[i]);
+        printf("%0.4f ", a[i]);
     }
     printf("]\n");
 }

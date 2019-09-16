@@ -22,7 +22,6 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 endif()
 
 include_directories(.)
-link_directories(${CUDA_TOOLKIT_ROOT_DIR}/lib/x64)
 add_subdirectory(character_recognition)
 
 cuda_add_executable(${CMAKE_PROJECT_NAME}
@@ -33,5 +32,4 @@ cuda_add_executable(${CMAKE_PROJECT_NAME}
 target_link_libraries(${CMAKE_PROJECT_NAME}
     character_recognition
     ${CORELIBS}
-    cublas
     )
