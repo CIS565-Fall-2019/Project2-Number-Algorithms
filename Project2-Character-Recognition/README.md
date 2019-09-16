@@ -32,3 +32,17 @@ I ran each until the sum of the squared errors for the whole set was less than s
 
 The "hidden layer" that came out of my convolutional layers was a fixed size based on the structure of convolutional kernels and max pooling (a little over `6500` elements). However, this left one hidden layer that could be tuned to a specific number of elements. I first ran a number of trials to determine how many elements would lead to the fastest training, with regards to the output vector size.
 
+One frustrating thing about this approach is that the random seed I'm using to generate initial arrays has a significant effect on the overall training time as I change around the size of the arrays, by way of messing with the hidden layer. A one-bit difference in the starting seed could make a tenfold difference in how long the network took to train.
+
+...Or at least, that's what I thought, but changing around the seed, while occasionally very important, did not have as much impact as what were occasionally just one-element differences in hidden layer size.
+
+I've attached an unsatisfying chart here, and decided to go with a hidden layer of size equal to 7.5 times the size of the result layer, because I am no data scientist.
+
+#### LAMBDA value
+
+Rather than tying the training scaling to total error, I decided to keep it to a single value, because it made coding easier if I could just `#define` it.
+
+I then endeavored to find a LAMBDA value that would operate well across the training set.
+
+Given the relative simplicity of only eight data points, I chose to increase my sample size to `16` for this next round, to better see the results of the training.
+
