@@ -18,7 +18,7 @@
 
 #define NUMBER_OF_INSTANCES 52
 #define NUMBER_OF_FEATURES 10201
-#define HIDDEN_LAYER_SIZE 50
+#define HIDDEN_LAYER_SIZE 6
 #define NUMBER_OF_CLASSES 52
 
 #define LEARNING_RATE 0.01
@@ -56,7 +56,7 @@ int main(int argc, char* argv[]) {
 					while (ssin.good() && j < NUMBER_OF_FEATURES) {
 						std::string temp;
 						ssin >> temp;
-						input[((i - 1) * NUMBER_OF_FEATURES) + j] = std::stof(temp, &sz);
+						input[((i - 1) * NUMBER_OF_FEATURES) + j] = std::stof(temp, &sz)/255;
 						++j;
 					}
 				}
@@ -78,7 +78,7 @@ int main(int argc, char* argv[]) {
 
 	printf("MAIN \n");
 	//Initialize network
-	CharacterRecognition::initialize_network(NUMBER_OF_INSTANCES, NUMBER_OF_FEATURES, NUMBER_OF_CLASSES, HIDDEN_LAYER_SIZE, 0.4f);
+	CharacterRecognition::initialize_network(NUMBER_OF_INSTANCES, NUMBER_OF_FEATURES, NUMBER_OF_CLASSES, HIDDEN_LAYER_SIZE, 0.1f);
 
 	//float* input = (float *)malloc(NUMBER_OF_INSTANCES * NUMBER_OF_FEATURES * sizeof(float));
 	//float* true_labels = (float *)malloc(NUMBER_OF_INSTANCES * sizeof(float));

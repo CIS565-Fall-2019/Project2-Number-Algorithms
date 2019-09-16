@@ -7,7 +7,7 @@
 
 #define checkCUDAErrorWithLine(msg) checkCUDAError(msg, __LINE__)
 
-#define blockSize 128
+//#define blockSize 128
 
 int* dev_idata;
 int* padded_idata;
@@ -93,7 +93,7 @@ namespace StreamCompaction {
         /**
          * Performs prefix-sum (aka scan) on idata, storing the result into odata.
          */
-        void scan(int n, int *odata, const int *idata) {
+        void scan(int n, int *odata, const int *idata, int blockSize) {
 			int padded_size = 1 << (ilog2ceil(n));
 
 			cudaMalloc((void**)&padded_idata, padded_size * sizeof(int));
@@ -115,7 +115,7 @@ namespace StreamCompaction {
 			int iterations = ilog2(padded_size);
 			dim3 fullBlocksPerGrid((padded_size + blockSize - 1) / blockSize);
 
-			bool optimized = true;
+			bool optimized = false;
 			//Up-Sweep
 			if (optimized) {
 				int number_of_threads = padded_size;
@@ -166,7 +166,7 @@ namespace StreamCompaction {
          * @param idata  The array of elements to compact.
          * @returns      The number of elements remaining after compaction.
          */
-        int compact(int n, int *odata, const int *idata) {
+        int compact(int n, int *odata, const int *idata, int blockSize) {
             
 
 			cudaMalloc((void**)&dev_idata, n * sizeof(int));
@@ -194,7 +194,7 @@ namespace StreamCompaction {
 			cudaMemcpy(bools, dev_bools, sizeof(int) * n, cudaMemcpyDeviceToHost);
 			
 			
-			scan(n, indices, bools);
+			scan(n, indices, bools, blockSize);
 			
 			int output_length = indices[n - 1] + bools[n-1];
 

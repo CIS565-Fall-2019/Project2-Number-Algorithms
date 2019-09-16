@@ -177,6 +177,14 @@ __global__ void add(float* a, float* b) {
 	*a = (*a) + (*b);
 }
 
+__global__ void matrix_normalization(int n, float* A, float alpha, float beta) {
+	const int index = blockIdx.x * blockDim.x + threadIdx.x;
+	if (index >= n) {
+		return;
+	}
+	A[index] = (A[index] * alpha) - beta;
+}
+
 void softmax(int n, float* input, float* softmax_output) {
 	dim3 fullBlocksPerGrid((n + blockSize - 1) / blockSize);
 
@@ -343,6 +351,12 @@ namespace CharacterRecognition {
 		// Fill the array with random numbers on the device
 		curandGenerateUniform(prng, weight_input_hidden, number_of_features * hidden_layer_size);
 		curandGenerateUniform(prng, weight_hidden_output, hidden_layer_size * number_of_classes);
+
+		dim3 fullBlocksPerGridUpSweep((number_of_features * hidden_layer_size + blockSize - 1) / blockSize);
+		matrix_normalization << <fullBlocksPerGridUpSweep, blockSize >> > (number_of_features * hidden_layer_size, weight_input_hidden, 2, 1);
+
+		dim3 fullBlocksPerGrid((hidden_layer_size * number_of_classes + blockSize - 1) / blockSize);
+		matrix_normalization << <fullBlocksPerGrid, blockSize >> > (hidden_layer_size * number_of_classes, weight_hidden_output, 2, 1);
 		//GPU_fill_rand(weight_input_hidden, number_of_features, hidden_layer_size);
 		//GPU_fill_rand(weight_hidden_output, hidden_layer_size, number_of_classes);
 
@@ -419,9 +433,9 @@ namespace CharacterRecognition {
 				/*float* output_to_print1 = (float *)malloc(number_of_features * sizeof(float));
 				cudaMemcpy(output_to_print1, dev_input + (j * number_of_features), sizeof(float) * number_of_features, cudaMemcpyDeviceToHost);
 				printf("Input:  ");
-				print_matrix(output_to_print1, 1, number_of_features);
+				print_matrix(output_to_print1, 1, number_of_features);*/
 
-				float* output_to_print2 = (float *)malloc(number_of_classes * sizeof(float));
+				/*float* output_to_print2 = (float *)malloc(number_of_classes * sizeof(float));
 				cudaMemcpy(output_to_print2, dev_true_labels + (j * number_of_classes), sizeof(float) * number_of_classes, cudaMemcpyDeviceToHost);
 				printf("Output:  ");
 				print_matrix(output_to_print2, 1, number_of_classes);*/
@@ -485,7 +499,7 @@ namespace CharacterRecognition {
 			//Print loss after each epoch
 			float* loss_print = (float *)malloc(sizeof(float));
 			cudaMemcpy(loss_print, loss_per_epoch, sizeof(float), cudaMemcpyDeviceToHost);
-			printf("EPOCH %d LOSS: %f \n", i, *loss_print);
+			printf("EPOCH %d LOSS: %f \n", i, *loss_print/52);
 
 			cudaMemcpy(all_losses + i, loss_per_epoch, sizeof(float), cudaMemcpyDeviceToDevice);
 		}

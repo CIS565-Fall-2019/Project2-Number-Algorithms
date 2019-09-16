@@ -7,7 +7,7 @@
 
 #define checkCUDAErrorWithLine(msg) checkCUDAError(msg, __LINE__)
 
-#define blockSize 128
+//#define blockSize 128
 
 int* dev_A;
 int* dev_B;
@@ -37,7 +37,7 @@ namespace StreamCompaction {
         /**
          * Performs prefix-sum (aka scan) on idata, storing the result into odata.
          */
-        void scan(int n, int *odata, const int *idata) {
+        void scan(int n, int *odata, const int *idata, int blockSize) {
 			cudaMalloc((void**)&dev_A, n * sizeof(int));
 			checkCUDAErrorWithLine("cudaMalloc dev_A failed!");
 
