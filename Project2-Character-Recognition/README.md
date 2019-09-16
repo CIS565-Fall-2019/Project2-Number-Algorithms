@@ -55,5 +55,5 @@ I ended up arbitratily deciding on a hidden layer of size `256`, as "roughly 5 t
 
 I got it close to reasonable (closing in on an error consistent with being correct for 3 of 4 pictures) with a lamdba of `0.005`, but then it stalled. I decided to try to get it over that hill with a lambda value of `0.1` for some stretch of time, and it actually worked. I did all of this by running it through training data, saving the weights, and running the weights through again with a different lambda.
 
-For the next run, I used a lambda of `0.05`, after I had gotten mostly over the `1/16` error hump, then switched back to `0.1`, and you know, I'd rather not talk about the whole process I did to get down to 0 error, now that you mention it...
+For the next run, I used a lambda of `0.05`, after I had gotten mostly over the `1/16` error hump, then switched back to `0.1`, then `0.2`, and you know, I'd rather not talk about the whole process I did to get down to 0 error, now that you mention it...
 
