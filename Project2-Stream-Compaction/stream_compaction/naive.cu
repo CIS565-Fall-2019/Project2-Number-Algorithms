@@ -4,8 +4,6 @@
 #include "naive.h"
 #include "device_launch_parameters.h"
 
-#define blockSize 128
-
 namespace StreamCompaction {
 	namespace Naive {
 		using StreamCompaction::Common::PerformanceTimer;
@@ -30,7 +28,7 @@ namespace StreamCompaction {
 		/**
 		 * Performs prefix-sum (aka scan) on idata, storing the result into odata.
 		 */
-		void scan(int n, int *odata, const int *idata) {
+		void scan(int n, int *odata, const int *idata, int blockSize) {
 			// Memory Allocation and Copying
 			int *adata;
 			int *bdata;

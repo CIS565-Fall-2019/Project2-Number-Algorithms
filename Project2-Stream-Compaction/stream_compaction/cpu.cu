@@ -68,7 +68,6 @@ namespace StreamCompaction {
          */
         int compactWithScan(int n, int *odata, const int *idata) {
 	        timer().startCpuTimer();
-	        // TODO
 			int *binary_idata = new int[n];
 			int *final_index = new int[n];
 			for (int i = 0; i < n; i++)
@@ -77,8 +76,8 @@ namespace StreamCompaction {
 			for (int i = 0; i < n; i++)
 				if (binary_idata[i] == 1)
 					odata[final_index[i]] = idata[i];
-	        timer().endCpuTimer();
-            return final_index[n-1] + (idata[n-1] > 0);
+			timer().endCpuTimer();
+			return final_index[n - 1] + (idata[n - 1] > 0);
         }
     }
 	

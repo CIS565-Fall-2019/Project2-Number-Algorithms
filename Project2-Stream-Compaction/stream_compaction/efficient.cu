@@ -3,7 +3,6 @@
 #include "common.h"
 #include "device_launch_parameters.h"
 #include "efficient.h"
-#define blockSize 128
 
 namespace StreamCompaction {
     namespace Efficient {
@@ -83,7 +82,7 @@ namespace StreamCompaction {
         /**
          * Performs prefix-sum (aka scan) on idata, storing the result into odata.
          */
-        void scanEfficient(int n, int *odata, const int *idata) {
+        void scanEfficient(int n, int *odata, const int *idata, int blockSize) {
 			// Memory Allocation and Copying
 			int power_size = pow(2, ilog2ceil(n));
 			int *cdata;
@@ -120,14 +119,14 @@ namespace StreamCompaction {
 				timer().endGpuTimer();
 
 			// Copy Back and Free Memory
-			cudaMemcpy(odata, cdata, sizeof(int) * power_size, cudaMemcpyDeviceToHost);
+			cudaMemcpy(odata, cdata, sizeof(int) * n, cudaMemcpyDeviceToHost);
 			cudaFree(cdata);
         }
 
 		/**
 		 * Performs prefix-sum (aka scan) on idata, storing the result into odata.
 		 */
-		void scan(int n, int *odata, const int *idata) {
+		void scan(int n, int *odata, const int *idata, int blockSize) {
 			// Memory Allocation and Copying
 			int power_size = pow(2, ilog2ceil(n));
 			int *cdata;
@@ -160,7 +159,7 @@ namespace StreamCompaction {
 				timer().endGpuTimer();
 
 			// Copy Back and Free Memory
-			cudaMemcpy(odata, cdata, sizeof(int) * power_size, cudaMemcpyDeviceToHost);
+			cudaMemcpy(odata, cdata, sizeof(int) * n, cudaMemcpyDeviceToHost);
 			cudaFree(cdata);
 		}
 
@@ -173,7 +172,7 @@ namespace StreamCompaction {
          * @param idata  The array of elements to compact.
          * @returns      The number of elements remaining after compaction.
          */
-        int compact(int n, int *odata, const int *idata) {
+        int compact(int n, int *odata, const int *idata, bool efficient, int blockSize) {
 			// Memory Allocation and Copying
 			int *bools = new int[n];
 			int *indices = new int[n];
@@ -195,7 +194,10 @@ namespace StreamCompaction {
 			dim3 fullBlocksPerGrid((n + blockSize - 1) / blockSize);
 			StreamCompaction::Common::kernMapToBoolean << <fullBlocksPerGrid, blockSize >> > (n, dev_bools, dev_idata);
 			cudaMemcpy(bools, dev_bools, sizeof(int) * n, cudaMemcpyDeviceToHost);
-			scan(n, indices, bools);
+			if(efficient)
+				scanEfficient(n, indices, bools, blockSize);
+			else
+				scan(n, indices, bools, blockSize);
 			cudaMemcpy(dev_indices, indices, sizeof(int) * n, cudaMemcpyHostToDevice);
 			StreamCompaction::Common::kernScatter << <fullBlocksPerGrid, blockSize >> > (n, dev_odata, dev_idata, dev_bools, dev_indices);			
 			timer().endGpuTimer();
@@ -206,7 +208,7 @@ namespace StreamCompaction {
 			cudaFree(dev_indices);
 			cudaFree(dev_idata);
 			cudaFree(dev_odata);
-            return indices[n-1] + bools[n-1];
+            return indices[n - 1] + bools[n - 1];;
         }
     }
 }
