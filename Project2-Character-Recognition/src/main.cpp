@@ -50,11 +50,11 @@ int main(int argc, char* argv[]) {
 	printDesc("reading data");
 	readData(X,y);
 
-	//printDesc("test multiply");
-	//CharacterRecognition::testMatrixMultiply();
+	printDesc("test multiply");
+	CharacterRecognition::testMatrixMultiply();
 
-	printDesc("training");
-	CharacterRecognition::train(X, y, sizeData, hiddenNodes, numLabels, numData);
+	//printDesc("training");
+	//CharacterRecognition::train(X, y, sizeData, hiddenNodes, numLabels, numData);
 	
 
 	free(X);
