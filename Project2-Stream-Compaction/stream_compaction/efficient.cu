@@ -47,7 +47,7 @@ namespace StreamCompaction {
         __global__ void kernDownSweep(int N, int d, int* arr)
         {
             int index = (blockIdx.x * blockDim.x) + threadIdx.x;
-            if (index > N) return;
+            if (index >= N) return;
 
             int powDPlus = 1 << (d + 1);
             int powD = 1 << d;
@@ -101,15 +101,15 @@ namespace StreamCompaction {
             
             for (int i = 0; i < ilog2ceil(n); i++)
             {
-                kernUpSweep << <n, blockSize >> > (n, i, dev_arr);
+                kernUpSweep << <pow2Length, blockSize >> > (pow2Length, i, dev_arr);
             }
             
             for (int j = ilog2ceil(n)-1; j >= 0; j--)
             {
-                kernDownSweep << <n, blockSize >> > (n, j, dev_arr);
+                kernDownSweep << <pow2Length, blockSize >> > (pow2Length, j, dev_arr);
             }
 
-            kernInclusiveToExclusive << <n, blockSize >> > (n, dev_arr);
+            kernInclusiveToExclusive << <pow2Length, blockSize >> > (pow2Length, dev_arr);
 
             timer().endGpuTimer();
 

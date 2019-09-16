@@ -18,9 +18,16 @@ int *b = new int[SIZE];
 int *c = new int[SIZE];
 
 int main(int argc, char* argv[]) {
+    float *xorInput = new float[2];
+    xorInput[0] = 0;
+    xorInput[1] = 0;
+    float *xorTarget = new float[1];
+    xorTarget[0] = 0;
+    
+    
     // Scan tests
 
-    printf("\n");
+    /*printf("\n");
     printf("****************\n");
     printf("** SCAN TESTS **\n");
     printf("****************\n");
@@ -58,7 +65,7 @@ int main(int argc, char* argv[]) {
 	StreamCompaction::Naive::scan(SIZE, c, a);
 	printArray(SIZE, c, true); */
 
-    zeroArray(SIZE, c);
+    /*zeroArray(SIZE, c);
     printDesc("naive scan, non-power-of-two");
     StreamCompaction::Naive::scan(NPOT, c, a);
     printElapsedTime(StreamCompaction::Naive::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
@@ -143,7 +150,7 @@ int main(int argc, char* argv[]) {
     count = StreamCompaction::Efficient::compact(NPOT, c, a);
     printElapsedTime(StreamCompaction::Efficient::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
     //printArray(count, c, true);
-    printCmpLenResult(count, expectedNPOT, b, c);
+    printCmpLenResult(count, expectedNPOT, b, c);*/
 
     system("pause"); // stop Win32 console from closing on exit
 	delete[] a;
