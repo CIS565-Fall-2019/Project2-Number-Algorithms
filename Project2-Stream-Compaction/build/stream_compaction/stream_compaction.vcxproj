@@ -1,0 +1,755 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MinSizeRel|x64">
+      <Configuration>MinSizeRel</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="RelWithDebInfo|x64">
+      <Configuration>RelWithDebInfo</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{AC7FBBF2-F815-34BA-87C7-C6FAB298E8D4}</ProjectGuid>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <Keyword>Win32Proj</Keyword>
+    <Platform>x64</Platform>
+    <ProjectName>stream_compaction</ProjectName>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\Debug\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stream_compaction.dir\Debug\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stream_compaction</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\Release\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stream_compaction.dir\Release\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stream_compaction</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\MinSizeRel\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">stream_compaction.dir\MinSizeRel\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">stream_compaction</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\RelWithDebInfo\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">stream_compaction.dir\RelWithDebInfo\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">stream_compaction</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">.lib</TargetExt>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\.;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\.;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\.;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <PreLinkEvent>
+      <Message></Message>
+      <Command>setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -E echo "Building NVCC intermediate link file stream_compaction/CMakeFiles/stream_compaction.dir/$(Configuration)/stream_compaction_intermediate_link.obj"
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E make_directory C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir/$(Configuration)
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.1\bin\nvcc.exe" -arch=sm_20 -m64 -ccbin "$(VCInstallDir)bin" -Xcompiler /MDd       -dlink C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)/stream_compaction_generated_common.cu.obj C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)/stream_compaction_generated_cpu.cu.obj C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)/stream_compaction_generated_naive.cu.obj C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)/stream_compaction_generated_efficient.cu.obj C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)/stream_compaction_generated_thrust.cu.obj -o C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir/$(Configuration)/stream_compaction_intermediate_link.obj
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+    </PreLinkEvent>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\.;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\.;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\.;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <PreLinkEvent>
+      <Message></Message>
+      <Command>setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -E echo "Building NVCC intermediate link file stream_compaction/CMakeFiles/stream_compaction.dir/$(Configuration)/stream_compaction_intermediate_link.obj"
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E make_directory C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir/$(Configuration)
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.1\bin\nvcc.exe" -arch=sm_20 -m64 -ccbin "$(VCInstallDir)bin"   -Xcompiler /MD     -dlink C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)/stream_compaction_generated_common.cu.obj C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)/stream_compaction_generated_cpu.cu.obj C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)/stream_compaction_generated_naive.cu.obj C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)/stream_compaction_generated_efficient.cu.obj C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)/stream_compaction_generated_thrust.cu.obj -o C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir/$(Configuration)/stream_compaction_intermediate_link.obj
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+    </PreLinkEvent>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\.;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <Optimization>MinSpace</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR="MinSizeRel";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR=\"MinSizeRel\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\.;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\.;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <PreLinkEvent>
+      <Message></Message>
+      <Command>setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -E echo "Building NVCC intermediate link file stream_compaction/CMakeFiles/stream_compaction.dir/$(Configuration)/stream_compaction_intermediate_link.obj"
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E make_directory C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir/$(Configuration)
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.1\bin\nvcc.exe" -arch=sm_20 -m64 -ccbin "$(VCInstallDir)bin"     -Xcompiler /MD   -dlink C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)/stream_compaction_generated_common.cu.obj C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)/stream_compaction_generated_cpu.cu.obj C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)/stream_compaction_generated_naive.cu.obj C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)/stream_compaction_generated_efficient.cu.obj C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)/stream_compaction_generated_thrust.cu.obj -o C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir/$(Configuration)/stream_compaction_intermediate_link.obj
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+    </PreLinkEvent>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\.;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR="RelWithDebInfo";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR=\"RelWithDebInfo\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\.;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\.;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <PreLinkEvent>
+      <Message></Message>
+      <Command>setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -E echo "Building NVCC intermediate link file stream_compaction/CMakeFiles/stream_compaction.dir/$(Configuration)/stream_compaction_intermediate_link.obj"
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E make_directory C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir/$(Configuration)
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.1\bin\nvcc.exe" -arch=sm_20 -m64 -ccbin "$(VCInstallDir)bin"       -Xcompiler /MD -dlink C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)/stream_compaction_generated_common.cu.obj C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)/stream_compaction_generated_cpu.cu.obj C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)/stream_compaction_generated_naive.cu.obj C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)/stream_compaction_generated_efficient.cu.obj C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)/stream_compaction_generated_thrust.cu.obj -o C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir/$(Configuration)/stream_compaction_intermediate_link.obj
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+    </PreLinkEvent>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\stream_compaction\common.cu">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Building NVCC (Device) object stream_compaction/CMakeFiles/stream_compaction.dir/$(Configuration)/stream_compaction_generated_common.cu.obj</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+cd C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E make_directory C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -D verbose:BOOL=OFF -D "CCBIN:PATH=$(VCInstallDir)bin" -D build_configuration:STRING=$(ConfigurationName) -D generated_file:STRING=C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)/stream_compaction_generated_common.cu.obj -D generated_cubin_file:STRING=C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)/stream_compaction_generated_common.cu.obj.cubin.txt -P C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//stream_compaction_generated_common.cu.obj.cmake
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\stream_compaction_generated_common.cu.obj.depend;C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\stream_compaction_generated_common.cu.obj.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\$(Configuration)\stream_compaction_generated_common.cu.obj</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Building NVCC (Device) object stream_compaction/CMakeFiles/stream_compaction.dir/$(Configuration)/stream_compaction_generated_common.cu.obj</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+cd C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E make_directory C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -D verbose:BOOL=OFF -D "CCBIN:PATH=$(VCInstallDir)bin" -D build_configuration:STRING=$(ConfigurationName) -D generated_file:STRING=C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)/stream_compaction_generated_common.cu.obj -D generated_cubin_file:STRING=C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)/stream_compaction_generated_common.cu.obj.cubin.txt -P C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//stream_compaction_generated_common.cu.obj.cmake
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\stream_compaction_generated_common.cu.obj.depend;C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\stream_compaction_generated_common.cu.obj.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\$(Configuration)\stream_compaction_generated_common.cu.obj</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">Building NVCC (Device) object stream_compaction/CMakeFiles/stream_compaction.dir/$(Configuration)/stream_compaction_generated_common.cu.obj</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">setlocal
+cd C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E make_directory C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -D verbose:BOOL=OFF -D "CCBIN:PATH=$(VCInstallDir)bin" -D build_configuration:STRING=$(ConfigurationName) -D generated_file:STRING=C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)/stream_compaction_generated_common.cu.obj -D generated_cubin_file:STRING=C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)/stream_compaction_generated_common.cu.obj.cubin.txt -P C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//stream_compaction_generated_common.cu.obj.cmake
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\stream_compaction_generated_common.cu.obj.depend;C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\stream_compaction_generated_common.cu.obj.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\$(Configuration)\stream_compaction_generated_common.cu.obj</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">Building NVCC (Device) object stream_compaction/CMakeFiles/stream_compaction.dir/$(Configuration)/stream_compaction_generated_common.cu.obj</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">setlocal
+cd C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E make_directory C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -D verbose:BOOL=OFF -D "CCBIN:PATH=$(VCInstallDir)bin" -D build_configuration:STRING=$(ConfigurationName) -D generated_file:STRING=C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)/stream_compaction_generated_common.cu.obj -D generated_cubin_file:STRING=C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)/stream_compaction_generated_common.cu.obj.cubin.txt -P C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//stream_compaction_generated_common.cu.obj.cmake
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\stream_compaction_generated_common.cu.obj.depend;C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\stream_compaction_generated_common.cu.obj.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\$(Configuration)\stream_compaction_generated_common.cu.obj</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\stream_compaction\cpu.cu">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Building NVCC (Device) object stream_compaction/CMakeFiles/stream_compaction.dir/$(Configuration)/stream_compaction_generated_cpu.cu.obj</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+cd C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E make_directory C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -D verbose:BOOL=OFF -D "CCBIN:PATH=$(VCInstallDir)bin" -D build_configuration:STRING=$(ConfigurationName) -D generated_file:STRING=C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)/stream_compaction_generated_cpu.cu.obj -D generated_cubin_file:STRING=C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)/stream_compaction_generated_cpu.cu.obj.cubin.txt -P C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//stream_compaction_generated_cpu.cu.obj.cmake
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\stream_compaction_generated_cpu.cu.obj.depend;C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\stream_compaction_generated_cpu.cu.obj.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\$(Configuration)\stream_compaction_generated_cpu.cu.obj</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Building NVCC (Device) object stream_compaction/CMakeFiles/stream_compaction.dir/$(Configuration)/stream_compaction_generated_cpu.cu.obj</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+cd C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E make_directory C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -D verbose:BOOL=OFF -D "CCBIN:PATH=$(VCInstallDir)bin" -D build_configuration:STRING=$(ConfigurationName) -D generated_file:STRING=C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)/stream_compaction_generated_cpu.cu.obj -D generated_cubin_file:STRING=C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)/stream_compaction_generated_cpu.cu.obj.cubin.txt -P C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//stream_compaction_generated_cpu.cu.obj.cmake
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\stream_compaction_generated_cpu.cu.obj.depend;C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\stream_compaction_generated_cpu.cu.obj.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\$(Configuration)\stream_compaction_generated_cpu.cu.obj</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">Building NVCC (Device) object stream_compaction/CMakeFiles/stream_compaction.dir/$(Configuration)/stream_compaction_generated_cpu.cu.obj</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">setlocal
+cd C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E make_directory C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -D verbose:BOOL=OFF -D "CCBIN:PATH=$(VCInstallDir)bin" -D build_configuration:STRING=$(ConfigurationName) -D generated_file:STRING=C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)/stream_compaction_generated_cpu.cu.obj -D generated_cubin_file:STRING=C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)/stream_compaction_generated_cpu.cu.obj.cubin.txt -P C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//stream_compaction_generated_cpu.cu.obj.cmake
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\stream_compaction_generated_cpu.cu.obj.depend;C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\stream_compaction_generated_cpu.cu.obj.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\$(Configuration)\stream_compaction_generated_cpu.cu.obj</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">Building NVCC (Device) object stream_compaction/CMakeFiles/stream_compaction.dir/$(Configuration)/stream_compaction_generated_cpu.cu.obj</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">setlocal
+cd C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E make_directory C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -D verbose:BOOL=OFF -D "CCBIN:PATH=$(VCInstallDir)bin" -D build_configuration:STRING=$(ConfigurationName) -D generated_file:STRING=C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)/stream_compaction_generated_cpu.cu.obj -D generated_cubin_file:STRING=C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)/stream_compaction_generated_cpu.cu.obj.cubin.txt -P C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//stream_compaction_generated_cpu.cu.obj.cmake
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\stream_compaction_generated_cpu.cu.obj.depend;C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\stream_compaction_generated_cpu.cu.obj.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\$(Configuration)\stream_compaction_generated_cpu.cu.obj</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\stream_compaction\naive.cu">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Building NVCC (Device) object stream_compaction/CMakeFiles/stream_compaction.dir/$(Configuration)/stream_compaction_generated_naive.cu.obj</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+cd C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E make_directory C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -D verbose:BOOL=OFF -D "CCBIN:PATH=$(VCInstallDir)bin" -D build_configuration:STRING=$(ConfigurationName) -D generated_file:STRING=C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)/stream_compaction_generated_naive.cu.obj -D generated_cubin_file:STRING=C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)/stream_compaction_generated_naive.cu.obj.cubin.txt -P C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//stream_compaction_generated_naive.cu.obj.cmake
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\stream_compaction_generated_naive.cu.obj.depend;C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\stream_compaction_generated_naive.cu.obj.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\$(Configuration)\stream_compaction_generated_naive.cu.obj</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Building NVCC (Device) object stream_compaction/CMakeFiles/stream_compaction.dir/$(Configuration)/stream_compaction_generated_naive.cu.obj</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+cd C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E make_directory C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -D verbose:BOOL=OFF -D "CCBIN:PATH=$(VCInstallDir)bin" -D build_configuration:STRING=$(ConfigurationName) -D generated_file:STRING=C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)/stream_compaction_generated_naive.cu.obj -D generated_cubin_file:STRING=C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)/stream_compaction_generated_naive.cu.obj.cubin.txt -P C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//stream_compaction_generated_naive.cu.obj.cmake
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\stream_compaction_generated_naive.cu.obj.depend;C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\stream_compaction_generated_naive.cu.obj.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\$(Configuration)\stream_compaction_generated_naive.cu.obj</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">Building NVCC (Device) object stream_compaction/CMakeFiles/stream_compaction.dir/$(Configuration)/stream_compaction_generated_naive.cu.obj</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">setlocal
+cd C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E make_directory C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -D verbose:BOOL=OFF -D "CCBIN:PATH=$(VCInstallDir)bin" -D build_configuration:STRING=$(ConfigurationName) -D generated_file:STRING=C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)/stream_compaction_generated_naive.cu.obj -D generated_cubin_file:STRING=C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)/stream_compaction_generated_naive.cu.obj.cubin.txt -P C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//stream_compaction_generated_naive.cu.obj.cmake
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\stream_compaction_generated_naive.cu.obj.depend;C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\stream_compaction_generated_naive.cu.obj.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\$(Configuration)\stream_compaction_generated_naive.cu.obj</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">Building NVCC (Device) object stream_compaction/CMakeFiles/stream_compaction.dir/$(Configuration)/stream_compaction_generated_naive.cu.obj</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">setlocal
+cd C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E make_directory C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -D verbose:BOOL=OFF -D "CCBIN:PATH=$(VCInstallDir)bin" -D build_configuration:STRING=$(ConfigurationName) -D generated_file:STRING=C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)/stream_compaction_generated_naive.cu.obj -D generated_cubin_file:STRING=C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)/stream_compaction_generated_naive.cu.obj.cubin.txt -P C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//stream_compaction_generated_naive.cu.obj.cmake
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\stream_compaction_generated_naive.cu.obj.depend;C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\stream_compaction_generated_naive.cu.obj.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\$(Configuration)\stream_compaction_generated_naive.cu.obj</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\stream_compaction\efficient.cu">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Building NVCC (Device) object stream_compaction/CMakeFiles/stream_compaction.dir/$(Configuration)/stream_compaction_generated_efficient.cu.obj</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+cd C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E make_directory C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -D verbose:BOOL=OFF -D "CCBIN:PATH=$(VCInstallDir)bin" -D build_configuration:STRING=$(ConfigurationName) -D generated_file:STRING=C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)/stream_compaction_generated_efficient.cu.obj -D generated_cubin_file:STRING=C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)/stream_compaction_generated_efficient.cu.obj.cubin.txt -P C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//stream_compaction_generated_efficient.cu.obj.cmake
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\stream_compaction_generated_efficient.cu.obj.depend;C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\stream_compaction_generated_efficient.cu.obj.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\$(Configuration)\stream_compaction_generated_efficient.cu.obj</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Building NVCC (Device) object stream_compaction/CMakeFiles/stream_compaction.dir/$(Configuration)/stream_compaction_generated_efficient.cu.obj</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+cd C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E make_directory C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -D verbose:BOOL=OFF -D "CCBIN:PATH=$(VCInstallDir)bin" -D build_configuration:STRING=$(ConfigurationName) -D generated_file:STRING=C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)/stream_compaction_generated_efficient.cu.obj -D generated_cubin_file:STRING=C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)/stream_compaction_generated_efficient.cu.obj.cubin.txt -P C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//stream_compaction_generated_efficient.cu.obj.cmake
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\stream_compaction_generated_efficient.cu.obj.depend;C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\stream_compaction_generated_efficient.cu.obj.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\$(Configuration)\stream_compaction_generated_efficient.cu.obj</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">Building NVCC (Device) object stream_compaction/CMakeFiles/stream_compaction.dir/$(Configuration)/stream_compaction_generated_efficient.cu.obj</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">setlocal
+cd C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E make_directory C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -D verbose:BOOL=OFF -D "CCBIN:PATH=$(VCInstallDir)bin" -D build_configuration:STRING=$(ConfigurationName) -D generated_file:STRING=C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)/stream_compaction_generated_efficient.cu.obj -D generated_cubin_file:STRING=C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)/stream_compaction_generated_efficient.cu.obj.cubin.txt -P C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//stream_compaction_generated_efficient.cu.obj.cmake
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\stream_compaction_generated_efficient.cu.obj.depend;C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\stream_compaction_generated_efficient.cu.obj.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\$(Configuration)\stream_compaction_generated_efficient.cu.obj</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">Building NVCC (Device) object stream_compaction/CMakeFiles/stream_compaction.dir/$(Configuration)/stream_compaction_generated_efficient.cu.obj</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">setlocal
+cd C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E make_directory C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -D verbose:BOOL=OFF -D "CCBIN:PATH=$(VCInstallDir)bin" -D build_configuration:STRING=$(ConfigurationName) -D generated_file:STRING=C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)/stream_compaction_generated_efficient.cu.obj -D generated_cubin_file:STRING=C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)/stream_compaction_generated_efficient.cu.obj.cubin.txt -P C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//stream_compaction_generated_efficient.cu.obj.cmake
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\stream_compaction_generated_efficient.cu.obj.depend;C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\stream_compaction_generated_efficient.cu.obj.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\$(Configuration)\stream_compaction_generated_efficient.cu.obj</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\stream_compaction\thrust.cu">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Building NVCC (Device) object stream_compaction/CMakeFiles/stream_compaction.dir/$(Configuration)/stream_compaction_generated_thrust.cu.obj</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+cd C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E make_directory C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -D verbose:BOOL=OFF -D "CCBIN:PATH=$(VCInstallDir)bin" -D build_configuration:STRING=$(ConfigurationName) -D generated_file:STRING=C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)/stream_compaction_generated_thrust.cu.obj -D generated_cubin_file:STRING=C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)/stream_compaction_generated_thrust.cu.obj.cubin.txt -P C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//stream_compaction_generated_thrust.cu.obj.cmake
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\stream_compaction_generated_thrust.cu.obj.depend;C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\stream_compaction_generated_thrust.cu.obj.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\$(Configuration)\stream_compaction_generated_thrust.cu.obj</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Building NVCC (Device) object stream_compaction/CMakeFiles/stream_compaction.dir/$(Configuration)/stream_compaction_generated_thrust.cu.obj</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+cd C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E make_directory C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -D verbose:BOOL=OFF -D "CCBIN:PATH=$(VCInstallDir)bin" -D build_configuration:STRING=$(ConfigurationName) -D generated_file:STRING=C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)/stream_compaction_generated_thrust.cu.obj -D generated_cubin_file:STRING=C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)/stream_compaction_generated_thrust.cu.obj.cubin.txt -P C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//stream_compaction_generated_thrust.cu.obj.cmake
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\stream_compaction_generated_thrust.cu.obj.depend;C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\stream_compaction_generated_thrust.cu.obj.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\$(Configuration)\stream_compaction_generated_thrust.cu.obj</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">Building NVCC (Device) object stream_compaction/CMakeFiles/stream_compaction.dir/$(Configuration)/stream_compaction_generated_thrust.cu.obj</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">setlocal
+cd C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E make_directory C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -D verbose:BOOL=OFF -D "CCBIN:PATH=$(VCInstallDir)bin" -D build_configuration:STRING=$(ConfigurationName) -D generated_file:STRING=C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)/stream_compaction_generated_thrust.cu.obj -D generated_cubin_file:STRING=C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)/stream_compaction_generated_thrust.cu.obj.cubin.txt -P C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//stream_compaction_generated_thrust.cu.obj.cmake
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\stream_compaction_generated_thrust.cu.obj.depend;C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\stream_compaction_generated_thrust.cu.obj.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\$(Configuration)\stream_compaction_generated_thrust.cu.obj</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">Building NVCC (Device) object stream_compaction/CMakeFiles/stream_compaction.dir/$(Configuration)/stream_compaction_generated_thrust.cu.obj</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">setlocal
+cd C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E make_directory C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -D verbose:BOOL=OFF -D "CCBIN:PATH=$(VCInstallDir)bin" -D build_configuration:STRING=$(ConfigurationName) -D generated_file:STRING=C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)/stream_compaction_generated_thrust.cu.obj -D generated_cubin_file:STRING=C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//$(Configuration)/stream_compaction_generated_thrust.cu.obj.cubin.txt -P C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir//stream_compaction_generated_thrust.cu.obj.cmake
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\stream_compaction_generated_thrust.cu.obj.depend;C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\stream_compaction_generated_thrust.cu.obj.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\$(Configuration)\stream_compaction_generated_thrust.cu.obj</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\stream_compaction\CMakeLists.txt">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Building Custom Rule C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/stream_compaction/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction -BC:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build --check-stamp-file C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\stream_compaction_generated_common.cu.obj.depend;C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\stream_compaction_generated_cpu.cu.obj.depend;C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\stream_compaction_generated_efficient.cu.obj.depend;C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\stream_compaction_generated_naive.cu.obj.depend;C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\stream_compaction_generated_thrust.cu.obj.depend;C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\cmake\FindCUDA\run_nvcc.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Building Custom Rule C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/stream_compaction/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction -BC:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build --check-stamp-file C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\stream_compaction_generated_common.cu.obj.depend;C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\stream_compaction_generated_cpu.cu.obj.depend;C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\stream_compaction_generated_efficient.cu.obj.depend;C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\stream_compaction_generated_naive.cu.obj.depend;C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\stream_compaction_generated_thrust.cu.obj.depend;C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\cmake\FindCUDA\run_nvcc.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">Building Custom Rule C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/stream_compaction/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction -BC:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build --check-stamp-file C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\stream_compaction_generated_common.cu.obj.depend;C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\stream_compaction_generated_cpu.cu.obj.depend;C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\stream_compaction_generated_efficient.cu.obj.depend;C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\stream_compaction_generated_naive.cu.obj.depend;C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\stream_compaction_generated_thrust.cu.obj.depend;C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\cmake\FindCUDA\run_nvcc.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">Building Custom Rule C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/stream_compaction/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction -BC:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build --check-stamp-file C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\stream_compaction_generated_common.cu.obj.depend;C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\stream_compaction_generated_cpu.cu.obj.depend;C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\stream_compaction_generated_efficient.cu.obj.depend;C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\stream_compaction_generated_naive.cu.obj.depend;C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\stream_compaction_generated_thrust.cu.obj.depend;C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\cmake\FindCUDA\run_nvcc.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\$(Configuration)\stream_compaction_generated_common.cu.obj" />
+    <Object Include="C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\$(Configuration)\stream_compaction_generated_cpu.cu.obj" />
+    <Object Include="C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\$(Configuration)\stream_compaction_generated_naive.cu.obj" />
+    <Object Include="C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\$(Configuration)\stream_compaction_generated_efficient.cu.obj" />
+    <Object Include="C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\$(Configuration)\stream_compaction_generated_thrust.cu.obj" />
+    <ClInclude Include="C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\stream_compaction\common.h" />
+    <ClInclude Include="C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\stream_compaction\cpu.h" />
+    <ClInclude Include="C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\stream_compaction\naive.h" />
+    <ClInclude Include="C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\stream_compaction\efficient.h" />
+    <ClInclude Include="C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\stream_compaction\thrust.h" />
+    <Object Include="C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\$(Configuration)\stream_compaction_intermediate_link.obj" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\ZERO_CHECK.vcxproj">
+      <Project>{40D2BCA5-8EC5-37FB-9E26-3B48DFB7710C}</Project>
+      <Name>ZERO_CHECK</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
