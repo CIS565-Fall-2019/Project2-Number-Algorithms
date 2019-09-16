@@ -37,7 +37,7 @@ void printCmpLenResult(int n, int expN, T *a, T *b) {
             cmpArrays(n, a, b) ? "FAIL VALUE" : "passed");
 }
 
-void zeroArray(int n, int *a) {
+void zeroArray(int n, float *a) {
     for (int i = 0; i < n; i++) {
         a[i] = 0;
     }
@@ -49,12 +49,22 @@ void onesArray(int n, float *a) {
 	}
 }
 
-void genArray(int n, float *a, int maxval) {
-    srand(time(nullptr));
+void genArrayA(int n, float *a, int val) {
+    //srand(time(nullptr));
+	srand(0);
 
     for (int i = 0; i < n; i++) {
-        a[i] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+        a[i] = -1.0 + (static_cast <float> (rand()) / static_cast <float> (RAND_MAX))*2;
     }
+}
+
+void genArrayB(int n, float *a, int val) {
+	//srand(time(nullptr));
+	srand(1);
+
+	for (int i = 0; i < n; i++) {
+		a[i] = -1.0 + (static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) * 2;
+	}
 }
 
 void printArray(int n,float *a, bool abridged = false) {

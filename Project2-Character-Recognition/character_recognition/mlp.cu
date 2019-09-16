@@ -193,10 +193,25 @@ namespace CharacterRecognition {
 
 	}
 
+	__global__ void kernGetAccuracy(int N, float *A,int *B,int d) {
+		int index = threadIdx.x + blockIdx.x * blockDim.x;
+		if (index >= N)
+			return;
+
+		int max_index = 0;
+		float max_val = -1;;
+		for (int i = index * d; i < index*d + d; i++) {
+			if (max_val < A[i]) {
+				max_val = A[i];
+				max_index = i;
+			}
+		}
+		B[index] = max_index % d;
+	}
 	void createNN(float *input, float* hidden, float *output, float *weightsA, float *weightsB, int n, int h, int m, int d) {
 		
 		dim3 fullBlocks1((n + blockSize - 1) / blockSize);
-		dim3 fullBlocks2((h + blockSize - 1) / blockSize);
+		dim3 fullBlocks2((n*h + blockSize - 1) / blockSize);
 		//dim3 fullBlocks3((n + blockSize - 1) / blockSize);
 		dim3 fullBlocksMult1((h + blockSize - 1) / blockSize, (n + blockSize - 1) / blockSize);
 		dim3 fullBlocksMult2((m + blockSize - 1) / blockSize, (n + blockSize - 1) / blockSize);
@@ -208,7 +223,7 @@ namespace CharacterRecognition {
 		//cudaMemcpy(dev_hiddenLayer, hidden, sizeof(float) * (n*h), cudaMemcpyHostToDevice);
 		//checkCUDAErrorFn("Copying hidden layer units failed");
 
-		kernSigmoidFunction << <fullBlocks2, blockSize >> > (h, dev_hiddenLayer);
+		kernSigmoidFunction << <fullBlocks2, blockSize >> > (n*h, hidden);
 		checkCUDAErrorFn("Kernel Activation function failed");
 
 		kernMatrixMultiplication << <fullBlocksMult2, (blockSize,blockSize) >> > (hidden, weightsB, output, n, h, m);
@@ -271,9 +286,20 @@ namespace CharacterRecognition {
 		//kernSubtraction << <fullBlocksMult3, blockSize >> > (n*m,output, actualOutput,tempOutput);
 
 		kernSoftMaxGradient << <fullBlocksMult3, blockSize >> > (n,m,output,actualOutput,gradSoftMax);
+		/*
+		float *check0 = new float[d*h];
+
+		cudaMemcpy(check0, gradSoftMax, sizeof(float) * (n*m), cudaMemcpyDeviceToHost);
+		checkCUDAErrorFn("Copying data to output failed");
+
+		printf("Gradient Soft Max \n");
+		printArray(n*m, check0, true);
+		*/
 
 		kernMatrixMultiplication << <fullBlocksMult2,(blockSize, blockSize)>> > (hiddenTrans, gradSoftMax ,dev_gradB,h,n,m);
 		checkCUDAErrorFn("Kernel Matrix Multiplication hiiden and loss failed");
+
+		//float *check0 = new float[d*h];
 		
 		gpu_matrix_transpose << <fullBlocksMult2, (blockSize, blockSize) >> > (weightsB, weightsBTrans, h, m);
 		checkCUDAErrorFn("Kernel Transpose for weightsB failed");
@@ -282,7 +308,7 @@ namespace CharacterRecognition {
 		checkCUDAErrorFn("Kernel Matrix Multiplication for Devgrad failed");
 
 		dim3 fullBlocksMult4((n*h + blockSize - 1) / blockSize);
-		kernSigmoidGrad << <fullBlocksMult4,blockSize >> > (h*n,dev_hiddenLayer,dev_hiddenLayerGrad);
+		kernSigmoidGrad << <fullBlocksMult4,blockSize >> > (h*n,hidden,dev_hiddenLayerGrad);
 		checkCUDAErrorFn("Kernel Sigmoid gradient failed");
 
 		kernDotProduct << <fullBlocksMult4,blockSize >> > (n*h,dev_hiddenLayerGrad,devGrad,devGrad2);
@@ -306,21 +332,29 @@ namespace CharacterRecognition {
 		printf("Grad A \n");
 		printArray(d*h, check2, true);
 		*/
-		float eta_rate = 0.2;
-		
+		float eta_rate = 0.3;
+
+		float *check = new float[d*h];
+
+		cudaMemcpy(check, dev_gradA, sizeof(float) * (d*h), cudaMemcpyDeviceToHost);
+		checkCUDAErrorFn("Copying data to output failed");
+		/*
+		printf("Grad A \n");
+		printArray(d*h, check, true);
+
+
+		float *check2 = new float[h*m];
+
+		cudaMemcpy(check2, dev_gradB, sizeof(float) * (h*m), cudaMemcpyDeviceToHost);
+		checkCUDAErrorFn("Copying data to output failed");
+
+		printf("Grad B \n");
+		printArray(h*m, check2, true);
+		*/
 		dim3 fullBlocksMult7((d*h + blockSize - 1) / blockSize);
 		kernUpdateWeights << <fullBlocksMult7,blockSize >> > (d*h,weightsA,newWeightsA,dev_gradA,eta_rate);
 		checkCUDAErrorFn("kernel update weights A failed");
 
-		/*
-		float *check2 = new float[d*h];
-
-		cudaMemcpy(check2, newWeightsA, sizeof(float) * (d*h), cudaMemcpyDeviceToHost);
-		checkCUDAErrorFn("Copying data to output failed");
-
-		printf("New weights A \n");
-		printArray(d*h, check2, true);
-		*/
 
 		dim3 fullBlocksMult8((h*m + blockSize - 1) / blockSize);
 		kernUpdateWeights << <fullBlocksMult8,blockSize >> > (h*m, weightsB, newWeightsB,dev_gradB, eta_rate);
@@ -362,6 +396,7 @@ namespace CharacterRecognition {
 	void createAndTrainNN(int n,int h,int m,int d, float *idata, float *hidden, float *odata, float *weightsIH, float *weightsHO,float *actualOutput) {		
 		
 		float *dev_loss;
+		int *dev_predict;
 
 		cudaMalloc((void**)&dev_input, (n*d) * sizeof(float));
 		checkCUDAErrorFn("Malloc idata into input failed");
@@ -389,6 +424,9 @@ namespace CharacterRecognition {
 
 		cudaMalloc((void**)&dev_loss, (n) * sizeof(float));
 		checkCUDAErrorFn("Malloc actual output memeory failed");
+
+		cudaMalloc((void**)&dev_predict, (n) * sizeof(float));
+		checkCUDAErrorFn("Malloc predict memeory failed");
 
 		cudaMemcpy(dev_input, idata, sizeof(float) * (n*d), cudaMemcpyHostToDevice);
 		checkCUDAErrorFn("Copying idata to input failed");
@@ -431,7 +469,7 @@ namespace CharacterRecognition {
 
 		int iterations = 0;
 		float totalError = 0.1;
-		while (totalLoss > totalError && iterations < 10000) {
+		while (totalLoss > totalError && iterations < 2000) {
 			trainNN(dev_input, dev_hiddenLayer, dev_output, dev_actualOutput, dev_weightsIH, dev_weightsHO, dev_newWeightsIH, dev_newWeightsHO, n, h, m, d);
 			dev_weightsIH = dev_newWeightsIH;
 			dev_weightsHO = dev_newWeightsHO;
@@ -439,9 +477,21 @@ namespace CharacterRecognition {
 			totalLoss = calculateLoss(n, dev_output, dev_actualOutput, dev_loss, m) / n;
 			iterations++;
 			printf("Iteration: %d \n", iterations);
-			printf("Total loss is :%0.3f", totalLoss);
+			printf("Total loss is :%0.3f\n", totalLoss);
 		}
 		
+		//dim3 fullBlocks4((n + blockSize - 1) / blockSize);
+		kernGetAccuracy << < fullBlocks1,blockSize>> > (n*m,dev_output,dev_predict,m);
+		checkCUDAErrorFn("Kernel accuracy failed");
+
+		int *predict = new int[n];
+		cudaMemcpy(predict, dev_predict, sizeof(float) * (n), cudaMemcpyDeviceToHost);
+		checkCUDAErrorFn("Copying predict data failed");
+
+		for (int i = 0; i < n; i++) {
+			printf("The outcome for the data point %d is: %d\n", i+1,predict[i]);
+		}
+
 		cudaMemcpy(hidden, dev_hiddenLayer, sizeof(float) * (n*h), cudaMemcpyDeviceToHost);
 		checkCUDAErrorFn("Copying data to hidden layer failed");
 

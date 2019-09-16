@@ -42,7 +42,7 @@ int main(int argc, char* argv[]) {
 	printf("****************\n");
 
 	const int INPUT_SIZE = 4; // Input size
-	const int HIDDENLAYER_SIZE = 2; // Output size
+	const int HIDDENLAYER_SIZE = 4; // Output size
 	const int OUTPUT_SIZE = 2; // Output size
 	const int FEATURE_SIZE = 2; // Feature Size
 
@@ -55,8 +55,13 @@ int main(int argc, char* argv[]) {
 
 	createInputXor(input);
 	createOutputXor(output);
-	genArray(FEATURE_SIZE*HIDDENLAYER_SIZE, weightsIH, 1);
-	genArray(HIDDENLAYER_SIZE*OUTPUT_SIZE, weightsHO, 1);
+	srand(10);
+	genArrayA(FEATURE_SIZE*HIDDENLAYER_SIZE, weightsIH, 0);
+	genArrayB(HIDDENLAYER_SIZE*OUTPUT_SIZE, weightsHO, 1);
+
+
+	//zeroArray(FEATURE_SIZE*HIDDENLAYER_SIZE, weightsIH);
+	//zeroArray(HIDDENLAYER_SIZE*OUTPUT_SIZE, weightsHO);
 
 	printf("Weights A array: \n");
 	printArray(HIDDENLAYER_SIZE*FEATURE_SIZE, weightsIH, true);
