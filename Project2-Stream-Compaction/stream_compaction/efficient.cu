@@ -127,7 +127,7 @@ namespace StreamCompaction {
 
 			checkCUDAErrorWithLine("scatter failed!");
 			//read data back
-			int res;
+			long long res;
 			cudaMemcpy(&res, dev_indices + n - 1, sizeof(long long), cudaMemcpyDeviceToHost);
 			res = idata[n - 1] ? res + 1 : res;
 			cudaMemcpy(odata, dev_odata, n * sizeof(long long), cudaMemcpyDeviceToHost);
@@ -260,7 +260,6 @@ namespace StreamCompaction {
 			timer().endGpuTimer();
 		}
 		void dev_scan(unsigned long long int n, long long *dev_odata, long long *dev_idata) {
-			timer().startGpuTimer();
 			// allocate pointers to memory and copy data over
 			long long *dev_block_sum, *dev_block_offset;
 			long long *block_sum, *block_offset;
@@ -293,7 +292,49 @@ namespace StreamCompaction {
 			cudaFree(dev_block_offset);
 			delete[] block_sum;
 			delete[] block_offset;
+		}
+		/**
+		 * Performs stream compaction on idata, storing the result into odata.
+		 * All zeroes are discarded.
+		 *
+		 * @param n      The number of elements in idata.
+		 * @param odata  The array into which to store elements.
+		 * @param idata  The array of elements to compact.
+		 * @returns      The number of elements remaining after compaction.
+		 */
+		unsigned long long int compact(unsigned long long int n, long long *odata, const long long *idata) {
+			timer().startGpuTimer();
+			unsigned long long int closest_pow2 = 1 << ilog2ceil(n);
+			long long *dev_idata, *dev_odata, *dev_mask, *dev_indices;
+			unsigned long long int blocks = ceil((closest_pow2 + block_size - 1) / block_size);
+			cudaMalloc((void**)&dev_idata, closest_pow2 * sizeof(long long));
+			cudaMalloc((void**)&dev_odata, closest_pow2 * sizeof(long long));
+			cudaMalloc((void**)&dev_mask, closest_pow2 * sizeof(long long));
+			cudaMalloc((void**)&dev_indices, closest_pow2 * sizeof(long long));
+			// copy over idata
+			cudaMemcpy(dev_idata, idata, n * sizeof(long long), cudaMemcpyHostToDevice);
+			checkCUDAErrorWithLine("mask gen failed!");
+			Common::kernMapToBoolean << <blocks, block_size >> > (n, dev_mask, dev_idata);
+			checkCUDAErrorWithLine("mask gen failed!");
+			// scan the mask array (can be done in parallel by using a balanced binary tree)
+			cudaMemcpy(dev_indices, dev_mask, closest_pow2 * sizeof(long long), cudaMemcpyDeviceToDevice);
+			dev_scan(closest_pow2, dev_indices, dev_mask);
+			checkCUDAErrorWithLine("dev scan failed!");
+			// Scatter array (go to each position and copy the value)
+			Common::kernScatter << <blocks, block_size >> > (closest_pow2, dev_odata, dev_idata, dev_mask, dev_indices);
+
+			checkCUDAErrorWithLine("scatter failed!");
+			//read data back
+			long long res;
+			cudaMemcpy(&res, dev_indices + n - 1, sizeof(long long), cudaMemcpyDeviceToHost);
+			res = idata[n - 1] ? res + 1 : res;
+			cudaMemcpy(odata, dev_odata, n * sizeof(long long), cudaMemcpyDeviceToHost);
+			cudaFree(dev_odata);
+			cudaFree(dev_idata);
+			cudaFree(dev_mask);
+			cudaFree(dev_indices);
 			timer().endGpuTimer();
+			return res;
 		}
 	}
 }

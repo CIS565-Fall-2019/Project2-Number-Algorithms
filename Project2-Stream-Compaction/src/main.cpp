@@ -18,7 +18,7 @@
 #define max_value_compaction 4
 #define max_value_sorting 500
 const unsigned long long int SIZE = 1<<15; // feel free to change the size of array
-const unsigned long long int nPOT = SIZE - 3; // Non-Power-Of-Two
+const unsigned long long int NPOT = SIZE - 3; // Non-Power-Of-Two
 long long *a = new long long[SIZE];
 long long *b = new long long[SIZE];
 long long *c = new long long[SIZE];
