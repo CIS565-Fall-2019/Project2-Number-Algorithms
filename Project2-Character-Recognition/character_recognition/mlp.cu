@@ -247,7 +247,12 @@ namespace CharacterRecognition {
 
 	    // Initialize weight matrices with random numbers
 		curandGenerateUniform(prng, weights_IH, INPUT_LAYER_SIZE * HIDDEN_LAYER_SIZE);
+		dim3 ihblocks((INPUT_LAYER_SIZE * HIDDEN_LAYER_SIZE + blockSize - 1) / blockSize);
+		Functions::normalize << <ihblocks, blockSize >> > (weights_IH, INPUT_LAYER_SIZE, HIDDEN_LAYER_SIZE);
+
 		curandGenerateUniform(prng, weights_HO, HIDDEN_LAYER_SIZE * OUTPUT_LAYER_SIZE);
+		dim3 hoblocks((HIDDEN_LAYER_SIZE * OUTPUT_LAYER_SIZE + blockSize - 1) / blockSize);
+		Functions::normalize << <hoblocks, blockSize >> > (weights_HO, HIDDEN_LAYER_SIZE, OUTPUT_LAYER_SIZE);
 
 		// Debug/Print
 		//printf("Initial Weight Matrices\n");

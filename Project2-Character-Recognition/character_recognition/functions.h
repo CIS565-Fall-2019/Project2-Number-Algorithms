@@ -31,4 +31,6 @@ namespace Functions {
 	// Custom Kernel for gradient descent
 	__global__ void KernelElementwiseMultiplySigmoid(float* input_output, float* input, int x_dim, int y_dim);
 	__global__ void KernelElementwiseMultiplyRelu(float* input_output, float* input, int x_dim, int y_dim);
+
+	__global__ void normalize(float* array, int x_dim, int y_dim);
 }

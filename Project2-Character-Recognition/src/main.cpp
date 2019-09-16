@@ -32,6 +32,7 @@ void loadCharacterDataset(int num_instances, int input_layer, int output_layer, 
 		infile.open(file_name);
 		int line_num = 0;
 		string line;
+		std::string::size_type sz;
 		while (getline(infile, line)){
 			if (line_num == 0) {
 				ilabel[output_layer*(i - 1) + stoi(line) - 1] = 1;
@@ -40,7 +41,9 @@ void loadCharacterDataset(int num_instances, int input_layer, int output_layer, 
 				stringstream ssin(line);
 				int k = 0;
 				while (ssin.good() && k < input_layer) {
-					ssin >> idata[output_layer*(i - 1) + k];
+					std::string temp;
+					ssin >> temp;
+					idata[output_layer*(i - 1) + k] = stof(temp, &sz) / 255;
 					++k;
 				}
 			}
@@ -72,31 +75,31 @@ void loadXORDataset(float* idata, float* ilabel) {
 
 int main(int argc, char* argv[]) {
 	// Model Architecture and Num Instances
-	//int input_layer = 10201;
-	//int hidden_layer = 4;
-	//int output_layer = 52;
-	//int num_instances = 52;
+	int input_layer = 10201;
+	int hidden_layer = 50;
+	int output_layer = 52;
+	int num_instances = 52;
 
-	int input_layer = 2;
-	int hidden_layer = 4;
-	int output_layer = 2;
-	int num_instances = 4;
+	//int input_layer = 2;
+	//int hidden_layer = 4;
+	//int output_layer = 2;
+	//int num_instances = 4;
 
 	// Initialize Network
 	CharacterRecognition::init(input_layer, hidden_layer, output_layer);
 
 	// Load Dataset 
-	//float *idata = new float[num_instances * 10201];
-	//float *ilabel = new float[num_instances * output_layer];
-	//loadCharacterDataset(num_instances, input_layer, output_layer, idata, ilabel);
+	float *idata = new float[num_instances * 10201];
+	float *ilabel = new float[num_instances * output_layer];
+	loadCharacterDataset(num_instances, input_layer, output_layer, idata, ilabel);
 
-	float *idata = new float[8];
-	float *ilabel = new float[8];
-	loadXORDataset(idata, ilabel);
+	//float *idata = new float[8];
+	//float *ilabel = new float[8];
+	//loadXORDataset(idata, ilabel);
 
 	// Parameters
 	int epochs = 2000;
-	float learning_rate = 0.5;
+	float learning_rate = 0.1f;
 
 	// Train
 	CharacterRecognition::train(idata, ilabel, num_instances, epochs, learning_rate);

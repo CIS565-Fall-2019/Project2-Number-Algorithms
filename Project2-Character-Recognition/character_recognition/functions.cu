@@ -99,4 +99,11 @@ namespace Functions {
 			input_output[index] = input[index] > 0 ? input_output[index] : 0;
 		}
 	}
+	__global__ void normalize(float * array, int x_dim, int y_dim)
+	{
+		int index = blockIdx.x * blockDim.x + threadIdx.x;
+		if (index < x_dim * y_dim) {
+			array[index] = ((array[index] * 2) - 1) / 10;
+		}
+	}
 }
