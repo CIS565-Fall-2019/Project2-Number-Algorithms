@@ -3,6 +3,9 @@
 #include "common.h"
 #include "mlp.h"
 #include <thrust/scan.h>
+#include <fstream>
+#include <iostream>
+using namespace std;
 
 //#include "cublas_v2.h"
 
@@ -472,6 +475,10 @@ namespace CharacterRecognition {
 
 		int iterations = 0;
 		float totalError = 0.1;
+		
+		ofstream outputFile;
+		outputFile.open("lossCharacterTrainingLossValues.csv");
+		outputFile << "Average Total Loss vs Iterations for Training" << endl;
 		while (totalLoss > totalError && iterations < 2000) {
 			trainNN(dev_input, dev_hiddenLayer, dev_output, dev_actualOutput, dev_weightsIH, dev_weightsHO, dev_newWeightsIH, dev_newWeightsHO, n, h, m, d);
 			dev_weightsIH = dev_newWeightsIH;
@@ -481,7 +488,9 @@ namespace CharacterRecognition {
 			iterations++;
 			printf("Iteration: %d \n", iterations);
 			printf("Total loss is :%0.3f\n", totalLoss);
+			outputFile << totalLoss << endl;
 		}
+		outputFile.close();
 		float *check = new float[n*m];
 
 		cudaMemcpy(check, dev_output, sizeof(float) * (n*m), cudaMemcpyDeviceToHost);

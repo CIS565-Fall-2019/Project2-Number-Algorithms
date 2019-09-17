@@ -75,29 +75,29 @@ void xor2x2NN(int INPUT_SIZE, int HIDDENLAYER_SIZE, int OUTPUT_SIZE, int FEATURE
 	printArray(HIDDENLAYER_SIZE*FEATURE_SIZE, weightsIH, true);
 	printf("Weights B array: \n");
 	printArray(HIDDENLAYER_SIZE*OUTPUT_SIZE, weightsHO, true);
+
+	ofstream outputFile;
+	outputFile.open("lossXorTraining.csv");
+	outputFile << "Output Values after the Softmax Function" << endl;
+	for (int i = 0; i < INPUT_SIZE*OUTPUT_SIZE; i++)
+		outputFile << outputNN[i] << endl;
+
+	outputFile << "Output Values for the hidden layer" << endl;
+	for (int i = 0; i < INPUT_SIZE*HIDDENLAYER_SIZE; i++)
+		outputFile << hidden[i] << endl;
+
+	outputFile << "Values for Weights A" << endl;
+	for (int i = 0; i < HIDDENLAYER_SIZE*FEATURE_SIZE; i++)
+		outputFile << weightsIH[i] << endl;
+
+	outputFile << "Values for Weights B" << endl;
+	for (int i = 0; i < HIDDENLAYER_SIZE*OUTPUT_SIZE; i++)
+		outputFile << weightsHO[i] << endl;
+
+	outputFile.close();
 }
 
-int main(int argc, char* argv[]) {
-	
-	printf("\n");
-	printf("****************\n");
-	printf("** CREATING THE NEURAL NETWORK **\n");
-	printf("****************\n");
-
-	/*
-	const int INPUT_SIZE = 4; // Input size
-	const int HIDDENLAYER_SIZE = 4; // Output size
-	const int OUTPUT_SIZE = 2; // Output size
-	const int FEATURE_SIZE = 2; // Feature Size
-
-	xor2x2NN(INPUT_SIZE,HIDDENLAYER_SIZE,OUTPUT_SIZE,FEATURE_SIZE);
-	*/
-
-	const int INPUT_SIZE = 52; // Input size
-	const int HIDDENLAYER_SIZE = 10; // Output size
-	const int OUTPUT_SIZE = 52; // Output size
-	const int FEATURE_SIZE = 10201; // Feature Size
-
+void characterRecognition(int INPUT_SIZE,int HIDDENLAYER_SIZE,int OUTPUT_SIZE,int FEATURE_SIZE) {
 	float *input = new float[INPUT_SIZE*FEATURE_SIZE];
 	float *hidden = new float[INPUT_SIZE*HIDDENLAYER_SIZE];
 	float *output = new float[INPUT_SIZE*OUTPUT_SIZE];
@@ -109,7 +109,7 @@ int main(int argc, char* argv[]) {
 		string line;
 		string filename;
 		string temp;
-		if (i < 10) 
+		if (i < 10)
 			filename = "C:\\Users\\somanshu\\Desktop\\Project2-Number-Algorithms\\Project2-Character-Recognition\\data-set\\0" + std::to_string(i) + "info.txt";
 		else
 			filename = "C:\\Users\\somanshu\\Desktop\\Project2-Number-Algorithms\\Project2-Character-Recognition\\data-set\\" + std::to_string(i) + "info.txt";
@@ -126,14 +126,14 @@ int main(int argc, char* argv[]) {
 					while (foundLast < line.length()) {
 						foundLast = line.find(" ", foundFirst);
 						temp = line.substr(foundFirst, foundLast - foundFirst);
-						float val = (float) std::stoi(temp);
+						float val = (float)std::stoi(temp);
 						//float val2 = (float)val;
-						input[(i - 1)*FEATURE_SIZE + counter] = val/255;
+						input[(i - 1)*FEATURE_SIZE + counter] = val / 255;
 						counter++;
-						foundFirst = foundLast+1;
+						foundFirst = foundLast + 1;
 					}
 				}
-					
+
 				count++;
 			}
 			myfile.close();
@@ -141,7 +141,7 @@ int main(int argc, char* argv[]) {
 	}
 
 
-	
+
 	/*for (int i = 0; i < 10; i++) {
 		printf("Element is: %0.2f\n", input[i]);
 	}
@@ -155,13 +155,51 @@ int main(int argc, char* argv[]) {
 
 	zeroArray(INPUT_SIZE*OUTPUT_SIZE, output);
 	for (int i = 0; i < OUTPUT_SIZE; i++)
-		output[i*INPUT_SIZE+i] = 1.0;
+		output[i*INPUT_SIZE + i] = 1.0;
 	//float *inputNorm = new float[INPUT_SIZE*FEATURE_SIZE];
 	CharacterRecognition::createAndTrainNN(INPUT_SIZE, HIDDENLAYER_SIZE, OUTPUT_SIZE, FEATURE_SIZE, input, hidden, outputNN, weightsIH, weightsHO, output);
+	ofstream outputFile;
+	outputFile.open("lossCharacterTraining.csv");
+	outputFile << "Output Values after the Softmax Function" << endl;
+	for (int i = 0; i < INPUT_SIZE*OUTPUT_SIZE; i++)
+		outputFile << outputNN[i] << endl;
+
+	outputFile << "Output Values for the hidden layer" << endl;
+	for (int i = 0; i < INPUT_SIZE*HIDDENLAYER_SIZE; i++)
+		outputFile << hidden[i] << endl;
+
+	outputFile << "Values for Weights A" << endl;
+	for (int i = 0; i < HIDDENLAYER_SIZE*FEATURE_SIZE; i++)
+		outputFile << weightsIH[i] << endl;
+
+	outputFile << "Values for Weights B" << endl;
+	for (int i = 0; i < HIDDENLAYER_SIZE*OUTPUT_SIZE; i++)
+		outputFile << weightsHO[i] << endl;
+
+	outputFile.close();
+}
+int main(int argc, char* argv[]) {
+	
+	printf("\n");
+	printf("****************\n");
+	printf("** CREATING THE NEURAL NETWORK **\n");
+	printf("****************\n");
+
 	/*
-	printf("Output Array: \n");
-	printArray(INPUT_SIZE*OUTPUT_SIZE, outputNN, true);
-	printf("Actual Output Array: \n");
-	printArray(INPUT_SIZE*OUTPUT_SIZE, output, true);
+	const int INPUT_SIZE = 4; // Input size
+	const int HIDDENLAYER_SIZE = 4; // Output size
+	const int OUTPUT_SIZE = 2; // Output size
+	const int FEATURE_SIZE = 2; // Feature Size
+
+	xor2x2NN(INPUT_SIZE,HIDDENLAYER_SIZE,OUTPUT_SIZE,FEATURE_SIZE);
 	*/
+
+	
+	const int INPUT_SIZE = 52; // Input size
+	const int HIDDENLAYER_SIZE = 10; // Output size
+	const int OUTPUT_SIZE = 52; // Output size
+	const int FEATURE_SIZE = 10201; // Feature Size
+
+	characterRecognition(INPUT_SIZE, HIDDENLAYER_SIZE, OUTPUT_SIZE, FEATURE_SIZE);
+	
 }
