@@ -63,7 +63,7 @@ int main(int argc, char* argv[]) {
 	// Report Results
 	int correct = correct_guesses.size();
 	int wrong = wrong_guesses.size();
-	float accuracy = (float)correct / wrong;
+	float accuracy = (float)correct / (wrong + correct);
 	std::cout << "Run complete with accuracy " << accuracy << std::endl;
 	std::cout << "MLP was wrong about the following files: " << std::endl;
 	for (auto &f : wrong_guesses) {

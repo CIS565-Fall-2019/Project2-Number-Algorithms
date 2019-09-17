@@ -1,9 +1,11 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
+#include <device_launch_parameters.h>
 #include <thrust/device_vector.h>
 #include <thrust/host_vector.h>
 #include <thrust/scan.h>
 #include <cublas_v2.h>
+#include <curand.h>
 #include "common.h"
 #include "mlp.h"
 
@@ -14,72 +16,6 @@ namespace CharacterRecognition {
         static PerformanceTimer timer;
         return timer;
     }
-        
-    // TODO: __global__
-
-	struct MLPData {
-		int input_len;
-		int hidden_len;
-		int out_len;
-
-		int* input_layer;
-		int* hidden_layer;
-		int* output_layer;
-
-		int* ih_weights;
-		int* ho_weights;
-	};
-
-	void intializeMLP(int input_len, int hidden_len, int out_len) {
-	}
-
-	void loadInputMLP(struct CharacterRecognition::MLPData* mlp, int* idata, int len) {
-
-	}
-
-	void stepMLP(struct CharacterRecognition::MLPData* mlp) {
-		// This MLP flows from input to output with no feedback
-		// So we will work in steps
-		// 1) (CPU) Read input data and copy to Device
-		// 2) (GPU) Each Node of Hidden layer computes its value by sum(input*weight foreach input) and compares it to activation
-		// 3) (GPU) Each Node of the Output layer computes its value by sum(hidden*weifght foreach hidden) and compares it to activation
-		// 4) (CPU) Reads output nodes and uses lookup table to get result.
-	}
-
-	void matrixMultiplyExample() {
-		int input_rows;
-		int input_cols;
-		int ih_weight_rows;
-		int ih_weight_cols;
-		int hidden_rows;
-		int hidden_cols;
-
-		// Allocate the matricies
-		float *input_matrix = (float*)malloc(input_rows * input_cols * sizeof(float));
-		float *weight_matrix = (float*)malloc(ih_weight_rows * ih_weight_cols * sizeof(float));
-		float *hidden_matrix = (float*)malloc(hidden_rows * hidden_cols * sizeof(float));
-
-		// Allocate the matricies on the GPU
-		float* dev_input_matrix;
-		float* dev_weight_matrix;
-		float* dev_hidden_matrix;
-		cudaMalloc(&dev_input_matrix, input_rows * input_cols * sizeof(float));
-		cudaMalloc(&dev_weight_matrix, ih_weight_rows * ih_weight_cols * sizeof(float));
-		cudaMalloc(&dev_hidden_matrix, hidden_rows * hidden_cols * sizeof(float));
-
-		// Work work work
-
-		// Free memory
-		cudaFree(dev_input_matrix);
-		cudaFree(dev_weight_matrix);
-		cudaFree(dev_hidden_matrix);
-
-		free(input_matrix);
-		free(weight_matrix);
-		free(hidden_matrix);
-
-		return;
-	}
 
 	void matrixMul(const Matrix* A, const Matrix* B, Matrix* C) {
 		const float alpha = 1.0f;
@@ -118,7 +54,6 @@ namespace CharacterRecognition {
 		}
 
 		this->devAlloc();
-
 	}
 
 	Matrix::~Matrix()
@@ -210,8 +145,8 @@ namespace CharacterRecognition {
 		inputData(pixels, 1),
 		hiddenLayer(pixels, 1),
 		outputLayer(outputs, 1),
-		ihWeights(pixels, pixels),
-		hoWeights(pixels, outputs)
+		kjWeights(pixels, pixels),
+		jiWeights(pixels, outputs)
 	{
 	}
 
@@ -221,7 +156,19 @@ namespace CharacterRecognition {
 
 	void Perceptron::randomizeWeights()
 	{
-		// kernRandomizeMatrix
+		// Create an RNG via curand and then populate the weights array with those numbers.
+		curandGenerator_t gen;
+
+		// Create and seed generator
+		curandCreateGenerator(&gen, CURAND_RNG_PSEUDO_DEFAULT);
+		curandSetPseudoRandomGeneratorSeed(gen, ::time(NULL));
+
+		// Populate weight matricies
+		curandGenerateUniform(gen, this->kjWeights.dev_data, this->kjWeights.getLen());
+		curandGenerateUniform(gen, this->jiWeights.dev_data, this->jiWeights.getLen());
+
+		// Cleanup
+		curandDestroyGenerator(gen);
 	}
 
 	void Perceptron::loadBrain(std::string brainfile)
@@ -241,10 +188,21 @@ namespace CharacterRecognition {
 		// Load data and store the expected result
 	}
 
-	void Perceptron::train(int iterations)
+	void Perceptron::train()
 	{
-		// Run the machine on the data set 'iteratations' times
-		// Includes backprop
+		// Training: We want to run our data, calculate the backprop variables,
+		// and average the results over many runs.
+		// So what we do, we run the machine and then add a step to collect information
+		// about the weights and activations of the machine. These will then be stored off
+		// in a seperate array.
+		// After running, the calcualted weights can either be fed back in and re-trained
+		// or output to a file for the user to recover.
+
+		// 1) Run the Perceptron over the input data
+		this->run();
+
+		// 2) Collect backprop information.
+		this->backprop();
 	}
 
 	void Perceptron::loadDataSet(Matrix * input)
@@ -255,6 +213,28 @@ namespace CharacterRecognition {
 	void Perceptron::run()
 	{
 		// Run the machine on the data set.
+		// Step 1) Calculate values of hidden layer.
+		matrixMul(&inputData, &kjWeights, &hiddenLayer);
+
+		// Step 2) Apply Hidden Layer Bias
+		// TODO: Would be nice.
+
+		// STEP 3) Apply sigmoid function
+		sigmoid(&hiddenLayer);
+
+		// Step 4) Hidden layer now populated, get output layer
+		matrixMul(&hiddenLayer, &jiWeights, &outputLayer);
+
+		// Step 5) Apply sigmoid to output layers
+		sigmoid(&outputLayer);
+
+		// Setp 6) Store the result, ie the brightest node in the output layer
+		// Output layer is small, so do this on CPU.
+		outputLayer.copyDevToCpu();
+		result = std::max_element(
+			outputLayer.cpu_data,
+			outputLayer.cpu_data + outputLayer.getLen()
+		) - outputLayer.cpu_data;
 	}
 
 	int Perceptron::getLastResult()
@@ -262,5 +242,106 @@ namespace CharacterRecognition {
 		// Get the result of the last run.
 	}
 
-	// TODO: implement required elements for MLP sections 1 and 2 here
+	void Perceptron::backprop()
+	{
+		// Backprop algoritm runs in two phases.
+		// From the output, compute the deltas that should be made to the jiWeights
+		// Then, from there, calculate the deltas that should be applied to the kjWeights
+
+		// 1) jiWeights
+
+	}
+
+	void Perceptron::updateHiddenToOutputWeights()
+	{
+
+	}
+
+	//////////////////////////////////
+	//////////////////////////////////
+	// KERNEL OPERATIONS
+	//////////////////////////////////
+	//////////////////////////////////
+
+	void sigmoid(Matrix* m) {
+		// TODO: Optimize block utilization
+		int threads = m->getLen();
+		kernSigmoid << <1, threads >> > (m->getLen(), m->dev_data);
+	}
+
+	__global__ void kernSigmoid(int n, float* data) {
+		int idx = threadIdx.x + (blockDim.x) * threadIdx.y + (blockDim.y * blockDim.x) * threadIdx.z;
+		if (idx > n) {
+			return;
+		}
+
+		data[n] = devSigmoid(data[n]);
+	}
+
+	void activation(Matrix* m) {
+		// TODO: Optimize block utilization
+		int threads = m->getLen();
+		kernActivation << <1, threads >> > (m->getLen(), m->dev_data);
+	}
+
+	__global__ void kernActivation(int n, float* data) {
+		int idx = threadIdx.x + (blockDim.x) * threadIdx.y + (blockDim.y * blockDim.x) * threadIdx.z;
+		if (idx > n) {
+			return;
+		}
+
+		data[n] = devInverseSigmoid(data[n]);
+	}
+
+	__device__ float devSigmoid(float n) {
+		return 1.0f / (1 + expf(-1.0f * n));
+	}
+
+	__device__ float devInverseSigmoid(float n) {
+		return 1.0f / (1 + expf(n));
+	}
+
+	__global__ void kernUpdateHiddenToOutputWeights(int n, const float* jiWeights, const float* outputLayer, const float* hiddenLayer,  const float* expectedLayer, float* jiWeightsDelta) {
+		int tidx = threadIdx.x + (blockDim.x) * threadIdx.y + (blockDim.y * blockDim.x) * threadIdx.z;
+		int bidx = blockIdx.x + (gridDim.x) * blockIdx.y + (gridDim.y * gridDim.x) * blockIdx.z;
+		int idx = tidx + bidx * (blockDim.x * blockDim.y * blockDim.z);
+		if (idx > n) {
+			return;
+		}
+
+		// Leverage architecture to our advantage
+		// Uses I blocks of J threads
+		int j = tidx;
+		int i = bidx;
+		int rowcount = blockDim.x;
+
+		float lambda = 1.0f; // TODO: Make this adjustable, set it to E/10, where E is ???
+		float theta = -logf((1.0f/hiddenLayer[j]) - 1);
+		float omega = expectedLayer[i] - outputLayer[i];
+		float psi = omega * devInverseSigmoid(theta);
+		
+		jiWeightsDelta[j + i * rowcount] += lambda * hiddenLayer[j] * psi;
+	}
+
+	__global__ void kernUpdateInputToHiddenWeights(int n, const float* kjWeights, const float* hiddenLayer, const float* inputLayer, float* kjWeightsDelta) {
+		int tidx = threadIdx.x + (blockDim.x) * threadIdx.y + (blockDim.y * blockDim.x) * threadIdx.z;
+		int bidx = blockIdx.x + (gridDim.x) * blockIdx.y + (gridDim.y * gridDim.x) * blockIdx.z;
+		int idx = tidx + bidx * (blockDim.x * blockDim.y * blockDim.z);
+		if (idx > n) {
+			return;
+		}
+
+		// Leverage architecture to our advantage
+		// Uses I blocks of J threads
+		int k = tidx;
+		int j = bidx;
+		int rowcount = blockDim.x;
+
+		//float lambda = 1.0f; // TODO: Make this adjustable, set it to E/10, where E is ???
+		//float theta = -logf((1.0f / hiddenLayer[j]) - 1);
+		//float omega = expectedLayer[i] - outputLayer[i];
+		//float psi = omega * devInverseSigmoid(theta);
+
+		//jiWeightsDelta[j + i * rowcount] += lambda * hiddenLayer[j] * psi;
+	}
 }

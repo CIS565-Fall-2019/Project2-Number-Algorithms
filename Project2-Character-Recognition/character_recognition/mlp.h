@@ -56,7 +56,7 @@ namespace CharacterRecognition {
 		void saveBrain(std::string brainfile);
 
 		void loadTrainingDataSet(int expected_result, Matrix* input);
-		void train(int iterations);
+		void train();
 
 		void loadDataSet(Matrix* input);
 		void run();
@@ -66,8 +66,19 @@ namespace CharacterRecognition {
 		Matrix inputData;
 		Matrix hiddenLayer;
 		Matrix outputLayer;
-		Matrix ihWeights;
-		Matrix hoWeights;
+		Matrix kjWeights;  // Input -> Hidden
+		Matrix jiWeights;  // Hidden -> Output
+
+		// Backprop data
+		Matrix kjWeightsDelta;
+		Matrix jiWeightsDelta;
+
+		int result;
+
+		void backprop();
+		void applyBackprop();
+
+		void updateHiddenToOutputWeights();
 	};
     // TODO: implement required elements for MLP sections 1 and 2 here
 	void matrixMul(const Matrix* A, const Matrix* B, Matrix* C);
