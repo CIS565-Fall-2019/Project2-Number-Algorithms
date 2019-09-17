@@ -7,7 +7,15 @@ CUDA Stream Compaction
   * https://www.linkedin.com/in/joshua-nadel-379382136/, http://www.joshnadel.com/
 * Tested on: Windows 10, i7-6700HQ @ 2.60GHz 16GB, GTX 970M (Personal laptop)
 
-###
+### Scan / Stream Compaction
+
+This project demonstrates the ability of the GPU to quickly complete algorithms that are, in serial, quite slow. It contains both serial and parallel implementations of scan and stream compaction algorithms, and uses timers to compare their performances on large quantities of data.
+The list of features includes:
+* Serial scan implementation on the CPU
+* Serial compact implementation on the CPU
+* Naive scan implementation on the GPU
+* Work-efficient scan implementation on the GPU
+* Work-efficient compact implementation on the GPU
 
 ![](img/timeOverLength.png)
 

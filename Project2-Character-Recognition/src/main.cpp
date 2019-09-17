@@ -11,14 +11,24 @@
 #include <character_recognition/common.h>
 #include "testing_helpers.hpp"
 
-const int SIZE = 1 << 8; // feel free to change the size of array
+/*const int SIZE = 1 << 8; // feel free to change the size of array
 const int NPOT = SIZE - 3; // Non-Power-Of-Two
 int *a = new int[SIZE];
 int *b = new int[SIZE];
-int *c = new int[SIZE];
+int *c = new int[SIZE];*/
+
+int *dev_input;
+int *dev_hidden;
+int *dev_output;
+float *dev_w_kj;
+float *dev_w_ki;
+
+float sigmoid(float x) {
+	return 1 / (1 + exp(-x));
+}
 
 int main(int argc, char* argv[]) {
-    // Scan tests
+    /*// Scan tests
 
     printf("\n");
     printf("****************\n");
@@ -58,7 +68,7 @@ int main(int argc, char* argv[]) {
 	StreamCompaction::Naive::scan(SIZE, c, a);
 	printArray(SIZE, c, true); */
 
-    zeroArray(SIZE, c);
+    /*zeroArray(SIZE, c);
     printDesc("naive scan, non-power-of-two");
     StreamCompaction::Naive::scan(NPOT, c, a);
     printElapsedTime(StreamCompaction::Naive::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
@@ -148,5 +158,5 @@ int main(int argc, char* argv[]) {
     system("pause"); // stop Win32 console from closing on exit
 	delete[] a;
 	delete[] b;
-	delete[] c;
+	delete[] c;*/
 }
