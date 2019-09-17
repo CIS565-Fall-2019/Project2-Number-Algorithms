@@ -16,6 +16,8 @@ anything here that you don't want to share with the world.)
 
 ![alt text](https://raw.github.com/micallef25/Project2-Number-Algorithms/Project2-Stream-Compaction/master/img/differingblocks.PNG)
 
+![](img/differingblocks.PNG)
+
 ![alt text](https://raw.github.com/micallef25/Project2-Number-Algorithms/Project2-Stream-Compaction/master/img/differingblocksraw.PNG)
 
 ![alt text](https://raw.github.com/micallef25/Project2-Number-Algorithms/Project2-Stream-Compaction/master/img/graphraw.PNG)
