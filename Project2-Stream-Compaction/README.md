@@ -66,7 +66,7 @@ Stream compaction, also known as stream filtering or selection, usually produces
   We compare the rumtime of GPU Naive scan and and the work efficient naive scan with the number of threads per block to pick  the most optimal configuration for furhter tests.
   
  *Block Size v/s Runtime*
-![](Project2-Stream-Compaction/img/BlockSize_vs_Runtime.png)
+![](img/BlockSize_vs_Runtime.png)
 
 * **Compare all of these GPU Scan implementations (Naive, Work-Efficient, and
   Thrust) to the serial CPU version of Scan. Plot a graph of the comparison
