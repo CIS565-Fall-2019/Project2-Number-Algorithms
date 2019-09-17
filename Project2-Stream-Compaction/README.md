@@ -57,5 +57,64 @@ To understand better of Thurst implemetation, here is the Nsight analysis of the
 
 The output of the time elapsed for input size 2^20 data is below:
 ```
-![](img/Screenshot_StreamCompaction.PNG)
+****************
+** SCAN TESTS **
+****************
+    [   3  30  38  42  45  21  37  46  38  43   4  40  36 ...   5   0 ]
+==== cpu scan, power-of-two ====
+   elapsed time: 4.7234ms    (std::chrono Measured)
+    [   0   3  33  71 113 158 179 216 262 300 343 347 387 ... 25656958 25656963 ]
+==== cpu scan, non-power-of-two ====
+   elapsed time: 1.7361ms    (std::chrono Measured)
+    [   0   3  33  71 113 158 179 216 262 300 343 347 387 ... 25656875 25656913 ]
+    passed
+==== naive scan, power-of-two ====
+   elapsed time: 5.15686ms    (CUDA Measured)
+    [   0   3  33  71 113 158 179 216 262 300 343 347 387 ... 25656958 25656963 ]
+    passed
+==== naive scan, non-power-of-two ====
+   elapsed time: 5.21149ms    (CUDA Measured)
+    [   0   3  33  71 113 158 179 216 262 300 343 347 387 ...   0   0 ]
+    passed
+==== work-efficient scan, power-of-two ====
+   elapsed time: 4.29978ms    (CUDA Measured)
+    passed
+==== work-efficient scan, non-power-of-two ====
+   elapsed time: 3.95059ms    (CUDA Measured)
+    [   0   3  33  71 113 158 179 216 262 300 343 347 387 ... 25656875 25656913 ]
+    passed
+==== thrust scan, power-of-two ====
+   elapsed time: 0.32256ms    (CUDA Measured)
+    [   0   3  33  71 113 158 179 216 262 300 343 347 387 ... 25656958 25656963 ]
+    passed
+==== thrust scan, non-power-of-two ====
+   elapsed time: 0.346112ms    (CUDA Measured)
+    [   0   3  33  71 113 158 179 216 262 300 343 347 387 ... 25656875 25656913 ]
+    passed
+
+*****************************
+** STREAM COMPACTION TESTS **
+*****************************
+    [   1   2   2   2   3   1   1   0   0   3   2   0   0 ...   3   0 ]
+==== cpu compact without scan, power-of-two ====
+   elapsed time: 2.9368ms    (std::chrono Measured)
+    [   1   2   2   2   3   1   1   3   2   3   2   2   1 ...   3   3 ]
+    passed
+==== cpu compact without scan, non-power-of-two ====
+   elapsed time: 2.6901ms    (std::chrono Measured)
+    [   1   2   2   2   3   1   1   3   2   3   2   2   1 ...   1   2 ]
+    passed
+==== cpu compact with scan ====
+
+   elapsed time: 12.4664ms    (std::chrono Measured)
+    [   1   2   2   2   3   1   1   3   2   3   2   2   1 ...   3   3 ]
+    passed
+==== work-efficient compact, power-of-two ====
+   elapsed time: 11.4031ms    (CUDA Measured)
+    [   1   2   2   2   3   1   1   3   2   3   2   2   1 ...   3   3 ]
+    passed
+==== work-efficient compact, non-power-of-two ====
+   elapsed time: 11.9585ms    (CUDA Measured)
+    [   1   2   2   2   3   1   1   3   2   3   2   2   1 ...   1   2 ]
+    passed
 ```
