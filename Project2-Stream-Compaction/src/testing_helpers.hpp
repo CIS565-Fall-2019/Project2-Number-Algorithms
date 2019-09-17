@@ -18,7 +18,7 @@ int cmpArrays(int n, T *a, T *b) {
 }
 
 void printDesc(const char *desc) {
-    printf("== %s ==", desc);
+    printf("==== %s ====", desc);
 }
 
 template<typename T>
@@ -72,6 +72,6 @@ void printArray(int n, int *a, bool abridged = false) {
 template<typename T>
 void printElapsedTime(T time, std::string note = "")
 {
-	//std::cout << "   elapsed time: " << time << "ms    " << note << std::endl;
-	std::cout << time << ", ";
+	std::cout << "   elapsed time: " << time << "ms    " << note << std::endl;
+	
 }
