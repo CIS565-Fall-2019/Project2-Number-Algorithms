@@ -10,7 +10,7 @@ CIS 565: GPU Programming and Architecture**
 
 ### Index
 This project consists of two subcomponents:
-- [Project2-Stream-Compaction](Project2-Stream-Compaction/README.md)
-- [Project2-Character-Recognition](Project2-Character-Recognition/README.md)
+- [Stream-Compaction](Project2-Stream-Compaction/README.md)
+- [Character-Recognition](Project2-Character-Recognition/README.md)
 
 Please see the individual sub-folders for detials.
