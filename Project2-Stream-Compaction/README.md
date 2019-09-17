@@ -119,13 +119,14 @@ for (int d = 1; d <= ilog2ceil(n); ++d) {
 I only launched this many threads.  However, the indices were now incorrect, as I was starting at 0, but the desired threads were the larger portion.  To fix this, I offset all of the thread indices by the cutoff value, enabling proper indexing without launching any redundent threads.
 
 This optimization improved the runtime of the scan, as shown in the data below:
+
 Prior to thread count optimization:
 
 ![](img/naiveScanWithNaiveThreadCount.PNG)
 
 With thread count optimization:
 
-![](img/naiveScanWithBetterThreadCount.PNG)
+![](img/naiveScanWithBetterThreadcount.PNG)
 
 Note that this data shows a relative improvement, not the absolute performance of the algorithm as shown in the charts above.  I had not yet started documenting performance properly, so this was not run in release mode and the timers included the final memory operations.  However, they are both run under the same conditions, scanning an array of size 2^7 and 2^7 - 3.
 
