@@ -37,7 +37,6 @@ namespace StreamCompaction {
          * Performs prefix-sum (aka scan) on idata, storing the result into odata.
          */
         void scan(unsigned long long int n, long long *odata, const long long *idata) {
-			timer().startGpuTimer();
 			unsigned long long int blocks = (n + blocksize - 1) / blocksize;
 			// allocate data
 			long long *dev_odata, *dev_odata_2;
@@ -48,6 +47,7 @@ namespace StreamCompaction {
 			// copy data over
 			cudaMemcpy(dev_odata, idata, n*sizeof(long long), cudaMemcpyHostToDevice);
 			checkCUDAErrorWithLine("memcpy failed!");
+			timer().startGpuTimer();
 			unsigned long long int uppper_limit = 1 << ilog2ceil(n);
 			for (long d = 1; d <= uppper_limit; d<<=1) {
 				naive_parallel_scan <<<blocks, blocksize >> > (n, dev_odata_2, dev_odata, d);
@@ -58,10 +58,10 @@ namespace StreamCompaction {
 			checkCUDAErrorWithLine("right shift failed failed!");
 			cudaMemcpy(odata, dev_odata_2, n*sizeof(long long), cudaMemcpyDeviceToHost);
 			checkCUDAErrorWithLine("memcpy back failed!");
+			timer().endGpuTimer();
 			cudaFree(dev_odata);
 			cudaFree(dev_odata_2);
 			// create buffer
-            timer().endGpuTimer();
         }
     }
 }

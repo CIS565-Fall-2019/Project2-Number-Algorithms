@@ -21,14 +21,14 @@ using namespace std;
 #define max_value_scan 50
 #define max_value_compaction 4
 #define max_value_sorting 500
-#define do_scan false
-#define do_sort true // true skips scan (so set to false if we want scan or stream compaction data)
+#define do_scan true
+#define do_sort false // true skips scan (so set to false if we want scan or stream compaction data)
 #define cpu_scan true // always keep this true to get metrics (pass/fail)
 #define naive_scan true
 #define efficient_scan true
 #define shared_mem_scan true
 #define thrust_scan true
-#define pow_2 false
+#define pow_2 true
 #define max_pow 26
 void csv_write(float time, unsigned long long size, string file_name){
 	std::ofstream outfile;
@@ -45,7 +45,7 @@ int main(int argc, char* argv[]) {
 	int pow = 4;
 	while (true && !do_sort) {
 		unsigned long long int SIZE;
-		if (pow > 28)
+		if (pow > max_pow)// 28 if stream_compaction
 			pow = 4;
 		cout << pow << endl;
 		if (pow_2)

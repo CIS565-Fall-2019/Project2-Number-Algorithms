@@ -33,9 +33,9 @@ namespace StreamCompaction {
          * @returns the number of elements remaining after compaction.
          */
 		unsigned long long int compactWithoutScan(unsigned long long int n, long long *odata, const long long *idata) {
-	        timer().startCpuTimer();
 			unsigned long long int count = 0;
 			unsigned long long int odata_pos = 0;
+			timer().startCpuTimer();
 			for (unsigned long long i = 0; i < n; i++)
 				if (idata[i] != 0) {
 					count++;
@@ -51,10 +51,10 @@ namespace StreamCompaction {
          * @returns the number of elements remaining after compaction.
          */
 		unsigned long long int compactWithScan(unsigned long long int n, long long *odata, const long long *idata) {
-	        timer().startCpuTimer();
 	        // Step 1, mark each cell with 1/0 if it has a element or not (super easy to parallelize)
 			long long* scan_data = new long long[n]();
 			long long* mask = new long long[n]();
+			timer().startCpuTimer();
 			for (unsigned long long i = 0; i < n; i++) {
 				if (idata[i])
 					mask[i] = 1;
@@ -68,10 +68,10 @@ namespace StreamCompaction {
 				if (idata[i])
 					odata[scan_data[i] + 1] = idata[i]; 
 			}
+			timer().endCpuTimer();
 			int res = scan_data[n - 1];
 			delete[] scan_data;
 			delete[] mask;
-	        timer().endCpuTimer();
             return res;
         }
     }

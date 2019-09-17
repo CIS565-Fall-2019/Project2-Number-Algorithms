@@ -39,7 +39,6 @@ namespace StreamCompaction {
 		 * Performs prefix-sum (aka scan) on idata, storing the result into odata.
 		 */
 		void scan(unsigned long long int n, long long *odata, const long long *idata) {
-			timer().startGpuTimer();
 			// allocate pointers to memory and copy data over
 			long long *dev_odata;
 			unsigned long long int blocks = 0;
@@ -49,6 +48,7 @@ namespace StreamCompaction {
 			// we can use dev_odata to hold idata (because we do the scan inplace)
 			cudaMemcpy(dev_odata, idata, n * sizeof(long long), cudaMemcpyHostToDevice);
 			checkCUDAErrorWithLine("memcpy failed!");
+			timer().startGpuTimer();
 			// reduce phase
 			// so we dont need to do the last round of computation because we zero it anyway
 			for (long long d = 0; d <= ilog2ceil(closest_pow2) - 2; d++) {
@@ -65,11 +65,11 @@ namespace StreamCompaction {
 				downsweep_parallel <<<blocks, block_size >>> (closest_pow2, dev_odata, d);
 				checkCUDAErrorWithLine("downsweep phase failed!");
 			}
+			timer().endGpuTimer();
 			//read data back
 			cudaMemcpy(odata, dev_odata, n * sizeof(long long), cudaMemcpyDeviceToHost);
 			checkCUDAErrorWithLine("memcpy back failed!");
 			cudaFree(dev_odata);
-			timer().endGpuTimer();
 		}
 
 		/*Copy of scan but only works with cuda pointers*/
@@ -216,7 +216,6 @@ namespace StreamCompaction {
 				data[index] += dev_block_offset[bid];
 		}
 		void scan(unsigned long long int n, long long *odata, long long *idata) {
-			timer().startGpuTimer();
 			// allocate pointers to memory and copy data over
 			long long *dev_odata, *dev_idata, *dev_block_sum, *dev_block_offset;
 			long long *block_sum, *block_offset;
@@ -235,6 +234,7 @@ namespace StreamCompaction {
 			// copy over raw data
 			cudaMemcpy(dev_idata, idata, n * sizeof(long long), cudaMemcpyHostToDevice);
 			checkCUDAErrorWithLine("memcpy failed!");
+			timer().startGpuTimer();
 			// large prescan, pre alloc shared memory
 			dev_scan<<<blocks, (block_size >> 1)>>>(closest_pow2, dev_odata, dev_idata, dev_block_sum);
 			checkCUDAErrorWithLine("prescan fn failed!");
@@ -248,6 +248,8 @@ namespace StreamCompaction {
 			// add dev_block_offset to each block
 			add_offset <<<blocks, block_size>>> (n, dev_odata, dev_block_offset);
 			checkCUDAErrorWithLine("add_offset fn failed!");
+			timer().endGpuTimer();
+			// Finished scan, copy back data
 			cudaMemcpy(odata, dev_odata, n * sizeof(long long), cudaMemcpyDeviceToHost);
 			checkCUDAErrorWithLine("memcpy back failed!");
 			// free memory
@@ -257,7 +259,6 @@ namespace StreamCompaction {
 			cudaFree(dev_block_offset);
 			delete[] block_sum;
 			delete[] block_offset;
-			timer().endGpuTimer();
 		}
 		void dev_scan(unsigned long long int n, long long *dev_odata, long long *dev_idata) {
 			// allocate pointers to memory and copy data over
