@@ -13,28 +13,9 @@ namespace CharacterRecognition {
         static PerformanceTimer timer;
         return timer;
     }
-        
-    // TODO: __global__
-
-    /**
-        * Example of use case (follow how you did it in stream compaction)
-        */
-    /*void scan(int n, int *odata, const int *idata) {
-        timer().startGpuTimer();
-        // TODO
-        timer().endGpuTimer();
-    }
-    */
 
 	int blockSize = 128;
 	dim3 threadsPerBlock(blockSize);
-
-	/*__host__ __device__ glm::vec3 generateRandomVec3(float time, int index) {
-		thrust::default_random_engine rng(hash((int)(index * time)));
-		thrust::uniform_real_distribution<float> unitDistrib(-1, 1);
-
-		return glm::vec3((float)unitDistrib(rng), (float)unitDistrib(rng), (float)unitDistrib(rng));
-	}*/
 
 	__host__ __device__ unsigned int hash(unsigned int a) {
 		a = (a + 0x7ed55d16) + (a << 12);
@@ -54,7 +35,7 @@ namespace CharacterRecognition {
 
 		
 		thrust::default_random_engine rng(hash((int)(index * time)));
-		thrust::uniform_real_distribution<float> unitDistrib(-50, 50);
+		thrust::uniform_real_distribution<float> unitDistrib(-12, 12);
 
 
 		weights[index] = (float)unitDistrib(rng);
@@ -76,10 +57,6 @@ namespace CharacterRecognition {
 		cudaMemcpy(data, dev_weightsArray, n * sizeof(float), cudaMemcpyDeviceToHost);
 
 		cudaFree(dev_weightsArray);
-	}
-
-	void updateWeights(int n, int *input, float *weights, const float *patialErrorDeriv, float error) {
-
 	}
 
 
@@ -109,15 +86,15 @@ namespace CharacterRecognition {
 	}
 
 	__global__ void kernPartialErrorDeriv1(int n,
-		float expectedValue, float output, float error, int inputSize, int numHidden,
-		const float *input, const float *hidden, const float *weights2, float *adjustedWeights) {
+		float expectedValue, float output, int inputSize, int numHidden,
+		const float *input, const float *hidden, const float *weights2, float *partials1) {
 		
 		int index = (blockIdx.x * blockDim.x) + threadIdx.x;
 		if (index >= n) {
 			return;
 		}
 
-		float originalWeight = adjustedWeights[index]; // Do the memory acces first and let the following math hide latency
+		//float originalWeight = adjustedWeights[index]; // Do the memory acces first and let the following math hide latency
 
 		int inputIndex = floorf(index / (numHidden));
 		int hiddenIndex = index % numHidden;
@@ -131,27 +108,27 @@ namespace CharacterRecognition {
 			(1 / (1 + exp(-output))) * (1 - (1 / (1 + exp(-output)))) *
 			hiddenWeight;
 
-		float deltaWeight = (error / 10.0) * partialErrorDeriv;
+		//float deltaWeight = (error / 10.0) * partialErrorDeriv;
 
-		adjustedWeights[index] = originalWeight + deltaWeight;
+		partials1[index] = partialErrorDeriv;
 	}
 
 	__global__ void kernPartialErrorDeriv2(int n,
-		float expectedValue, float output, float error,
-		const float *hidden, float *adjustedWeights) {
+		float expectedValue, float output,
+		const float *hidden, float *partials2) {
 
 		int index = (blockIdx.x * blockDim.x) + threadIdx.x;
 		if (index >= n) {
 			return;
 		}
 
-		float originalWeight = adjustedWeights[index];
+		//float originalWeight = adjustedWeights[index];
 
 		float partialErrorDeriv = (-(expectedValue - output)) * (1 / (1 + exp(-output))) * (1 - (1 / (1 + exp(-output)))) * hidden[index];
 
-		float deltaWeight = (error / 10.0) * partialErrorDeriv;
+		//float deltaWeight = (error / 10.0) * partialErrorDeriv;
 
-		adjustedWeights[index] = originalWeight + deltaWeight;
+		partials2[index] =  partialErrorDeriv;
 
 
 
@@ -161,7 +138,7 @@ namespace CharacterRecognition {
 	float mlp(int inputSize, int numHiddenLayers, float expectedValue, 
 		const float *weights1, const float *weights2, 
 		const float *idata, 
-		float *adjustedWeights1, float *adjustedWeights2, float *partialDerivatives1, float *partialDerivatives2) {
+		float *partialDerivatives1, float *partialDerivatives2) {
 		// size of input is 2 for xor and 512 by 512 for characters
 		// hidden layer somewhere between 1 and size of input
 		// first number of weights is size of hidden layer * size of input
@@ -176,9 +153,10 @@ namespace CharacterRecognition {
 		float *dev_hidden;
 		float *dev_weights1;
 		float *dev_weights2;
-		float *dev_adjustedWeights1;
-		float *dev_adjustedWeights2;
 		float *dev_output;
+
+		float *dev_partials1;
+		float *dev_partials2;
 
 		float *host_output;
 
@@ -199,12 +177,12 @@ namespace CharacterRecognition {
 		
 		cudaMalloc((void**)&dev_weights2, numWeights2 * sizeof(float));
 		checkCUDAError("cudaMalloc dev_weights2 failed!");
-		
-		cudaMalloc((void**)&dev_adjustedWeights1, numWeights1 * sizeof(float));
-		checkCUDAError("cudaMalloc dev_adjustedWeights1 failed!");
-		
-		cudaMalloc((void**)&dev_adjustedWeights2, numWeights2 * sizeof(float));
-		checkCUDAError("cudaMalloc dev_adjustedWeights2 failed!");
+
+		cudaMalloc((void**)&dev_partials1, numWeights1 * sizeof(float));
+		checkCUDAError("cudaMalloc dev_partials1 failed!");
+
+		cudaMalloc((void**)&dev_partials2, numWeights2 * sizeof(float));
+		checkCUDAError("cudaMalloc dev_partials2 failed!");
 
 		cudaMalloc((void**)&dev_output, sizeof(float));
 		checkCUDAError("cudaMalloc dev_output failed!");
@@ -216,9 +194,7 @@ namespace CharacterRecognition {
 		cudaMemcpy(dev_inputData, idata, inputSize * sizeof(float), cudaMemcpyHostToDevice);
 		cudaMemcpy(dev_weights1, weights1, numWeights1 * sizeof(float), cudaMemcpyHostToDevice);
 		cudaMemcpy(dev_weights2, weights2, numWeights2 * sizeof(float), cudaMemcpyHostToDevice);
-		cudaMemcpy(dev_adjustedWeights1, adjustedWeights1, numWeights1 * sizeof(float), cudaMemcpyHostToDevice);
-		cudaMemcpy(dev_adjustedWeights2, adjustedWeights2, numWeights2 * sizeof(float), cudaMemcpyHostToDevice);
-
+		
 		// Perform the multiplications for layer 1 to get the hidden layers
 		int numThreads = numHiddenLayers;
 		dim3 blocksPerGrid((numThreads + blockSize - 1) / blockSize);
@@ -236,7 +212,7 @@ namespace CharacterRecognition {
 		float output = host_output[0];
 
 		// Find the error from the output
-		float error = (output - expectedValue) * (output - expectedValue);
+		//float error = (output - expectedValue) * (output - expectedValue);
 		//std::cout << "error " << error << std::endl;
 
 		// Adjust the weights of the layer 1 weights
@@ -244,12 +220,12 @@ namespace CharacterRecognition {
 		dim3 weight1Adjust_blocksPerGrid((weight1Adjust_numThreads + blockSize - 1) / blockSize);
 
 		kernPartialErrorDeriv1<<<weight1Adjust_blocksPerGrid, threadsPerBlock>>>(numWeights1, expectedValue, 
-			output, error, inputSize,
+			output, inputSize,
 			numHiddenLayers, dev_inputData, dev_hidden, 
-			dev_weights2, dev_adjustedWeights1);
+			dev_weights2, dev_partials1);
 
 		// Copy the weights into the input array
-		cudaMemcpy(adjustedWeights1, dev_adjustedWeights1, numWeights1 * sizeof(float), cudaMemcpyDeviceToHost);
+		cudaMemcpy(partialDerivatives1, dev_partials1, numWeights1 * sizeof(float), cudaMemcpyDeviceToHost);
 
 
 		// Adjust the weights of the layer 2 weights
@@ -257,9 +233,9 @@ namespace CharacterRecognition {
 		dim3 weight2Adjust_blocksPerGrid((weight2Adjust_numThreads + blockSize - 1) / blockSize);
 
 		kernPartialErrorDeriv2<<<weight2Adjust_blocksPerGrid, threadsPerBlock>>>(numWeights2, 
-			expectedValue, output, error, dev_hidden, dev_adjustedWeights2);
+			expectedValue, output, dev_hidden, dev_partials2);
 
-		cudaMemcpy(adjustedWeights2, dev_adjustedWeights2, numWeights2 * sizeof(float), cudaMemcpyDeviceToHost);
+		cudaMemcpy(partialDerivatives2, dev_partials2, numWeights2 * sizeof(float), cudaMemcpyDeviceToHost);
 
 		//for (int i = 0; i < numWeights1; ++i) {
 		//	//std::cout << "adjusted weight: " << adjustedWeights1[i] << std::endl;
@@ -271,8 +247,8 @@ namespace CharacterRecognition {
 		cudaFree(dev_hidden);
 		cudaFree(dev_weights1);
 		cudaFree(dev_weights2);
-		cudaFree(dev_adjustedWeights1);
-		cudaFree(dev_adjustedWeights2);
+		cudaFree(dev_partials1);
+		cudaFree(dev_partials2);
 		cudaFree(dev_output);
 		cudaFreeHost(host_output);
 		cudaFreeHost(host_hidden);
@@ -282,7 +258,43 @@ namespace CharacterRecognition {
 
 	}
 
-	// TODO: implement required elements for MLP sections 1 and 2 here
 
+	__global__ void kernAddDelta(int n, float accumulatedError, const float *partials,
+		float *weights) {
+		int index = (blockIdx.x * blockDim.x) + threadIdx.x;
+		if (index >= n) {
+			return;
+		}
+
+		float delta = -(accumulatedError / 5.0) * partials[index];
+		weights[index] += delta;
+	}
+
+	void updateWeights(int numWeights, float accumulatedError, const float *partials, float *weights) {
+		float *dev_partials;
+		float *dev_weights;
+
+		cudaMalloc((void**)&dev_partials, numWeights * sizeof(float));
+		checkCUDAError("cudaMalloc dev_partials failed!");
+		
+		cudaMalloc((void**)&dev_weights, numWeights * sizeof(float));
+		checkCUDAError("cudaMalloc dev_weights failed!");
+
+		cudaMemcpy(dev_partials, partials, numWeights * sizeof(float), cudaMemcpyHostToDevice);
+		cudaMemcpy(dev_weights, weights, numWeights * sizeof(float), cudaMemcpyHostToDevice);
+
+
+		int numThreads = numWeights;
+		dim3 blocksPerGrid((numThreads + blockSize - 1) / blockSize);
+
+		kernAddDelta<<<blocksPerGrid, threadsPerBlock>>>(numWeights, accumulatedError, dev_partials, dev_weights);
+
+		cudaMemcpy(weights, dev_weights, numWeights * sizeof(float), cudaMemcpyDeviceToHost);
+
+		cudaFree(dev_weights);
+		cudaFree(dev_partials);
+
+
+	}
 
 }
