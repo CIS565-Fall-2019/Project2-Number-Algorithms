@@ -32,7 +32,7 @@ namespace CharacterRecognition {
 
 	double *dev_losses;
 	double *dev_LossAvg;
-	
+
 	// gtruth and preds
 	int *dev_gtruth;
 	int *dev_preds;
@@ -156,7 +156,7 @@ namespace CharacterRecognition {
 		int tid = threadIdx.x + blockIdx.x * blockDim.x;
 
 		if (tid < N) {
-			dev_preds[tid] = dev_oLayer[tid*C + dev_gtruth[tid]] > 0.5 ? dev_gtruth[tid] : (dev_gtruth[tid]==0 ? 1:0) ;
+			dev_preds[tid] = dev_oLayer[tid*C + dev_gtruth[tid]] > 0.5 ? dev_gtruth[tid] : (dev_gtruth[tid] == 0 ? 1 : 0);
 			dev_preds_probab[tid] = dev_oLayer[tid*C + dev_gtruth[tid]];
 		}
 	}
@@ -232,13 +232,13 @@ namespace CharacterRecognition {
 			for (int i = 0; i < N; i++) {
 				sum += dev_losses[i];
 			}
-			dev_LossAvg[0] = sum/N;
+			dev_LossAvg[0] = sum / N;
 		}
 
 	}
 
 	// Ele wise addition A = A+B
-		__global__ void kernAddition(int N, double *dev_A, double *dev_B) {
+	__global__ void kernAddition(int N, double *dev_A, double *dev_B) {
 
 		int tid = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -276,7 +276,7 @@ namespace CharacterRecognition {
 
 
 		// Allocate hidden layer
-		cudaMalloc((void**)&dev_hLayer, N*H* sizeof(double));
+		cudaMalloc((void**)&dev_hLayer, N*H * sizeof(double));
 		checkCUDAErrorFn("cudaMalloc dev_hLayer failed!");
 
 
@@ -288,8 +288,8 @@ namespace CharacterRecognition {
 		// Allocate losses holder
 		cudaMalloc((void**)&dev_losses, N * sizeof(double));
 		checkCUDAErrorFn("cudaMalloc dev_losses failed!");
-		
-		cudaMalloc((void**)&dev_LossAvg, 1* sizeof(double));
+
+		cudaMalloc((void**)&dev_LossAvg, 1 * sizeof(double));
 		checkCUDAErrorFn("cudaMalloc dev_LossAvg failed!");
 
 
@@ -327,7 +327,7 @@ namespace CharacterRecognition {
 		cudaMalloc((void**)&dev_dL_dscores_2, N*C * sizeof(double));
 		checkCUDAErrorFn("cudaMalloc dev_dL_dscores_2 failed!");
 
-		
+
 		// Allocate transposes
 		cudaMalloc((void**)&dev_hLayer_T, N*H * sizeof(double));
 		checkCUDAErrorFn("cudaMalloc dev_hLayer_T failed!");
@@ -335,43 +335,43 @@ namespace CharacterRecognition {
 		cudaMalloc((void**)&dev_iLayer_T, N*D * sizeof(double));
 		checkCUDAErrorFn("cudaMalloc dev_hLayer_T failed!");
 
-		cudaMalloc((void**)&dev_w_ji_T, C*H*sizeof(double));
+		cudaMalloc((void**)&dev_w_ji_T, C*H * sizeof(double));
 		checkCUDAErrorFn("cudaMalloc dev_w_ji_T failed!");
 
 		//Allocate biases
-		cudaMalloc((void**)&dev_b1, N*H* sizeof(double));
+		cudaMalloc((void**)&dev_b1, N*H * sizeof(double));
 		checkCUDAErrorFn("cudaMalloc dev_hLayer_T failed!");
 
-		cudaMalloc((void**)&dev_b2, N*C* sizeof(double));
+		cudaMalloc((void**)&dev_b2, N*C * sizeof(double));
 		checkCUDAErrorFn("cudaMalloc dev_hLayer_T failed!");
 
-		cudaMalloc((void**)&dev_db1, N*H* sizeof(double));
+		cudaMalloc((void**)&dev_db1, N*H * sizeof(double));
 		checkCUDAErrorFn("cudaMalloc dev_hLayer_T failed!");
 
-		cudaMalloc((void**)&dev_db2, N*C* sizeof(double));
+		cudaMalloc((void**)&dev_db2, N*C * sizeof(double));
 		checkCUDAErrorFn("cudaMalloc dev_hLayer_T failed!");
 
 		//==============================
 		// Initialise Weights and Biases
 		//==============================
-		cudaMalloc((void**)&devState, H*D* sizeof(curandState));
+		cudaMalloc((void**)&devState, H*D * sizeof(curandState));
 
-		kernInitCurand <<<((D*H + blockSize - 1) / blockSize), blockSize >>> (devState, D*H, 99);
+		kernInitCurand << <((D*H + blockSize - 1) / blockSize), blockSize >> > (devState, D*H, 99);
 		checkCUDAErrorFn("KernInitCurand failed!");
 
-		KernGenRand <<<((D*H + blockSize - 1) / blockSize), blockSize >>> (devState, D*H, dev_w_kj);
+		KernGenRand << <((D*H + blockSize - 1) / blockSize), blockSize >> > (devState, D*H, dev_w_kj);
 		checkCUDAErrorFn("KernGenRand dev_w_kj failed!");
 
-		kernInitCurand <<<((H*C + blockSize - 1) / blockSize), blockSize >> > (devState, H*C, 999);
+		kernInitCurand << <((H*C + blockSize - 1) / blockSize), blockSize >> > (devState, H*C, 999);
 		checkCUDAErrorFn("KernInitCurand failed!");
 
-		KernGenRand <<<((H*C + blockSize - 1) / blockSize), blockSize >> > (devState, H*C, dev_w_ji);
+		KernGenRand << <((H*C + blockSize - 1) / blockSize), blockSize >> > (devState, H*C, dev_w_ji);
 		checkCUDAErrorFn("KernGenRand dev_w_kj failed!");
 
 		kernInitCurand << <((N*C + blockSize - 1) / blockSize), blockSize >> > (devState, N*C, 9);
 		checkCUDAErrorFn("KernInitCurand failed!");
 
-		KernGenRand << <((N*C  + blockSize - 1) / blockSize), blockSize >> > (devState, N*C, dev_b2);
+		KernGenRand << <((N*C + blockSize - 1) / blockSize), blockSize >> > (devState, N*C, dev_b2);
 		checkCUDAErrorFn("KernGenRand dev_w_kj failed!");
 
 		kernInitCurand << <((N*H + blockSize - 1) / blockSize), blockSize >> > (devState, N*H, 9999);
@@ -419,8 +419,8 @@ namespace CharacterRecognition {
 
 			dimGrid.x = (H + dimBlock.x - 1) / dimBlock.x;
 			dimGrid.y = (N + dimBlock.y - 1) / dimBlock.y;
-			kernMatrixMultiply <<<dimGrid, dimBlock >> > (dev_iLayer, dev_w_kj, dev_hLayer, N, D, H);
-			kernAddition <<< ((N*H + blockSize - 1) / blockSize), blockSize >> > (N*H, dev_hLayer,dev_b1);
+			kernMatrixMultiply << <dimGrid, dimBlock >> > (dev_iLayer, dev_w_kj, dev_hLayer, N, D, H);
+			kernAddition << < ((N*H + blockSize - 1) / blockSize), blockSize >> > (N*H, dev_hLayer, dev_b1);
 
 			// Copy back to cpu
 			//double *tmp = new double[N*H];
@@ -466,7 +466,7 @@ namespace CharacterRecognition {
 			// dev_smaxDen = Sum_Over_classses(dev_olayer)
 			// dev_olayer = dev_olayer/Sum_Over_classses
 			//   NxC      =    NxC         1
-			kernSoftmax <<<((N + blockSize - 1) / blockSize), blockSize >>> (N, C, dev_oLayer);
+			kernSoftmax << <((N + blockSize - 1) / blockSize), blockSize >> > (N, C, dev_oLayer);
 			checkCUDAErrorFn("kernSoftmax failed!");
 
 			// Copy back to cpu
@@ -491,9 +491,9 @@ namespace CharacterRecognition {
 
 			// Predictions
 			kernPredsN << <((N + blockSize - 1) / blockSize), blockSize >> > (N, C, dev_oLayer, dev_gtruth, dev_preds, dev_preds_probab);
-			cudaMemcpy(preds, dev_preds, N*sizeof(int), cudaMemcpyDeviceToHost);
+			cudaMemcpy(preds, dev_preds, N * sizeof(int), cudaMemcpyDeviceToHost);
 			checkCUDAErrorFn("cudaMemcpyDeviceToHost from dev_preds to preds failed!");
-			cudaMemcpy(tmp2, dev_preds_probab, N*sizeof(double), cudaMemcpyDeviceToHost);
+			cudaMemcpy(tmp2, dev_preds_probab, N * sizeof(double), cudaMemcpyDeviceToHost);
 			checkCUDAErrorFn("cudaMemcpyDeviceToHost from dev_preds_probab to tmp failed!");
 
 			printf("Predictions\n");
@@ -505,12 +505,12 @@ namespace CharacterRecognition {
 			// Compute Avg of Losses
 			//==================================
 			// Dumb Reduction
-			
+
 			kernReduction << <((N + blockSize - 1) / blockSize), blockSize >> > (N, dev_losses, dev_LossAvg);
 			// Copy back to cpu
 			cudaMemcpy(lossAvgPerEpoch + i, dev_LossAvg, sizeof(double), cudaMemcpyDeviceToHost);
 			checkCUDAErrorFn("cudaMemcpyFromSymbol from dev_LossAvg to tmp failed!");
-			
+
 			printf("Epoch: %d | LossAvg %3f \n", i, lossAvgPerEpoch[i]);
 
 
@@ -519,7 +519,7 @@ namespace CharacterRecognition {
 
 			// STEP 1 : Gradient wrt w_ji
 			// dW_ji = Probs_k - [1](gth == k) dev_dL_dscores; 
-			cudaMemcpy(dev_dL_dscores, dev_oLayer, N*C* sizeof(double), cudaMemcpyDeviceToDevice);
+			cudaMemcpy(dev_dL_dscores, dev_oLayer, N*C * sizeof(double), cudaMemcpyDeviceToDevice);
 			checkCUDAErrorFn("cudaMemcpyFromSymbol from probabs to dev_dL_dscores failed!");
 
 			kernSetdscores << <((N + blockSize - 1) / blockSize), blockSize >> > (N, C, dev_dL_dscores, dev_gtruth);
@@ -560,7 +560,7 @@ namespace CharacterRecognition {
 			kernMatrixMultiply << <dimGrid, dimBlock >> > (dev_hLayer_T, dev_dL_dscores, dev_dL_dw_ji, H, N, C);
 			checkCUDAErrorFn("kernMatrixMultiply for dev_dL_dw_ji failed!");
 
-			
+
 			//===========================
 			// STEP 2 : Gradient wrt w_kj
 			//===========================
@@ -581,7 +581,7 @@ namespace CharacterRecognition {
 			dimGrid.y = (N + dimBlock.y - 1) / dimBlock.y;
 			kernMatrixMultiply << <dimGrid, dimBlock >> > (dev_dL_dscores, dev_w_ji_T, dev_dL_dscores_2, N, C, H);
 			checkCUDAErrorFn("kernMatrixMultiply for dev_dL_dscores_2 failed!");
-			
+
 			// compute sig gradient on dev_hlayer N*H [IN PLACE]
 			kernGradSigmoid << <((N*H + blockSize - 1) / blockSize), blockSize >> > (N, H, dev_hLayer);
 			checkCUDAErrorFn("kernGradSigmoid failed!");
@@ -625,7 +625,7 @@ namespace CharacterRecognition {
 			//checkCUDAErrorFn("dev_dL_dw_kj memcopy failed!");
 			//printf("Dw_kj \n");
 			//printFloatArray(D*H, tmp2, true);
-			
+
 			//cudaMemcpy(tmp2, dev_w_ji, H*C * sizeof(double), cudaMemcpyDeviceToHost);
 			//checkCUDAErrorFn("dev_w_ji memcopy failed!");
 			//printf("w_ji \n");
@@ -652,7 +652,7 @@ namespace CharacterRecognition {
 		cudaFree(dev_oLayer);
 
 		cudaFree(dev_losses);
-		
+
 		cudaFree(dev_gtruth);
 		cudaFree(dev_preds);
 		cudaFree(dev_preds_probab);

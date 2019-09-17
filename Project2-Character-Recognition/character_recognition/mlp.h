@@ -3,7 +3,7 @@
 #include "common.h"
 
 namespace CharacterRecognition {
-    Common::PerformanceTimer& timer();
+	Common::PerformanceTimer& timer();
 	// TODO: implement required elements for MLP sections 1 and 2 here
 
 	// MLP section 1 and 2 Character Reader

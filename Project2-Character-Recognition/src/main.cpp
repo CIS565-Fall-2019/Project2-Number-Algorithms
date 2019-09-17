@@ -11,27 +11,27 @@
 #include <character_recognition/common.h>
 #include "testing_helpers.hpp"
 
-//====CONFIG Neural Network for XOR ================
-//==================================================
+ //====CONFIG Neural Network for XOR ================
+ //==================================================
 
-/*
-// XOR
-const int N = 4;     // Number of examples
-const int D = 2;     //Feature length per example
-const int H = 2;     // Number of Hidden unit
-const int C = 2;     // NN number of classes
-const double LR = 0.5;
-const int epochs = 1000;
-*/
 
-// Char Recognition
+ // XOR
+ const int N = 4;     // Number of examples
+ const int D = 2;     //Feature length per example
+ const int H = 2;     // Number of Hidden unit
+ const int C = 2;     // NN number of classes
+ const double LR = 0.5;
+ const int epochs = 1000;
+
+ /*
+ // Char Recognition
 const int N = 52;     // Number of examples
 const int D = 10201;  // Feature length per example
 const int H = 10;     // Number of Hidden unit
 const int C = 52;     // NN number of classes
 const double LR = 0.5;
 const int epochs = 5000;
-
+ */
 double *losses = new double[epochs];
 double *idata = new double[N*D];
 int * preds = new int[N];
@@ -39,17 +39,16 @@ int * gtruth = new int[N];
 
 
 int main(int argc, char* argv[]) {
-    // Scan tests
+	// Scan tests
 
-    printf("\n");
-    printf("****************\n");
-    printf("***MLP TESTS***\n");
-    printf("****************\n");
+	printf("\n");
+	printf("****************\n");
+	printf("***MLP TESTS***\n");
+	printf("****************\n");
 
 	printf("Launch XOR Training\n");
 
 
-	/*
 	// XOR input dtat set 2 * 4
 	idata[0] = 0;
 	idata[1] = 0;
@@ -68,7 +67,7 @@ int main(int argc, char* argv[]) {
 
 	CharacterRecognition::trainMLP(N, D, H, C, idata, preds, gtruth, epochs, losses, LR);
 	printf("\nCompleted XOR Training\n");
-	*/
+
 
 	// Data loading
 
