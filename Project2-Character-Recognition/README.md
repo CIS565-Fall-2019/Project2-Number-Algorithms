@@ -9,13 +9,13 @@ CUDA Character Recognition
 * Dependencies: cublas, opencv, curand
 
 ### Table of Contents
-[Overview](#overview)
-[Multilayer Perceptron](#mlp)
-[Architecture](#architecture)
-[Workflow Diagram](#workflow)
-[Performance Analysis](#performance)
-[Extending it to MNIST Dataset](#mnist)
-[Future Work](#future)
+1. [Overview](#overview)
+2.   [Multilayer Perceptron](#mlp)
+3.   [Architecture](#architecture)
+4.   [Workflow Diagram](#workflow)
+5.   [Performance Analysis](#performance)
+6.   [Extending it to MNIST Dataset](#mnist)
+7.   [Future Work](#future)
 
 <a name = "overview"/>
 
@@ -89,7 +89,7 @@ Doing this over and over again for 1000 epochs over the whole training set gets 
 
 ![](img/workflow.png)
 
-<a name = "performance">
+<a name = "performance"/>
 
 ## Performance Analysis
 
@@ -99,7 +99,7 @@ I trained the network for 100000 iterations on the given data, while randomly sa
 
 Accuracy:  100%
 
-<a name = "mnist">
+<a name = "mnist"/>
 ## Extending the network to MNIST dataset (Extra Credit)
 
 The MNIST database of handwritten digits, available from this page, has a training set of 60,000 examples, and a test set of 10,000 examples.It is a good database for people who want to try learning techniques and pattern recognition methods on real-world data while spending minimal efforts on preprocessing and formatting. 
@@ -114,7 +114,8 @@ The loss curves mnist dataset:
 Training Accuracy: 96.48%
 Testing Accuracy: 95.65%
 
-<a name = "future">
+<a name = "future"/>
+
 ## Future Work
 
 Deep Learning is highly sensitive to and has lots of hyperparameters, starting from architecture, learning rate, etc. There are a lot of other things to try out as well like learning rate decay, optimization techniques like adam and momentum, regularization techniques like weight decay, lasso, batchnorm, dropout, etc. There was an overwhelming amount of choices that can be made here. The only way to know what will work and what won't is to try these out. I have played around with all those choices a lot in Pytorch and Tensorflow, but will keep them out of scope for this project.
