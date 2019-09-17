@@ -800,8 +800,6 @@ namespace CharacterRecognition {
 			}//if
 			totalRead += numRead;
 		}//while
-
-		printf("Read W1; last element %f\n", w1[W1SIZE - 1]);
 		
 		float* w2 = (float*)malloc(W2SIZE * sizeof(float));
 
