@@ -53,3 +53,9 @@ From the above analysis, we observe that the performance of all the versions var
 To understand better of Thurst implemetation, here is the Nsight analysis of the Thrust implementation:
 
 
+#### Paste the output of the test program into a triple-backtick block in your README.
+
+The output of the time elapsed for input size 2^20 data is below:
+```
+![](img/Screenshot_StreamCompaction.PNG)
+```
