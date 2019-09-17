@@ -27,6 +27,8 @@ namespace CharacterRecognition {
 		vector<float*>da;
 		// The layer sizes
 		vector<int>layer_sizes;
+		// The activation differentiation vectors
+		vector<float*>ghat;
 	public:
 		//The constructor takes in the input size and the number of output classes
 		NeuralNet(int input_size, int classes, vector<int>layers);
@@ -35,7 +37,7 @@ namespace CharacterRecognition {
 		// The backward function is responsible for calculating gradients
 		// and applying the update formula
 		// w^[l] = w^[l] - alpha*dw^[l]
-		//void backward(float* y);
+		void backward(float* y);
 		// Calculates the loss given predicted value of y and actual value of y and stores it in loss;
 		//void calculateLoss(float *ypred, float* y, float* loss);
 		// The descrutor will free up the memory;

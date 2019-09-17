@@ -25,6 +25,13 @@ namespace CharacterRecognition {
 		result[index] = g[index] + bias[index];
 	}
 
+	__global__ void kernUpdateParameters(int n, float *input, float *grad, float alpha) {
+		int index = (blockIdx.x*blockDim.x) + threadIdx.x;
+		if (index >= n)
+			return;
+		input[index] = input[index] - alpha * grad[index];
+	}
+
 	__global__ void kernSubVectors(int n, float* y, float* yhat, float* result) {
 		int index = (blockIdx.x*blockDim.x) + threadIdx.x;
 		if (index >= n)
@@ -58,18 +65,12 @@ namespace CharacterRecognition {
 		output[index] = expf(g[index]) / exp_sum;
 	}
 
-	__global__ void kernSoftmaxDerivative(int n, float *input, float *grad) {
-		int i = blockIdx.x * blockDim.x + threadIdx.x;
-		int j = blockIdx.y * blockDim.y + threadIdx.y;
-		if (i >= n || j >= n) {
+	__global__ void kernSoftmaxDerivative(int n, float *input, float *grad, float exp_sum) {
+		int index = blockIdx.x * blockDim.x + threadIdx.x;
+
+		if (index >= n)
 			return;
-		}
-		if (i == j) {
-			grad[i*n + j] = input[i] * (1 - input[i]);
-		}
-		else {
-			grad[i*n + j] = -input[i] * input[j];
-		}
+		grad[index] = (exp_sum*expf(input[index]) - expf(input[index]) * expf(input[index])) / (exp_sum * exp_sum);
 	}
 
 	__global__ void kernReluActivationForward(int n, float* g, float* a) {
@@ -80,12 +81,12 @@ namespace CharacterRecognition {
 		a[index] = fmaxf(g[index], 0);
 	}
 
-	__global__ void kernReluDerivative(int n, float* g, float* a) {
+	__global__ void kernReluDerivative(int n, float* input, float* grad) {
 		int index = blockIdx.x * blockDim.x + threadIdx.x;
 
 		if (index >= n)
 			return;
-		a[index*n+index] = (g[index] > 0) ? 1 : 0;
+		grad[index] = (input[index] > 0) ? 1 : 0;
 	}
 
 	__global__ void kernCopyVectors(int n, float *g, float *output) {
@@ -93,6 +94,21 @@ namespace CharacterRecognition {
 		if (index >= n)
 			return;
 		output[index] = expf(g[index]);
+	}
+
+	__global__ void kernDerivativeLoss(int n, float *y, float *y_pred, float *output) {
+		int index = blockIdx.x * blockDim.x + threadIdx.x;
+		if (index >= n) {
+			return;
+		}
+		output[index] = -y[index] / y_pred[index] + (1 - y[index]) / (1 - y_pred[index]);
+	}
+	__global__ void kernElementWiseMultiplication(int n, float *input1, float *input2, float *output) {
+		int index = blockIdx.x * blockDim.x + threadIdx.x;
+		if (index >= n) {
+			return;
+		}
+		output[index] = input1[index] * input2[index];
 	}
 
 	void random_init(float * A, int rows, int cols) {
@@ -103,13 +119,19 @@ namespace CharacterRecognition {
 	}
 
 	//C(m,n) = A(m,k)*B(k,n)
-	void mmul(const float* A, const float* B, float* C, const int m, const int k, const int n) {
-		int lda = m, ldb = k, ldc = m;
+	void mmul(const float* A, const float* B, float* C, const int m, const int k, const int n, int a_trans_flag, int b_trans_flag
+		, int lda, int ldb, int ldc) {
 		const float alf = 1;
 		const float bet = 0;
 		const float *alpha = &alf;
-		const float *beta = &bet;		
-		cublasSgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, m, n, k, alpha, A, lda, B, ldb, beta, C, ldc);
+		const float *beta = &bet;
+		std::cout << a_trans_flag << " " << b_trans_flag << std::endl;
+		if(a_trans_flag == 0 && b_trans_flag == 0)
+			cublasSgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, m, n, k, alpha, A, lda, B, ldb, beta, C, ldc);
+		else if(a_trans_flag == 0 && b_trans_flag == 1)
+			cublasSgemm(handle, CUBLAS_OP_N, CUBLAS_OP_T, m, n, k, alpha, A, lda, B, ldb, beta, C, ldc);
+		else if(a_trans_flag == 1 && b_trans_flag == 0)
+			cublasSgemm(handle, CUBLAS_OP_T, CUBLAS_OP_N, m, n, k, alpha, A, lda, B, ldb, beta, C, ldc);
 	}
 
 	void printCuda(float *a1, int n, std::string name) {
@@ -132,7 +154,7 @@ namespace CharacterRecognition {
 			layer_sizes.push_back(layers[i]);
 		layer_sizes.push_back(classes);
 		// Temporary variables to be pushed;
-		float *z_t, *dz_t, *a_t, *da_t, *w_t, *dw_t, *b_t, *db_t;
+		float *z_t, *dz_t, *a_t, *da_t, *w_t, *dw_t, *b_t, *db_t, *ghat_t;
 		// Some dummy mallocs to be pushed for the 0th(input) layer
 		// We treat a0 as the input layer.
 		cudaMalloc((void**)&z_t, sizeof(float));
@@ -166,6 +188,11 @@ namespace CharacterRecognition {
 		cudaMalloc((void**)&db_t, sizeof(float));
 		checkCUDAError("Cuda Malloc for derivatives of bias failed.");
 		db.push_back(db_t);
+
+		cudaMalloc((void**)&ghat_t, sizeof(float));
+		checkCUDAError("Cuda Malloc for derivatives of bias failed.");
+		ghat.push_back(ghat_t);
+
 
 		// The following loop allocates sizes to all the weights, bias, a and z vectors and their gradients.
 		for (int i = 1; i < layer_sizes.size(); i++) {
@@ -201,6 +228,10 @@ namespace CharacterRecognition {
 			cudaMalloc((void**)&db_t, layer_sizes[i] * 1 * sizeof(float));
 			checkCUDAError("Cuda Malloc for derivatives of bias failed.");
 			db.push_back(db_t);
+
+			cudaMalloc((void**)&ghat_t, layer_sizes[i] * 1 * sizeof(float));
+			checkCUDAError("Cuda Malloc for derivatives of activations failed");
+			ghat.push_back(ghat_t);
 			
 		}
 		// Avoid those memory leaks :)
@@ -212,6 +243,7 @@ namespace CharacterRecognition {
 		cudaFree(dw_t);
 		cudaFree(b_t);
 		cudaFree(db_t);
+		cudaFree(ghat_t);
 
 		dim3 fullBlocksPerGrid;
 		// The following for loop initializes weights according to normal distribution 
@@ -235,9 +267,6 @@ namespace CharacterRecognition {
 	float* NeuralNet::forward(float *input) {
 
 		// a^[0] will be the input
-		for (int i = 0; i < 2; i++) {
-
-		}
 		cudaMemcpy(a[0], input, layer_sizes[0] * sizeof(float), cudaMemcpyHostToDevice);
 		// The activation for every layer but the last is relu, so the steps will be the same.
 		// The equations here are
@@ -247,7 +276,7 @@ namespace CharacterRecognition {
 		int L = layer_sizes.size() - 1;
 		for (int i = 1; i < L; i++) {
 			// Do the matrix multiplication to find w[l]a[l-1] and store in z[l]
-			mmul(w[i], a[i - 1], z[i], layer_sizes[i], layer_sizes[i - 1], 1);
+			mmul(w[i], a[i - 1], z[i], layer_sizes[i], layer_sizes[i - 1], 1, 0,0,layer_sizes[i], layer_sizes[i-1],layer_sizes[i]);
 			// Add the bias vector to it
 			fullBlocksPerGrid = ((layer_sizes[i] + blockSize - 1) / blockSize);
 			kernAddVectors << <fullBlocksPerGrid, blockSize >> > (layer_sizes[i], b[i], z[i], z[i]);
@@ -256,10 +285,9 @@ namespace CharacterRecognition {
 		}
 		// Now the softmax output for the final layer which will give the probability of belonging to each class
 		// We will first calculate the z for the final layer
-		mmul(w[L], a[L - 1], z[L], layer_sizes[L], layer_sizes[L - 1], 1);
+		mmul(w[L], a[L - 1], z[L], layer_sizes[L], layer_sizes[L - 1], 1,0,0,layer_sizes[L], layer_sizes[L-1], layer_sizes[L]);
 		fullBlocksPerGrid = ((layer_sizes[L] + blockSize - 1) / blockSize);
 		kernAddVectors << <fullBlocksPerGrid, blockSize >> > (layer_sizes[L], b[L], z[L], z[L]);
-		printCuda(z[L], layer_sizes[L], "Z");
 		// We will then calculate the sum(e^(z[L]))
 		// Doing it on the CPU because in the stream compaction code, the cpu implementation was faster for smaller inputs.
 		float *y_pred = new float[layer_sizes[L]];
@@ -277,15 +305,57 @@ namespace CharacterRecognition {
 		return y_pred;
 		
 	}
-	//void NeuralNet::backward(float *y) {
-	//	dim3 fullBlocksPerGrid((52 + blockSize - 1) / blockSize);
-	//	kernSubVectors <<< fullBlocksPerGrid, blockSize >> > (52, y, output, dlyhat);
-	//	fullBlocksPerGrid = ((52 + blockSize - 1) / blockSize, (52 + blockSize - 1) / blockSize);
-	//	dim3 dblockSize((blockSize, blockSize));
-	//	kernSoftmaxDerivative << < fullBlocksPerGrid, dblockSize >> > (52, g3, dyhatg3);
-	//	mmul(dlyhat, dyhatg3, dtheta3, 52, 52, 52);
-	//	mmul(dtheta3, a2, dtheta3, )
-	//}
+	void NeuralNet::backward(float *y) {
+		int L = layer_sizes.size() - 1;
+		// We will first populate da[L] as the derivative of loss with respect to y_pred.
+		float *y_cuda;
+		cudaMalloc((void**)&y_cuda, layer_sizes[L] * sizeof(float));
+		cudaMemcpy(y_cuda, y, layer_sizes[L] * sizeof(float), cudaMemcpyHostToDevice);
+		dim3 fullBlocksPerGrid;
+		fullBlocksPerGrid = ((layer_sizes[L] + blockSize - 1) / blockSize);
+		kernDerivativeLoss<<<fullBlocksPerGrid, blockSize>>>(layer_sizes[L], y_cuda, a[L], da[L]);
+		// The equations for the backpropagation are
+		// dz[l] = da[l]*g'[l](z[l]) where * means element wise
+		// dw[l] = dz[l]a[l-1].T
+		// db[l] = dz[l]
+		// da[l-1] = W[l].Tdz[l]
+		// Now the softmax derivative for the last but one layer
+		float *sum_cp = new float[layer_sizes[L]];
+		cudaMemcpy(sum_cp, z[L], layer_sizes[L] * sizeof(float), cudaMemcpyDeviceToHost);
+		float exp_sum = 0;
+		for (int i = 0; i < layer_sizes[L]; i++) {
+			exp_sum += expf(sum_cp[i]);
+		}
+		kernSoftmaxDerivative << <fullBlocksPerGrid, blockSize >> > (layer_sizes[L], z[L], ghat[L], exp_sum);
+		kernElementWiseMultiplication << <fullBlocksPerGrid, blockSize >> > (layer_sizes[L], da[L], ghat[L], dz[L]);
+		// dw[l] = dz[l]a[l-1].T
+		mmul(dz[L], a[L - 1], dw[L], layer_sizes[L], 1, layer_sizes[L-1], 0, 1,layer_sizes[L], layer_sizes[L-1], layer_sizes[L]);
+		//db[l] = dz[l]
+		cudaMemcpy(db[L], dz[L], layer_sizes[L] * sizeof(float), cudaMemcpyDeviceToDevice);
+		//da[l - 1] = W[l].Tdz[l]
+		mmul(w[L], dz[L], da[L - 1], layer_sizes[L - 1], layer_sizes[L], 1, 1, 0, layer_sizes[L], layer_sizes[L], layer_sizes[L - 1]);
+		//Now for the ReLU layers
+		for (int i = L - 1; i >= 1; i--) {
+			kernReluDerivative << <fullBlocksPerGrid, blockSize >> > (layer_sizes[i], z[i], ghat[i]);
+			kernElementWiseMultiplication << <fullBlocksPerGrid, blockSize >> > (layer_sizes[i], da[i], ghat[i], dz[i]);
+			mmul(dz[i], a[i - 1], dw[i], layer_sizes[i], 1, layer_sizes[i - 1], 0, 1, layer_sizes[i], layer_sizes[i - 1], layer_sizes[i]);
+			cudaMemcpy(db[i], dz[i], layer_sizes[i] * sizeof(float), cudaMemcpyDeviceToDevice);
+			mmul(w[i], dz[i], da[i - 1], layer_sizes[i - 1], layer_sizes[i], 1, 1, 0, layer_sizes[i], layer_sizes[i], layer_sizes[i - 1]);
+		}
+		// Now we will update the weights and bias
+		for (int i = 1; i <= L; i++) {
+			printCuda(w[i], layer_sizes[i] * layer_sizes[i - 1], "W");
+			printCuda(dw[i], layer_sizes[i] * layer_sizes[i - 1], "dw");
+			fullBlocksPerGrid = ((layer_sizes[i]*layer_sizes[i-1] + blockSize - 1) / blockSize);
+			kernUpdateParameters <<< fullBlocksPerGrid, blockSize >> > (layer_sizes[i] * layer_sizes[i - 1], w[i], dw[i], 0.01);
+			printCuda(w[i], layer_sizes[i] * layer_sizes[i - 1], "W_updated");
+			fullBlocksPerGrid = ((layer_sizes[i] + blockSize - 1) / blockSize);
+			kernUpdateParameters <<< fullBlocksPerGrid, blockSize >>> (layer_sizes[i], b[i], db[i], 0.01);
+		}
+		// Avoid the memory leaks
+		cudaFree(y_cuda);
+
+	}
 	NeuralNet::~NeuralNet() {
 		// Here comes the destructor, will free those memories ...
 		for (auto x : w)
@@ -303,6 +373,8 @@ namespace CharacterRecognition {
 		for (auto x : a)
 			cudaFree(x);
 		for (auto x : da)
+			cudaFree(x);
+		for (auto x : ghat)
 			cudaFree(x);
 
 		
