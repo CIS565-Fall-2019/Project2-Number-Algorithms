@@ -18,6 +18,7 @@ The input size, hidden layer size (number of perceptron units in a layer) and th
 The complete neural network architecture implemented can be picturized as follows,
 
 ![]()
+[Image reference](https://www.google.com/url?sa=i&source=images&cd=&ved=2ahUKEwjFj--K3djkAhWsq1kKHWfaCkAQjRx6BAgBEAQ&url=https%3A%2F%2Fwww.cc.gatech.edu%2F~san37%2Fpost%2Fdlhc-fnn%2F&psig=AOvVaw3n6z_jJ1Gt-TEhuC_wXEFM&ust=1568839521037348)
 
 The network implemented has a single hidden layer. The size of the hidden layer can be easily configured during initializing the network. The input layer will have size equal to the dimension of the each input. The output layer will similarly have a size equal to the number of classes to be used for classification. 
 
@@ -79,9 +80,7 @@ The training plot of the network tested on the XOR function can be seen in the f
 
 After testing for the XOR function, I loaded the character recognition dataset and trainied the network on it. 
 
-Based on the architecture created, the network converged in around 30 epochs. I trained it for 50 epochs with 200 hidden units. The architecture of the neural network used to train can be found in the following figure,
-
-![]()
+Based on the architecture created, the network converged in around 30 epochs. I trained it for 50 epochs with 200 hidden units.
 
 Number of epcohs for convergence = 30
 Final Loss = 
