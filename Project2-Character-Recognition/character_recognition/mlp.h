@@ -39,7 +39,7 @@ namespace CharacterRecognition {
 		// w^[l] = w^[l] - alpha*dw^[l]
 		void backward(double* y);
 		// Calculates the loss given predicted value of y and actual value of y and stores it in loss;
-		//void calculateLoss(double *ypred, double* y, double* loss);
+		double calculateLoss(double *ypred, double* y, int classes);
 		// The descrutor will free up the memory;
 		~NeuralNet();
 	};

@@ -145,7 +145,14 @@ namespace CharacterRecognition {
 		std::cout << "}" << std::endl;
 		delete[]print_a;
 	}
-
+	double NeuralNet::calculateLoss(double *y_pred, double *y, int classes) {
+		double loss = 0.0;
+		for (int i = 0; i < classes; i++) {
+			loss += y[i] * log2(y_pred[i]);
+		}
+		return -1.0*loss;
+		
+	}
 	NeuralNet::NeuralNet(int input_size, int classes, vector<int>layers) {
 		layer_sizes.push_back(input_size);
 
@@ -308,12 +315,12 @@ namespace CharacterRecognition {
 		// db[l] = dz[l]
 		// da[l-1] = W[l].Tdz[l]
 		// Now the softmax derivative for the last but one layer
-		double *sum_cp = new double[layer_sizes[L]];
+		/*double *sum_cp = new double[layer_sizes[L]];
 		cudaMemcpy(sum_cp, z[L], layer_sizes[L] * sizeof(double), cudaMemcpyDeviceToHost);
 		double exp_sum = 0;
 		for (int i = 0; i < layer_sizes[L]; i++) {
 			exp_sum += expf(sum_cp[i]);
-		}
+		}*/
 		//kernSoftmaxDerivative << <fullBlocksPerGrid, blockSize >> > (layer_sizes[L], z[L], ghat[L], exp_sum);
 		//kernElementWiseMultiplication << <fullBlocksPerGrid, blockSize >> > (layer_sizes[L], da[L], ghat[L], dz[L]);
 		kernSubVectors << <fullBlocksPerGrid, blockSize >> > (layer_sizes[L], y_cuda, a[L], dz[L]);
@@ -339,9 +346,9 @@ namespace CharacterRecognition {
 		//printCuda(w[3], layer_sizes[3] * layer_sizes[2], "W3");
 		for (int i = 1; i <= L; i++) {
 			fullBlocksPerGrid = ((layer_sizes[i]*layer_sizes[i-1] + blockSize - 1) / blockSize);
-			kernUpdateParameters <<< fullBlocksPerGrid, blockSize >> > (layer_sizes[i] * layer_sizes[i - 1], w[i], dw[i], 0.05);
+			kernUpdateParameters <<< fullBlocksPerGrid, blockSize >> > (layer_sizes[i] * layer_sizes[i - 1], w[i], dw[i], 0.0005);
 			fullBlocksPerGrid = ((layer_sizes[i] + blockSize - 1) / blockSize);
-			kernUpdateParameters <<< fullBlocksPerGrid, blockSize >>> (layer_sizes[i], b[i], db[i], 0.05);
+			kernUpdateParameters <<< fullBlocksPerGrid, blockSize >>> (layer_sizes[i], b[i], db[i], 0.0005);
 		}
 		// Avoid the memory leaks
 		cudaFree(y_cuda);
