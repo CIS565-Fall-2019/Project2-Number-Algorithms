@@ -101,9 +101,15 @@ After 10 iterations, I summed the squared error for each entry and logged it aga
 
 ![Training error over time](img/trainingError.png)
 
+Notably, this went on for a much, much longer time, but the interesting points lie in the jumps in the graph. During the process of obsessively watching the error value move slowly, slowly downwards, I found that it would reach certain "humps" that it would take a long time to improve upon, and then it would rush through long stretches of progress very quickly. From what I can tell, this is a relic of the model taking a while to flip individual results from incorrect to correct, especially while trying to tune a weight such that a result goes all the way from `0` to `1`.
+
 ## Performance Analysis
 
-Frankly, it took the better part of three whole days just to get a neural network that DID anything.
+Frankly, it took the better part of three whole days just to get a neural network that DID anything; I am afraid that the little bits of performance analysis scattered through the other discussions are the best I have to show.
+
+That said, anecdotally, I did notice that the larger hidden layers took longer to forward- and backwards-propagate. This makes sense, as the size of that hidden layer is a factor in both weight matrices, and thus is a factor in a large portion of the program execution.
+
+Further (and again, anecdotally), changing LAMBDA values around had interesting effects on the model's ability to train. Large values could get to conclusions faster, but also could make a model hover around incorrect mappings, even reverting progress back to them. Smaller values, on the other hand, could get stuck at local energy minima. Finding a good balance between them was tricky, to say the least.
 
 ## Results
 
