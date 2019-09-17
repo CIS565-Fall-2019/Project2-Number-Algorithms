@@ -14,12 +14,12 @@ Include analysis, etc. (Remember, this is public, so don't put
 anything here that you don't want to share with the world.)
 
 
-![alt text](https://raw.github.com/micallef25/Project2-Number-Algorithms/Project2-Stream-Compaction/master/images/differingblocks.PNG)
+![alt text](https://raw.github.com/micallef25/Project2-Number-Algorithms/Project2-Stream-Compaction/master/img/differingblocks.PNG)
 
-![alt text](https://raw.github.com/micallef25/Project2-Number-Algorithms/Project2-Stream-Compaction/master/images/differingblocksraw.PNG)
+![alt text](https://raw.github.com/micallef25/Project2-Number-Algorithms/Project2-Stream-Compaction/master/img/differingblocksraw.PNG)
 
-![alt text](https://raw.github.com/micallef25/Project2-Number-Algorithms/Project2-Stream-Compaction/master/images/graphraw.PNG)
+![alt text](https://raw.github.com/micallef25/Project2-Number-Algorithms/Project2-Stream-Compaction/master/img/graphraw.PNG)
 
-![alt text](https://raw.github.com/micallef25/Project2-Number-Algorithms/Project2-Stream-Compaction/master/images/larger_graph.PNG)
+![alt text](https://raw.github.com/micallef25/Project2-Number-Algorithms/Project2-Stream-Compaction/master/img/larger_graph.PNG)
 
-![alt text](https://raw.github.com/micallef25/Project2-Number-Algorithms/Project2-Stream-Compaction/master/images/smaller_graph.PNG)
+![alt text](https://raw.github.com/micallef25/Project2-Number-Algorithms/Project2-Stream-Compaction/master/img/smaller_graph.PNG)
