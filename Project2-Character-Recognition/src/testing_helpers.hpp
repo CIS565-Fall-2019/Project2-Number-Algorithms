@@ -37,7 +37,7 @@ void printCmpLenResult(int n, int expN, T *a, T *b) {
             cmpArrays(n, a, b) ? "FAIL VALUE" : "passed");
 }
 
-void zeroArray(int n, int *a) {
+void zeroArray(int n, float *a) {
     for (int i = 0; i < n; i++) {
         a[i] = 0;
     }

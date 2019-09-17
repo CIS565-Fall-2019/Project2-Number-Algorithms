@@ -7,11 +7,37 @@
  */
 
 #include <cstdio>
+#include <fstream>
+#include <sstream>
 #include <character_recognition/mlp.h>
 #include <character_recognition/common.h>
 #include "testing_helpers.hpp"
 
+void readFromFile(int idx, float* inputArr)
+{
+    std::string fileName = std::to_string(idx) + "info.txt";
+    if (idx < 10) { fileName = std::to_string(0) + fileName; }
+    fileName = "../data-set/" + fileName;
+    
+    std::ifstream infile(fileName);
+
+    int n1, n2, count;
+    float x;
+    count = 0;
+
+    if (!(infile >> n1 >> n2)) { printf("Error reading first two lines of file %s\n", fileName); }
+
+    while (infile >> x && count < 10201)
+    {
+        inputArr[count] = x;
+        count++;
+    }
+}
+
 int main(int argc, char* argv[]) {
+    // XOR TESTING
+    printf("XOR TESTING\n");
+
     float *xorInput1 = new float[3];
     xorInput1[0] = 0;
     xorInput1[1] = 0;
@@ -89,6 +115,60 @@ int main(int argc, char* argv[]) {
     CharacterRecognition::mlpRun(i, j, k, xorOutput, xorInput4, wkj, wji);
     printf("    (1, 1) expected: %f, result %f\n", xorTarget4[0], xorOutput[0]);
 
+
+    // CHAR RECOG TESTING
+    printf("CHAR RECOG TESTING\n");
+
+    i = 52; 
+    j = 10202; 
+    k = 10202; // +1 for bias
+
+    float *CRwkj = new float[k*j];
+    float *CRwji = new float[j*i];
+    CharacterRecognition::makeWeightMat(k*j, wkj);
+    CharacterRecognition::makeWeightMat(j*i, wji);
+
+    float *CRoutput = new float[i];
+
+    tgtError = 0.01f;
+    currError = 100000.0f;
+    count = 0;
+    while (currError > tgtError && count < 10)
+    {
+        currError = 0;
+        for (int f = 0; f < 52; f++)
+        {
+            float* tgt = new float[i];
+            zeroArray(i, tgt);
+            tgt[f] = 1;
+
+            float* input = new float[k];
+            readFromFile(f + 1, input);
+            input[k-1] = 1;
+
+            currError += CharacterRecognition::mlpTrain(i, j, k, CRoutput, input, CRwkj, CRwji, tgt);
+
+            delete[] input;
+            delete[] tgt;
+        }
+        printf("After %d iterations, error = %f\n", count, currError);
+        count++;
+    }
+
     system("pause"); // stop Win32 console from closing on exit
-    
+    delete[] xorInput1;
+    delete[] xorTarget1;
+    delete[] xorInput2;
+    delete[] xorTarget2;
+    delete[] xorInput3;
+    delete[] xorTarget3;
+    delete[] xorInput4;
+    delete[] xorTarget4;
+    delete[] xorOutput;
+    delete[] wkj;
+    delete[] wji;
+
+    delete[] CRoutput;
+    delete[] CRwkj;
+    delete[] CRwji;
 }

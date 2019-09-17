@@ -15,7 +15,7 @@ We want to find the best set of weights so that the outputs of the network are a
 
 Once the network has been trained adequately, we can run new inputs on it and see if we get some good results.
 
-Using provided weights for a working XOR neural network, I was able to verify my code correctly feeds forward and builds the network. I've been able to produce my own fairly accurate weights for XOR, but they certainly aren't perfect and it already takes 1000s of iterations of training to get as close as they are.
+Using provided weights for a working XOR neural network, I was able to verify my code correctly feeds forward and builds the network. I've also been able to produce my own fairly accurate weights for XOR: (This had a target error of 0.01)
 
 ```
 Ran 13101 iterations of training
@@ -25,5 +25,6 @@ Ran 13101 iterations of training
     (1, 1) expected: 0.000000, result 0.063928
 ```
 
+Unfortunately, I was having a lot of trouble extending this to character recognition. Training does not seem to be working - the error is huge and doesn't improve at all with further iterations. I attempted to debug this and started getting "CUDA grid launch failed" errors. Upon looking this up I found out this has to do with the TDR of my Debugger, but I can't find the place to change that setting. 
  
 

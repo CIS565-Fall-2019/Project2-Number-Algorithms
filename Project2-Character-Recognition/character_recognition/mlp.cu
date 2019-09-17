@@ -141,6 +141,8 @@ namespace CharacterRecognition {
 
     void makeWeightMat(int n, float* data)
     {
+        dim3 fullBlocksPerGrid((n + blockSize - 1) / blockSize);
+
         float* dev_data;
         cudaMalloc((void**)&dev_data, n * sizeof(float));
 
