@@ -593,7 +593,7 @@ namespace CharacterRecognition {
 			for (int j = 0; j < RSIZE; j++) {
 				if (resultArray[j] >= 0.5 && j != i) isCorrect = false;
 				if (resultArray[j] < 0.5 && j == i) isCorrect = false;
-				printf("@%02d:  %0.2f\t", j, resultArray[j]);
+				printf("@%02d:  %0.2f    ", j, resultArray[j]);
 				if ((j + 1) % 8 == 0) {
 					printf("\n");
 				}

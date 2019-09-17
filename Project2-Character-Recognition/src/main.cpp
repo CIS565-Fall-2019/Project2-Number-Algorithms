@@ -15,7 +15,7 @@
 #include <math.h>
 
 #define READING 1
-#define TRAINING 1
+#define TRAINING 0
 
 
 #if READING
@@ -127,11 +127,20 @@ int main(int argc, char* argv[]) {
 #endif
 #endif
 
+#if !(TRAINING)
+	CharacterRecognition::timer().startCpuTimer();
+#endif
+
 	//Print how we're doing, results-wise
 	CharacterRecognition::printForwardResults(allRecords);
 
-#if TRAINING
+#if !(TRAINING)
+	CharacterRecognition::timer().endCpuTimer();
+#endif
+
 	printElapsedTime(CharacterRecognition::timer().getCpuElapsedTimeForPreviousOperation(), "(std::chrono Measured)");
+
+#if TRAINING
 
 	fs::path outPath = oRootPath / fs::path("52-156-outwt-" OUTFILENAME ".bin");
 	CharacterRecognition::outputWeights(outPath.string(), false);
