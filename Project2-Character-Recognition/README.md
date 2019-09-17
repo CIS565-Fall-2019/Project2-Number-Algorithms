@@ -22,7 +22,7 @@ Stream compaction, also known as stream filtering or selection, usually produces
 
 ### Algorithms
 
-##  1: CPU Scan & Stream Compaction
+####  1: CPU Scan & Stream Compaction
  
  We implement stream compaction in two ways:
  
@@ -51,15 +51,15 @@ Stream compaction, also known as stream filtering or selection, usually produces
         Compute scan
         Scatter
     ```
-##  2: Naive GPU Scan Algorithm
+####  2: Naive GPU Scan Algorithm
 
-##  3: Work-Efficient GPU Scan & Stream Compaction
+####  3: Work-Efficient GPU Scan & Stream Compaction
 
-# 3.1: Work-Efficient Scan
+##### 3.1: Work-Efficient Scan
 
-# 3.2: Work-Efficient Stream Compaction
+##### 3.2: Work-Efficient Stream Compaction
 
-##  4: Using Thrust's Implementation
+####  4: Using Thrust's Implementation
 
 
 ### Questions and Performance Analysis
@@ -80,8 +80,8 @@ Stream compaction, also known as stream filtering or selection, usually produces
 * **Can you find the performance bottlenecks? Is it memory I/O? Computation? Is
     it different for each implementation?**
 
-* ** Paste the output of the test program into a triple-backtick block in your
-  README.**
+*  **Paste the output of the test program into a triple-backtick block in your
+   README.**
   
     ```
     ****************
