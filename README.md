@@ -8,6 +8,6 @@ CUDA Number Algorithms
 
 Following are the links to the subprojects.
 
-[CUDA Stream Compaction](https://github.com/DishaJindal/Project2-Number-Algorithms/edit/master/Project2-Stream-Compaction/README.md)
+[CUDA Stream Compaction](https://github.com/DishaJindal/Project2-Number-Algorithms/blob/master/Project2-Stream-Compaction/README.md)
 
-[CUDA Character Recognition](https://github.com/DishaJindal/Project2-Number-Algorithms/edit/master/Project2-Character-Recognition/README.md)
+[CUDA Character Recognition](https://github.com/DishaJindal/Project2-Number-Algorithms/blob/master/Project2-Character-Recognition/README.md)
