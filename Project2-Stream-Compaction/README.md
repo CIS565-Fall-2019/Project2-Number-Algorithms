@@ -6,7 +6,7 @@ CUDA Stream Compaction
 * Eric Micallef
   * https://www.linkedin.com/in/eric-micallef-99291714b/
   
-* Tested on: Windows 10, i7-6700 @ 3.4GHz 16GB, Nvidia Quadro P1000 (Moore 100B Lab)
+* Tested on: Windows 10, i5, Nvidia GTX 1660 (Personal)
 
 
 ## Overview
