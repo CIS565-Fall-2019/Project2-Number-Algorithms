@@ -36,9 +36,15 @@ The block size matters only for the Naive parallel implementation and the Work-e
 
 The following graph shows how the performance varies with increasing block size on the three parallel implementations.
 
-![]()
+![](img/scan_blocksize_20.PNG)
 
 It can be seen that the performance more or less remains constant with block size. For all the implementations, block size of 128 is optimal.
+
+I also tested the performance for the work-efficient implementation (optimized and unoptimized) for array sizes set to 2^10 and 2^20. The plots were as follows,
+
+![](img/scan_blocksize_both.PNG)
+
+A significant drop can be seen in the runtime when the array size is reduced. But, no specific trend is observer between array size and block size. This is probably because we are not using the shared memory.
 
 Hence, for testing against array size, block size is set to 128 wherever applicable.
 
@@ -46,13 +52,17 @@ Hence, for testing against array size, block size is set to 128 wherever applica
 
 Performance of the CPU implementation with all the GPU implementations can be found in the following figure.
 
-![]()
+![](img/array_size_cpu_all.PNG)
 
 As expected, the performance decreases with increasing array size. The naive GPU and work efficient GPU impelemntation can be found to perform worse than the CPU implementation for smaller array sizes. This is primarily because of the extra overhead in managing the threads on the GPU which overpowers the effect of parallelization.
 
 The following graph shows a comparison between the optimized work efficient implementation with the regular implementation.
 
-![]()
+![](img/scan_array_size_optimized_unoptimized.PNG	)
+
+We can see that the CPU implementation is better than the GPU implementation for smaller array sizes. However, as the size of the array increases, CPU implementation takes more time and the optimized work efficient implementation performs the best. This can be seen from the following graph.
+
+![](img/scan_array_size_bar.PNG)
 
 **Optimized Work-efficient implementation
 
@@ -81,7 +91,7 @@ The block size matters only for the Naive parallel implementation and the Work-e
 
 The following graph shows how the performance varies with increasing block size on the two parallel implementations.
 
-![]()
+![](img/sc_block_size.PNG)
 
 It can be seen that the performance more or less remains constant with block size. For all the implementations, block size of 128 is optimal.
 
@@ -93,16 +103,16 @@ There are two CPU implementations compared in this section. One uses the scan to
 
 A comparison between the two CPU implementations can be found in the following figure.
 
-![]()
+![](img/sc_array_size_1.PNG)
 
 Performance of the CPU implementation with all the GPU implementations can be found in the following figure.
 
-![]()
+![](img/sc_array_size_2.PNG)
 
 As expected, the performance decreases with increasing array size. The naive GPU and work efficient GPU impelemntation can be found to perform worse than the CPU implementation for smaller array sizes. This is primarily because of the extra overhead in managing the threads on the GPU which overpowers the effect of parallelization.
 
 The following graph shows a comparison between the optimized work efficient implementation with the regular implementation.
 
-![]()
+![](img/sc_array_size_3.PNG)
 
 There is a significant improvement in performance with the optimized version of the work efficient scan for stream compaction. The regular implementation is most of the times worse than the CPU implementation.
