@@ -7,6 +7,7 @@
 #include "device_launch_parameters.h"
 #include <thrust/device_vector.h>
 #include <thrust/fill.h>
+#include <fstream>
 
 #define checkCUDAErrorWithLine(msg) checkCUDAError(msg, __LINE__)
 
@@ -26,6 +27,7 @@ float* weight_hidden_output_gradient;
 
 float* dev_input;
 float* dev_true_labels;
+float* dev_test_input;
 
 float* output;
 float* hidden;
@@ -42,10 +44,28 @@ void print_matrix(const float *A, int nr_rows_A, int nr_cols_A) {
 	for (int i = 0; i < nr_rows_A; ++i) {
 		for (int j = 0; j < nr_cols_A; ++j) {
 			printf("%f ", A[j * nr_rows_A + i]);
+
 		}
 		printf("\n");
 	}
 	printf("\n");
+}
+
+
+//Print matrix A(nr_rows_A, nr_cols_A) storage in column-major format
+void print_matrix_to_file(const float *A, int nr_rows_A, int nr_cols_A, std::string filename) {
+	std::ofstream f(filename);
+	if (f.is_open()) {
+		for (int i = 0; i < nr_rows_A; ++i) {
+			for (int j = 0; j < nr_cols_A; ++j) {
+				//printf("%f ", A[j * nr_rows_A + i]);
+				f << A[j * nr_rows_A + i] << " ";
+			}
+			f << "\n";
+		}
+		f << "\n";
+	}
+	f.close();
 }
 
 
@@ -357,16 +377,6 @@ namespace CharacterRecognition {
 
 		dim3 fullBlocksPerGrid((hidden_layer_size * number_of_classes + blockSize - 1) / blockSize);
 		matrix_normalization << <fullBlocksPerGrid, blockSize >> > (hidden_layer_size * number_of_classes, weight_hidden_output, 2, 1);
-		//GPU_fill_rand(weight_input_hidden, number_of_features, hidden_layer_size);
-		//GPU_fill_rand(weight_hidden_output, hidden_layer_size, number_of_classes);
-
-		//float* weight1 = (float *)malloc(number_of_features * hidden_layer_size * sizeof(float));
-		//float* weight2 = (float *)malloc(hidden_layer_size * number_of_classes * sizeof(float));
-
-		//cudaMemcpy(weight1, weight_input_hidden, sizeof(float) * number_of_features * hidden_layer_size, cudaMemcpyDeviceToHost);
-		//print_matrix(weight1, number_of_features, hidden_layer_size);
-		//cudaMemcpy(weight2, weight_hidden_output , sizeof(float) * hidden_layer_size * number_of_classes, cudaMemcpyDeviceToHost);
-		//print_matrix(weight2, hidden_layer_size, number_of_classes);
 
 		//Allocate memory for hidden layer and output on device
 		cudaMalloc((void**)&hidden,  hidden_layer_size * sizeof(float));
@@ -396,10 +406,24 @@ namespace CharacterRecognition {
 		//cudaMemset(learning_rate, lr, sizeof(float));
 	}
 
+	void print_predicted_label(int true_label) {
+		float* predicted_probabilities = (float *)malloc(number_of_classes * sizeof(float));
+		cudaMemcpy(predicted_probabilities, output_non_linear, sizeof(float) * number_of_classes, cudaMemcpyDeviceToHost);
+		//print_matrix(predicted_probabilities, number_of_classes, 1);
+		float max = 0;
+		int argmax = -1;
+		for (int i = 0; i < number_of_classes; i++) {
+			if (predicted_probabilities[i] > max) {
+				max = predicted_probabilities[i];
+				argmax = i+1;
+			}
+		}
+
+		printf("True label - %d, Predicted label: %d with probability %f\n", true_label, argmax, max);
+	}
+
 	//Returns training accuracy
 	void train(float* input, float* true_labels, int number_of_epochs) {
-		float loss;
-		 
 		//Allocate memory for input and copy data on device
 		cudaMalloc((void**)&dev_input, number_of_instances * number_of_features * sizeof(float));
 		checkCUDAErrorWithLine("cudaMalloc dev_input failed!");
@@ -419,82 +443,24 @@ namespace CharacterRecognition {
 
 		cudaMalloc((void**)&all_losses, number_of_epochs * sizeof(float));
 		checkCUDAErrorWithLine("cudaMalloc loss_per_epoch failed!");
-		
 
-		/*forward_pass(handle, dev_input, 2 * number_of_features);
-
-		compute_gradients(handle, dev_true_labels, 2 * number_of_features);
-
-		update_weights();*/
 		for (int i = 0; i < number_of_epochs; i++) {
 			thrust::device_ptr<float> loss_ptr(loss_per_epoch);
 			thrust::fill(loss_ptr, loss_ptr + 1, 0);
 			for (int j = 0; j < number_of_instances; j++) {
-				/*float* output_to_print1 = (float *)malloc(number_of_features * sizeof(float));
-				cudaMemcpy(output_to_print1, dev_input + (j * number_of_features), sizeof(float) * number_of_features, cudaMemcpyDeviceToHost);
-				printf("Input:  ");
-				print_matrix(output_to_print1, 1, number_of_features);*/
-
-				/*float* output_to_print2 = (float *)malloc(number_of_classes * sizeof(float));
-				cudaMemcpy(output_to_print2, dev_true_labels + (j * number_of_classes), sizeof(float) * number_of_classes, cudaMemcpyDeviceToHost);
-				printf("Output:  ");
-				print_matrix(output_to_print2, 1, number_of_classes);*/
-
 				//1. Forward Pass through network
 				forward_pass(handle, dev_input, j);
-				/*float* output_to_print3 = (float *)malloc(number_of_classes * sizeof(float));
-				cudaMemcpy(output_to_print3, output_non_linear, sizeof(float) * number_of_classes, cudaMemcpyDeviceToHost);
-				printf("Initial output probabilities:  ");
-				print_matrix(output_to_print3, 1, number_of_classes);*/
-				//2. Compute Loss
-				//loss = compute_loss(true_labels, output);
 
 				//3. Compute Gradients for all weight matrices
 				compute_gradients(handle, dev_true_labels, dev_input, j);
 
+				//Update loss for the epoch
 				add << <1,1 >> > (loss_per_epoch, temp_loss);
-
-				/*float* output_to_print9 = (float *)malloc(number_of_features * hidden_layer_size * sizeof(float));
-				cudaMemcpy(output_to_print9, weight_input_hidden_gradient, sizeof(float) * number_of_features * hidden_layer_size, cudaMemcpyDeviceToHost);
-				printf("Updated gradients [Input - Hidden]: \n");
-				print_matrix(output_to_print9, number_of_features, hidden_layer_size);
-
-				float* output_to_print10 = (float *)malloc(hidden_layer_size * number_of_classes * sizeof(float));
-				cudaMemcpy(output_to_print10, weight_hidden_output_gradient, sizeof(float) * hidden_layer_size * number_of_classes, cudaMemcpyDeviceToHost);
-				printf("Updated Gradients [Hidden - Output]: \n");
-				print_matrix(output_to_print10,hidden_layer_size, number_of_classes);
-
-				float* output_to_print6 = (float *)malloc(number_of_features * hidden_layer_size * sizeof(float));
-				cudaMemcpy(output_to_print6, weight_input_hidden, sizeof(float) * number_of_features * hidden_layer_size, cudaMemcpyDeviceToHost);
-				printf("Current weights [Input - Hidden]: \n");
-				print_matrix(output_to_print6, number_of_features, hidden_layer_size);
-
-				float* output_to_print7 = (float *)malloc(hidden_layer_size * number_of_classes * sizeof(float));
-				cudaMemcpy(output_to_print7, weight_hidden_output, sizeof(float) * hidden_layer_size * number_of_classes, cudaMemcpyDeviceToHost);
-				printf("Current weights [Hidden - Output]: \n");
-				print_matrix(output_to_print7, hidden_layer_size, number_of_classes);*/
 
 				//4. Update weights
 				update_weights();
 
-				/*float* output_to_print4 = (float *)malloc(number_of_features * hidden_layer_size * sizeof(float));
-				cudaMemcpy(output_to_print4, weight_input_hidden, sizeof(float) * number_of_features * hidden_layer_size, cudaMemcpyDeviceToHost);
-				printf("Updated weights [Input - Hidden]: \n");
-				print_matrix(output_to_print4, number_of_features, hidden_layer_size);
-
-				float* output_to_print5 = (float *)malloc(hidden_layer_size * number_of_classes * sizeof(float));
-				cudaMemcpy(output_to_print5, weight_hidden_output, sizeof(float) * hidden_layer_size * number_of_classes, cudaMemcpyDeviceToHost);
-				printf("Updated weights [Hidden - Output]: \n");
-				print_matrix(output_to_print5, hidden_layer_size, number_of_classes);*/
-
-				forward_pass(handle, dev_input, j);
-
-				/*float* output_to_print8 = (float *)malloc(number_of_classes * sizeof(float));
-				cudaMemcpy(output_to_print8, output_non_linear, sizeof(float) * number_of_classes, cudaMemcpyDeviceToHost);
-				printf("Output Probabilities after update:  ");
-				print_matrix(output_to_print8, 1, number_of_classes);*/
-
-				
+				//forward_pass(handle, dev_input, j);				
 			}
 			//Print loss after each epoch
 			float* loss_print = (float *)malloc(sizeof(float));
@@ -504,19 +470,44 @@ namespace CharacterRecognition {
 			cudaMemcpy(all_losses + i, loss_per_epoch, sizeof(float), cudaMemcpyDeviceToDevice);
 		}
 
+		//Print weight matrices
+		//float* output_to_print4 = (float *)malloc(number_of_features * hidden_layer_size * sizeof(float));
+		//cudaMemcpy(output_to_print4, weight_input_hidden, sizeof(float) * number_of_features * hidden_layer_size, cudaMemcpyDeviceToHost);
+		//printf("Weights [Input - Hidden]: \n");
+		////print_matrix_to_file(output_to_print4, number_of_features, hidden_layer_size, "C:\\Users\\saketk\\Project2-Number-Algorithms\\Project2-Character-Recognition\\data-set\\weights_input_hidden.xlsx");
+
+		//float* output_to_print5 = (float *)malloc(hidden_layer_size * number_of_classes * sizeof(float));
+		//cudaMemcpy(output_to_print5, weight_hidden_output, sizeof(float) * hidden_layer_size * number_of_classes, cudaMemcpyDeviceToHost);
+		//printf("Weights [Hidden - Output]: \n");
+		////print_matrix_to_file(output_to_print5, hidden_layer_size, number_of_classes, "C:\\Users\\saketk\\Project2-Number-Algorithms\\Project2-Character-Recognition\\data-set\\weights_hidden_output.xlsx");
+
 		float* all_losses_print = (float *)malloc(number_of_epochs * sizeof(float));
 		cudaMemcpy(all_losses_print, all_losses, sizeof(float) * number_of_epochs, cudaMemcpyDeviceToHost);
-		printf("All losses  ");
+		printf("All losses  \n");
 		print_matrix(all_losses_print, number_of_epochs, 1);
 
 		// Destroy the handle
 		cublasDestroy(handle);
-	
 	}
 
 	//Returns test acccuracy
-	float test(float* test_input) {
-		return 0;
+	void test(float* test_input) {
+		//Allocate memory for input and copy data on device
+		cudaMalloc((void**)&dev_test_input, number_of_instances * number_of_features * sizeof(float));
+		checkCUDAErrorWithLine("cudaMalloc dev_test_input failed!");
+		cudaMemcpy(dev_test_input, test_input, sizeof(float) * number_of_instances * number_of_features, cudaMemcpyHostToDevice);
+
+		// Create a handle for CUBLAS
+		cublasHandle_t handle;
+		cublasCreate(&handle);
+
+		for (int j = number_of_instances-1; j >= 0; j--) {
+			//1. Forward Pass through network
+			forward_pass(handle, dev_test_input, j);
+
+			print_predicted_label(j+1);
+
+		}
 	}
     // TODO: __global__
 

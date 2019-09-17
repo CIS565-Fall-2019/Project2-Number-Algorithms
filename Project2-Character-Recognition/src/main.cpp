@@ -18,11 +18,11 @@
 
 #define NUMBER_OF_INSTANCES 52
 #define NUMBER_OF_FEATURES 10201
-#define HIDDEN_LAYER_SIZE 6
+#define HIDDEN_LAYER_SIZE 200
 #define NUMBER_OF_CLASSES 52
 
 #define LEARNING_RATE 0.01
-#define NUMBER_OF_EPOCHS 1000
+#define NUMBER_OF_EPOCHS 100
 
 int main(int argc, char* argv[]) {
 	//float input[NUMBER_OF_INSTANCES * NUMBER_OF_FEATURES] = { 0,0, 0,1, 1,0, 1,1 };
@@ -78,7 +78,7 @@ int main(int argc, char* argv[]) {
 
 	printf("MAIN \n");
 	//Initialize network
-	CharacterRecognition::initialize_network(NUMBER_OF_INSTANCES, NUMBER_OF_FEATURES, NUMBER_OF_CLASSES, HIDDEN_LAYER_SIZE, 0.1f);
+	CharacterRecognition::initialize_network(NUMBER_OF_INSTANCES, NUMBER_OF_FEATURES, NUMBER_OF_CLASSES, HIDDEN_LAYER_SIZE, 0.4f);
 
 	//float* input = (float *)malloc(NUMBER_OF_INSTANCES * NUMBER_OF_FEATURES * sizeof(float));
 	//float* true_labels = (float *)malloc(NUMBER_OF_INSTANCES * sizeof(float));
@@ -88,7 +88,8 @@ int main(int argc, char* argv[]) {
 	//Call training loop
 	CharacterRecognition::train(input, true_labels, NUMBER_OF_EPOCHS);
 
-	
+	printf("TESTING \n");
+	CharacterRecognition::test(input);
 
 	//Test
 
