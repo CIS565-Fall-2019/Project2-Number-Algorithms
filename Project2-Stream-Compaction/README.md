@@ -41,4 +41,8 @@ For the above, we see that the optimized implementations are when the Block size
 
 ![alt-text-1](img/Plot_Scan_1.png "title-1") ![alt-text-2](img/Plot_Scan_2.png "title-2")
 
-![alt-text-1](image1.png "title-1") ![alt-text-2](image2.png "title-2")
+## 4. Questions and Inferences
+
+#### Q1. Write a brief explanation of the phenomena you see here?
+
+
