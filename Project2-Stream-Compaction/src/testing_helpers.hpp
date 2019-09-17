@@ -43,6 +43,12 @@ void zeroArray(int n, int *a) {
     }
 }
 
+void identityArray(int n, int *a) {
+	for (int i = 0; i < n; i++) {
+		a[i] = i;
+	}
+}
+
 void onesArray(int n, int *a) {
 	for (int i = 0; i < n; i++) {
 		a[i] = 1;
