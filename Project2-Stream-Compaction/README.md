@@ -14,14 +14,13 @@ Include analysis, etc. (Remember, this is public, so don't put
 anything here that you don't want to share with the world.)
 
 
-![alt text](https://raw.github.com/micallef25/Project2-Number-Algorithms/Project2-Stream-Compaction/master/img/differingblocks.PNG)
-
 ![](img/differingblocks.PNG)
 
-![alt text](https://raw.github.com/micallef25/Project2-Number-Algorithms/Project2-Stream-Compaction/master/img/differingblocksraw.PNG)
+![](img/graphraw.PNG)
 
-![alt text](https://raw.github.com/micallef25/Project2-Number-Algorithms/Project2-Stream-Compaction/master/img/graphraw.PNG)
+![](img/larger_graph.PNG)
 
-![alt text](https://raw.github.com/micallef25/Project2-Number-Algorithms/Project2-Stream-Compaction/master/img/larger_graph.PNG)
+![](img/smaller_graph.PNG)
 
-![alt text](https://raw.github.com/micallef25/Project2-Number-Algorithms/Project2-Stream-Compaction/master/img/smaller_graph.PNG)
+![](img/differingblocksraw.PNG)
+
