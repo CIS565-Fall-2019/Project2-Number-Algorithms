@@ -33,4 +33,4 @@ I will be explaining my network taking reference of 1 data point, although I hav
 
 Here is the loss vs Iterations Plot for the XOR training:
 
-<p align="center"><img src="https://github.com/somanshu25/Project2-Number-Algorithms/blob/master/Project2-Character-Recognition/img/LossVsIterations_XOR.png" width="600"/></p>
+<p align="center"><img src="https://github.com/somanshu25/Project2-Number-Algorithms/blob/master/Project2-Character-Recognition/img/LossVsIterations_XOR.png" width="1000"/></p>
