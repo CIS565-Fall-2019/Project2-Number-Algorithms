@@ -40,6 +40,16 @@ Some results are here, in the form of more sweet, sweet ascii art. These have al
 
 ![Gaussian Filter](img/filter0_gauss.png)
 *Gaussian filter*
+![Outline filter](img/filter1_outline.png)
+*Outline filter*
+![Sobel Filter (top)](img/filter2_sobelTop.png)
+*Sobel filter (top)*
+![Sobel Filter (right)](img/filter3_sobelRight.png)
+*Sobel filter (right)*
+![Sobel Filter (bottom)](img/filter4_sobelBottom.png)
+*Sobel filter (bottom)*
+![Sobel Filter (left)](img/filter5_sobelLeft.png)
+*Sobel filter (left)*
 
 There is the slight hiccup that I am not sure how to property back-propogate through a convolutional layer and update convolution kernel weights. That said, I stand by the decision, as the resultant data sets have more activated information than the original data.
 
