@@ -70,6 +70,10 @@ for (int k = 0; k < n; ++k) {
 ### Naive
 ### Efficient
 ### Thrust
+For this implementation, I simply cast the input and output array buffers to thrust device pointers and then run thrust's exclusive scane on the buffers.  
+```
+thrust::exclusive_scan(dev_thrust_inputArray, dev_thrust_inputArray + bufferLength, dev_thrust_outputArray);
+```
 
 ## Performance Analysis
 
