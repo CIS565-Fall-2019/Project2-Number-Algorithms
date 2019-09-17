@@ -135,6 +135,8 @@ This output is for 1 << 8 array size and includes a test of radix sort algorithm
 
 ## Radix Sort
 
+This is implemented in ```radix.cu``` with ```radix.h``` and the ```stream_compaction/CMakeLists.txt``` has been changed to include these in build. My work efficient scan was utilized in implementing radix sort.
+
 Radix sort can be done in parallel by breaking the array into tiles and sorting each tile in parallel then merging. Further more sorting within it tile can be parallelized by utilizing scanning approaches developed previously. It should also be noted that radix sort operates on bits and requires k-bit passes to sort where k is the number of bits in each cell. It starts at the least significant bit (LSB) and moves to the most significant bit (MSB), partitioning the array and rearranging the array as it goes as seen below.
 
 ![radix-explanation](img/radix_explanation.png)
