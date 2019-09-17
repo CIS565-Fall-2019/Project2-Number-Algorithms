@@ -39,6 +39,8 @@ In the graph with the larger arrays we see a similar pattern forming where the c
 
 ![](img/larger_graph.PNG)
 
+## Final Analysis Thoughts
+
 In all implementations thrust performed poorly. My initial guess is that perhaps thrust always copies the data before it performs its computations so we are seeing a false time for the actual algorithm.
 
 Although the naive implementation has more work to do we see that the times are not significantly higher than that of the work efficient algorithm. This could be because in the work efficient algorithm we have manyy warps with just a few thread active and the memory patterns are random causing for less latency hiding. It could also be because is a bit more divergence when comparing the naive version to the work efficient version.
