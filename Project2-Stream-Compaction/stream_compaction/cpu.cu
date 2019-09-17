@@ -24,11 +24,13 @@ namespace StreamCompaction {
          * For performance analysis, this is supposed to be a simple for loop.
          * (Optional) For better understanding before starting moving to GPU, you can simulate your GPU scan in this function first.
          */
-        void scan(int n, int *odata, const int *idata) {
-	        timer().startCpuTimer();
+        void scan(int n, int *odata, const int *idata) {	        
           // TODO
+          timer().startCpuTimer();
+
           scan_implementation(n, odata, idata);
-	        timer().endCpuTimer();
+	        
+          timer().endCpuTimer();
         }
 
         /**
@@ -37,15 +39,19 @@ namespace StreamCompaction {
          * @returns the number of elements remaining after compaction.
          */
         int compactWithoutScan(int n, int *odata, const int *idata) {
-	        timer().startCpuTimer();
           // TODO
+
+          timer().startCpuTimer();
+
           int cnt = 0;
           for (int i = 0; i < n; i++) {
             if (idata[i] != 0) {
               odata[cnt++] = idata[i];
             }
           }
+
 	        timer().endCpuTimer();
+
           return cnt;
         }
 
@@ -55,15 +61,19 @@ namespace StreamCompaction {
          * @returns the number of elements remaining after compaction.
          */
         int compactWithScan(int n, int *odata, const int *idata) {
-	        timer().startCpuTimer();
 	        // TODO
+          // allocate memory
           int* isnonzero = (int*)malloc(n * sizeof(int));
+          int* indices = (int*)malloc(n * sizeof(int));
+          
+          timer().startCpuTimer();
+            
+          // identify non zero elements
           for (int i = 0; i < n; i++) {
             isnonzero[i] = (idata[i] != 0) ? 1 : 0;
           }
 
           // compute indices with an exclusive scan
-          int* indices = (int*)malloc(n * sizeof(int));
           scan_implementation(n, indices, isnonzero);
           int n_compact = isnonzero[n - 1] ? indices[n - 1] + 1: indices[n - 1];
 
@@ -74,11 +84,12 @@ namespace StreamCompaction {
             }
           }
 
+          timer().endCpuTimer();
+
           // free memory
           free(isnonzero);
           free(indices);
  
-	        timer().endCpuTimer();
           return n_compact;
         }
     }

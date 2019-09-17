@@ -28,51 +28,37 @@ namespace StreamCompaction {
           }
         }
 
-        __global__ void kernIsNonZero(int n, int *isnonzero, int *idata) {
-          int idx = threadIdx.x + (blockIdx.x * blockDim.x);
-          if (idx < n) {
-            isnonzero[idx] = (idata[idx] == 0) ? 0 : 1;
-          }
-        }
-
-        __global__ void kernCompact(int n, int *odata, int *idata, int* isnonzero, int* indices) {
-          int idx = threadIdx.x + (blockIdx.x * blockDim.x);
-          if (idx < n && isnonzero[idx]) {
-            odata[indices[idx]] = idata[idx];
-          }
-        }
-
-        void scan_implementation(int n, int *odata, const int *idata) {
-          int size = pow(2, ilog2ceil(n));
-          int memsize = size * sizeof(int);
-          int *dev_in, *dev_out, *dev_mid;
-          cudaMalloc((void**)&dev_in, memsize);
-          cudaMemcpy(dev_in, idata, n * sizeof(int), cudaMemcpyHostToDevice);
-
-          dim3 blockSize(128);
-          dim3 gridSize((size + 127) / 128);
-          for (int d = 0; d < ilog2ceil(n); d++) {
-            kernUpSweep << <gridSize, blockSize >> > (size, pow(2, d), dev_in);
-          }
-
-          cudaMemset((void*)&(dev_in[size - 1]), 0, sizeof(int));
-
-          for (int d = ilog2ceil(n) - 1; d >= 0; d--) {
-            kernDownSweep << <gridSize, blockSize >> > (size, pow(2, d), dev_in);
-          }
-
-          cudaMemcpy(odata, dev_in, n * sizeof(int), cudaMemcpyDeviceToHost);
-          cudaFree(dev_in);
-        }
-
         /**
          * Performs prefix-sum (aka scan) on idata, storing the result into odata.
          */
         void scan(int n, int *odata, const int *idata) {
-            timer().startGpuTimer();
             // TODO
-            scan_implementation(n, odata, idata);
+            int size = pow(2, ilog2ceil(n));
+            int memsize = size * sizeof(int);
+            int *dev_in;
+            cudaMalloc((void**)&dev_in, memsize);
+            cudaMemcpy(dev_in, idata, n * sizeof(int), cudaMemcpyHostToDevice);
+
+            timer().startGpuTimer();
+
+            dim3 blockSize(BLOCKSIZE);
+            dim3 gridSize((size + BLOCKSIZE - 1) / BLOCKSIZE);
+            int dmax = ilog2ceil(n);
+
+            for (int d = 0; d < dmax; d++) {
+              kernUpSweep << <gridSize, blockSize >> > (size, 1 << d, dev_in);
+            }
+
+            cudaMemset((void*)&(dev_in[size - 1]), 0, sizeof(int));
+
+            for (int d = dmax - 1; d >= 0; d--) {
+              kernDownSweep << <gridSize, blockSize >> > (size, 1 << d, dev_in);
+            }
+
             timer().endGpuTimer();
+
+            cudaMemcpy(odata, dev_in, n * sizeof(int), cudaMemcpyDeviceToHost);
+            cudaFree(dev_in);
         }
 
         /**
@@ -85,51 +71,71 @@ namespace StreamCompaction {
          * @returns      The number of elements remaining after compaction.
          */
         int compact(int n, int *odata, const int *idata) {
-            timer().startGpuTimer();
             // TODO
             size_t size = n * sizeof(int);
+            int n2 = pow(2, ilog2ceil(n));
+            size_t size2 = n2 * sizeof(int);
 
             // allocate device memory
-            int *dev_odata, *dev_idata, *dev_isnonzero, *dev_indices;
+            int *dev_odata, *dev_idata, *dev_bools, *dev_indices;
             cudaMalloc((void**)&dev_idata, size);
             cudaMalloc((void**)&dev_odata, size);
-            cudaMalloc((void**)&dev_isnonzero, size);
-            cudaMalloc((void**)&dev_indices, size);
+            cudaMalloc((void**)&dev_bools, size);
+            cudaMalloc((void**)&dev_indices, size2);
 
             // allocate host memory
-            int *isnonzero, *indices;
-            isnonzero = (int*)malloc(size);
+            int *bools, *indices;
+            bools = (int*)malloc(size);
             indices = (int*)malloc(size);
             
             // calculate block size and grid size
-            int blockSize = 128;
-            int gridSize = (n + blockSize - 1) / blockSize;
+            int gridSize = (n + BLOCKSIZE - 1) / BLOCKSIZE;
+            int gridSize2 = (n2 + BLOCKSIZE - 1) / BLOCKSIZE;
+            
+            // copy memory to device
+            cudaMemcpy(dev_idata, idata, size, cudaMemcpyHostToDevice);
+
+            timer().startGpuTimer();
             
             // identify non-zero elements
-            cudaMemcpy(dev_idata, idata, size, cudaMemcpyHostToDevice);
-            kernIsNonZero<<<gridSize, blockSize>>>(n, dev_isnonzero, dev_idata);
-            cudaMemcpy(isnonzero, dev_isnonzero, size, cudaMemcpyDeviceToHost);
+            Common::kernMapToBoolean << <gridSize, BLOCKSIZE >> > (n, dev_bools, dev_idata);
 
             // exclusive scan
-            scan_implementation(n, indices, isnonzero);
-            int n_compact = isnonzero[n - 1] ? indices[n - 1] + 1 : indices[n - 1];
-            cudaMemcpy(dev_indices, indices, size, cudaMemcpyHostToDevice);
+            cudaMemcpy(dev_indices, dev_bools, size, cudaMemcpyDeviceToDevice);
 
+            int dmax = ilog2ceil(n2);
+            
+            for (int d = 0; d < dmax; d++) {
+              kernUpSweep << <gridSize2, BLOCKSIZE >> > (n2, 1 << d, dev_indices);
+            }
+
+            cudaMemset((void*)&(dev_indices[n2 - 1]), 0, sizeof(int));
+
+            for (int d = dmax - 1; d >= 0; d--) {
+              kernDownSweep << <gridSize2, BLOCKSIZE >> > (n2, 1 << d, dev_indices);
+            }
+            
             // stream compaction
-            kernCompact<<<gridSize, blockSize>>>(n, dev_odata, dev_idata, dev_isnonzero, dev_indices);
+            Common::kernScatter << <gridSize, BLOCKSIZE >> > (n, dev_odata, dev_idata, dev_bools, dev_indices);
+
+            timer().endGpuTimer();
+
+            // copy memory to host
+            cudaMemcpy(indices, dev_indices, size, cudaMemcpyDeviceToHost);
+            cudaMemcpy(bools, dev_bools, size, cudaMemcpyDeviceToHost);
             cudaMemcpy(odata, dev_odata, size, cudaMemcpyDeviceToHost);
+            int n_compact = bools[n - 1] ? indices[n - 1] + 1 : indices[n - 1];
              
             // free device memory
             cudaFree(dev_idata);
             cudaFree(dev_odata);
-            cudaFree(dev_isnonzero);
+            cudaFree(dev_bools);
             cudaFree(dev_indices);
 
             // free host memory
-            free(isnonzero);
+            free(bools);
             free(indices);
 
-            timer().endGpuTimer();
             return n_compact;
         }
     }

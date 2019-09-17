@@ -3,8 +3,6 @@
 #include "common.h"
 #include "naive.h"
 
-#define blockSize 128
-
 namespace StreamCompaction {
     namespace Naive {
         using StreamCompaction::Common::PerformanceTimer;
@@ -29,7 +27,6 @@ namespace StreamCompaction {
          * Performs prefix-sum (aka scan) on idata, storing the result into odata.
          */
         void scan(int n, int *odata, const int *idata) {
-            timer().startGpuTimer();
             // TODO
             // Declare two device buffer
             int *dev_data[2];
@@ -45,10 +42,12 @@ namespace StreamCompaction {
             cudaMemcpy(dev_data[0], idata, n * sizeof(int), cudaMemcpyHostToDevice);
             checkCUDAErrorFn("cudaMemcpy (host to device) failed!");
             
-            dim3 fullBlocksPerGrid((n + blockSize - 1) / blockSize);
+            timer().startGpuTimer();
+            dim3 fullBlocksPerGrid((n + BLOCKSIZE - 1) / BLOCKSIZE);
             for (int d = 1; d <= ilog2ceil(n); d++) {
-              kernNaiveScan << <fullBlocksPerGrid, dim3(blockSize) >> > (n, pow(2, d - 1), dev_data[d % 2], dev_data[(d + 1) % 2]);
+              kernNaiveScan << <fullBlocksPerGrid, dim3(BLOCKSIZE) >> > (n, 1 << (d - 1), dev_data[d % 2], dev_data[(d + 1) % 2]);
             }
+            timer().endGpuTimer();
 
             // Convert inclusive scan to exclusive scan, shift right and insert identity.
             cudaMemcpy(odata + 1, dev_data[ilog2ceil(n) % 2], (n - 1) * sizeof(int), cudaMemcpyDeviceToHost);
@@ -58,8 +57,6 @@ namespace StreamCompaction {
             // Free device memory
             cudaFree(dev_data[0]);
             cudaFree(dev_data[1]);
-            
-            timer().endGpuTimer();
         }
     }
 }
