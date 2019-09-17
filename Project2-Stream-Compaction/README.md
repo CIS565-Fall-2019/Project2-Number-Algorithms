@@ -37,4 +37,8 @@ In the performance analysis, we are first checking the best blockSize value for 
 
 ![](img/Block_Size_vary.png)
 
+For the above, we see that the optimized implementations are when the Block size is 512 for both the algorithms. For checking how all of the versions of GPU compare with CPU version when varying the input size, I have broken the ployts into 2 plots as shown below. The first plot on the left side is from input size 2^10 to 2^18 while the second plot on the right side varies from 2^19 to 2^25 for better visualization of the plots.
 
+![alt-text-1](img/Plot_Scan_1.png "title-1") ![alt-text-2](img/Plot_Scan_2.png "title-2")
+
+![alt-text-1](image1.png "title-1") ![alt-text-2](image2.png "title-2")
