@@ -111,7 +111,7 @@ int main(int argc, char* argv[]) {
 			
 			std::cout << "NEW WEIGHTS" << std::endl;
 			int numInnerIters = 0.0;
-			while (accumulatedError > acceptedError && numInnerIters < 10000) {
+			while (accumulatedError > acceptedError && numInnerIters < 1000) {
 				accumulatedError = 0.0;
 				for (std::pair<float*, float> i : inputOutputMap) {
 					float currExpected = i.second;

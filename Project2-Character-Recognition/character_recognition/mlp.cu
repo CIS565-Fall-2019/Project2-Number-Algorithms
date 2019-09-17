@@ -54,7 +54,7 @@ namespace CharacterRecognition {
 
 		
 		thrust::default_random_engine rng(hash((int)(index * time)));
-		thrust::uniform_real_distribution<float> unitDistrib(0, 100);
+		thrust::uniform_real_distribution<float> unitDistrib(-50, 50);
 
 
 		weights[index] = (float)unitDistrib(rng);
