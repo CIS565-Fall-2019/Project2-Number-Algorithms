@@ -26,7 +26,8 @@ namespace StreamCompaction {
 		int* kern_idata;
 		int* kern_odata;
 
-		__device__ void scanStep(int N, int index, unsigned long stepLevel, int* idata, int* odata) {
+		__global__ void scanStep(int N, unsigned long stepLevel, int* idata, int* odata) {
+			int index = threadIdx.x + (blockIdx.x * blockDim.x);
 			if (index >= N) return;
 			if (index < stepLevel) {
 				odata[index] = idata[index];
@@ -36,16 +37,9 @@ namespace StreamCompaction {
 			return;
 		}//scanStep
 
-		__device__ void kmoveData(int N, int index, int* odata, int* idata) {
-			if (index >= N) return;
-			int temp = odata[index];
-			idata[index] = temp;
-			return;
-		}//moveData
-
 		/**
 		* Note: the numLevels is that log_2(N), and should be computed GPU-side
-		*/
+		*
 		__global__ void kScan(int N, int* idata, int* odata, int numLevels) {
 			int index = threadIdx.x + (blockIdx.x * blockDim.x);
 			int currentLevel = 0;
@@ -62,10 +56,26 @@ namespace StreamCompaction {
 			kShiftIncEx(N, index, idata, odata);
 
 		}//kScan
+		*/
+
+		void scanWrapper(int N, int* idata, int* odata, int numLevels) {
+			dim3 bpg = dim3((N + BLOCKSIZE - 1) / BLOCKSIZE);
+			dim3 tpb = dim3(BLOCKSIZE);
+			int currentLevel = 0;
+			unsigned long stepLevel = 1;
+			while (currentLevel < numLevels) {
+				stepLevel = 1 << currentLevel;
+				scanStep<<<bpg, tpb>>>(N, stepLevel, idata, odata);
+				cudaDeviceSynchronize();
+				cudaMemcpy(idata, odata, N * sizeof(int), cudaMemcpyDeviceToDevice);
+				currentLevel++;
+			}//while
+
+		}//scanWrapper
 
 		/**
 		* Shifts our inclusive scan over to be an exclusive scan
-		*/
+		*
 		__device__ void kShiftIncEx(int N, int index, int* idata, int* odata) {
 			if (index >= N) return;
 			else if (index == 0) odata[index] = 0;
@@ -73,6 +83,7 @@ namespace StreamCompaction {
 				odata[index] = idata[index - 1];
 			}
 		}//kShiftIncEx
+		*/
 
         /**
          * Performs prefix-sum (aka scan) on idata, storing the result into odata.
@@ -95,16 +106,17 @@ namespace StreamCompaction {
 
 			timer().startGpuTimer();
 
-
 			int numLevels = ilog2ceil(n);
 
-			kScan<<<tpb, bpg>>>(n, kern_idata, kern_odata, numLevels);
+			scanWrapper(n, kern_idata, kern_odata, numLevels);
 			checkCUDAErrorFn("kScan failed!\n", NULL, __LINE__);
 
 			timer().endGpuTimer();
 
-			cudaMemcpy(odata, kern_odata, n * sizeof(int), cudaMemcpyDeviceToHost);
+			cudaMemcpy(odata + 1, kern_odata, (n - 1) * sizeof(int), cudaMemcpyDeviceToHost);
 			checkCUDAErrorFn("cudaMemcpy kern_odata failed!\n", NULL, __LINE__);
+			//odata[n - 1] = odata[n - 2] + idata[n - 1];
+			odata[0] = 0;
 
 			cudaFree(kern_idata);
 			cudaFree(kern_odata);

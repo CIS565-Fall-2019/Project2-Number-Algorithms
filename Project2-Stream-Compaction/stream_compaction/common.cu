@@ -10,7 +10,7 @@ void checkCUDAErrorFn(const char *msg, const char *file, int line) {
     if (file) {
         fprintf(stderr, " (%s:%d)", file, line);
     }
-    fprintf(stderr, ": %s: %s\n", msg, cudaGetErrorString(err));
+    fprintf(stderr, ": line %d: %s: %s\n", line, msg, cudaGetErrorString(err));
     exit(EXIT_FAILURE);
 }
 
