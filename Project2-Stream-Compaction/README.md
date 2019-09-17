@@ -11,13 +11,13 @@ CUDA Stream Compaction
 ## Overview
 In this project, I implemented the stream compaction algorithm on the GPU in CUDA.  Stream compaction is an algorithm that, given an array of values marked to remove or keep, removes the values and returns a new, shorter array with the values removed. Below is a diagram representing the stream compaction algorithm:
 
-![](/img/StreamCompaction.PNG) 
+![](img/StreamCompaction.PNG) 
 
 This algorithm has many practical applications, including path tracing, as it lets us mark certain elements as unwanted and remove them.  While there is a simple way to perform this algorithm using loops on the CPU, it can also be parallelized to be more efficiently performed on the GPU.  
 
 An important step in the stream compaction algorithm is the scan algorithm.  This algorithm goes through an array and accumulates additively all of the elements in the array.  An exclusive scan excludes the current index in the accumulated sum, whereas inclusive scan includes the current index.  Steam compaction uses an exclusive scan.  Below is a diagram representing the scan algorithm:
 
-![](/img/exclusiveScan.PNG)
+![](img/exclusiveScan.PNG)
 
 I implemented 4 versions of the above algorithms, scan and stream compaction on the CPU, a naive version of scan on the GPU, a work efficient version of both on the GPU, and then using the thrust implementation of scan.
 
@@ -74,7 +74,7 @@ These groupings involve splitting the array by 2.  They work only when the array
 #### Scan
 The first implementation of a GPU scan is the naive one.  This implementation starts by adding all adjacent pairs of indices.  Then in the next step, it adds indices one farther apart from each other.  The distance between the indices added together in parallel doubles at each step, until eventuall the first half of indices is added to the second half of indices.  The following diagram outlines the naive implementation:
 
-![](/img/naiveParallelScan.PNG)
+![](img/naiveParallelScan.PNG)
 
 This process has O(logn) steps, and O(n) adds run in parallel per step, making the total number of additions O(nlogn).
 
@@ -86,11 +86,11 @@ In a more efficient GPU implementation, we utilize a binary tree structure in or
 
 In the up-sweep, we first sum adjacent pairs, creating n/2 sums.  We then sum adjacent pairs of the n/2 sums, creating n/4.  We continue this until there is one final sum, as picutred below:
 
-![](/img/efficientScanUpSweep.PNG)
+![](img/efficientScanUpSweep.PNG)
 
 Next comes the down-sweep.  Because we can treat the array as a tree, I will refer to the left and right children of indices.  The root of the tree is the final index, initially holding the final value from the up-sweep.  We start by replacing this value with 0.  Then we store its left child.  In the left child's spot, we copy the current value, which is initially the root.  Then we sum the current value and its left child and store that in the right child.  We the continue this at every level of the tree, running all the values at a level in parallel until we've filled out n leaves.  This algorithm is pictured below:
 
-![](/img/efficientScanDownSweep.PNG)
+![](img/efficientScanDownSweep.PNG)
 
 The up-sweep process has O(n) adds.  The down-sweep process has O(n) adds and O(n) swaps.  This makes the total runtime O(n), exponentially more efficient than the naive scan.  
 
@@ -121,11 +121,11 @@ I only launched this many threads.  However, the indices were now incorrect, as 
 This optimization improved the runtime of the scan, as shown in the data below:
 Prior to thread count optimization:
 
-![](/imd/naiveScanWithNaiveThreadCount.PNG)
+![](img/naiveScanWithNaiveThreadCount.PNG)
 
 With thread count optimization:
 
-![](/img/naiveScanWithBetterThreadCount.PNG)
+![](img/naiveScanWithBetterThreadCount.PNG)
 
 Note that this data shows a relative improvement, not the absolute performance of the algorithm as shown in the charts above.  I had not yet started documenting performance properly, so this was not run in release mode and the timers included the final memory operations.  However, they are both run under the same conditions, scanning an array of size 2^7 and 2^7 - 3.
 
@@ -145,7 +145,7 @@ The final optimization I made is in the part of the algorithm where we have to s
 
 Overall, these changes fairly dramatically improved the runtime of the scan operation.  The improvement can be seen in the following two images, the first showing the runtime prior to the optimizations, the second showing the runtime afterwards.  As mentioned above, these are relative improvements, as I did not perform these tests in release mode, and the timers include final data copying. Both of these are run on arrays length 2^7 and 2^7 - 3:
 
-![](/img/workEfficientScanLessEfficient.PNG)
+![](img/workEfficientScanLessEfficient.PNG)
 
-![](/img/workEfficientScanMoreEfficient.PNG)
+![](img/workEfficientScanMoreEfficient.PNG)
 
