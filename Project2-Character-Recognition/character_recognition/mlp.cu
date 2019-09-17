@@ -29,9 +29,9 @@ namespace CharacterRecognition {
 	void printMat(float*P, int uWP, int uHP) {
 		int i, j;
 		for (i = 0; i < uHP; i++) {
-			printf("\n");
 			for (j = 0; j < uWP; j++)
-				printf("%f ", P[index(i, j, uHP)]);
+				printf("%f", P[index(i, j, uHP)]);
+			printf("\n");
 		}
 	}
 
@@ -119,89 +119,16 @@ namespace CharacterRecognition {
 		}
 	}*/
 
-	template <int BLOCK_SIZE> __global__ void MatrixMulCUDA(float *C, float *A, float *B, int wA, int wB) {
-		// Block index
-		int bx = blockIdx.x;
-		int by = blockIdx.y;
-
-		// Thread index
-		int tx = threadIdx.x;
-		int ty = threadIdx.y;
-
-		// Index of the first sub-matrix of A processed by the block
-		int aBegin = wA * BLOCK_SIZE * by;
-
-		// Index of the last sub-matrix of A processed by the block
-		int aEnd = aBegin + wA - 1;
-
-		// Step size used to iterate through the sub-matrices of A
-		int aStep = BLOCK_SIZE;
-
-		// Index of the first sub-matrix of B processed by the block
-		int bBegin = BLOCK_SIZE * bx;
-
-		// Step size used to iterate through the sub-matrices of B
-		int bStep = BLOCK_SIZE * wB;
-
-		// Csub is used to store the element of the block sub-matrix
-		// that is computed by the thread
-		float Csub = 0;
-
-		// Loop over all the sub-matrices of A and B
-		// required to compute the block sub-matrix
-		for (int a = aBegin, b = bBegin;
-			a <= aEnd;
-			a += aStep, b += bStep) {
-			// Declaration of the shared memory array As used to
-			// store the sub-matrix of A
-			__shared__ float As[BLOCK_SIZE][BLOCK_SIZE];
-
-			// Declaration of the shared memory array Bs used to
-			// store the sub-matrix of B
-			__shared__ float Bs[BLOCK_SIZE][BLOCK_SIZE];
-
-			// Load the matrices from device memory
-			// to shared memory; each thread loads
-			// one element of each matrix
-			As[ty][tx] = A[a + wA * ty + tx];
-			Bs[ty][tx] = B[b + wB * ty + tx];
-
-			// Synchronize to make sure the matrices are loaded
-			__syncthreads();
-
-			// Multiply the two matrices together;
-			// each thread computes one element
-			// of the block sub-matrix
-			#pragma unroll
-
-			for (int k = 0; k < BLOCK_SIZE; ++k) {
-				Csub += As[ty][k] * Bs[k][tx];
-			}
-
-			// Synchronize to make sure that the preceding
-			// computation is done before loading two new
-			// sub-matrices of A and B in the next iteration
-			__syncthreads();
-		}
-	}
-
 	void matrixMultiply(cublasHandle_t* handle, sMatrixSize &matrix_size, float *d_A, float *d_B, float *d_C){
 			const float alpha = 1.0f;
 			const float beta = 0.0f;
-			cublasSgemm(*handle, CUBLAS_OP_N, CUBLAS_OP_N, matrix_size.WB, matrix_size.HA, matrix_size.WA, &alpha, d_B, matrix_size.WB, d_A, matrix_size.WA, &beta, d_C, matrix_size.WB);
+			//cublasSgemm(*handle, CUBLAS_OP_N, CUBLAS_OP_N, matrix_size.HA, matrix_size.HB, matrix_size.WA, &alpha, d_A, matrix_size.HA, d_B, matrix_size.HB, &beta, d_C, matrix_size.HC);
+			cublasSgemm(*handle, CUBLAS_OP_N, CUBLAS_OP_N, matrix_size.WA, matrix_size.WB, matrix_size.HA, &alpha, d_A, matrix_size.HA, d_B, matrix_size.HB, &beta, d_C, matrix_size.HC);
 			checkCUDAError("matrix multiply");
 	}
 
 	// TODO: implement required elements for MLP sections 1 and 2 here
 	__global__ void kernSigmoid(int n, float *input) {
-		int index = threadIdx.x + (blockIdx.x * blockDim.x);
-		if (index >= n) {
-			return;
-		}
-		input[index] = 1.0f / (1 + exp(-input[index]));
-	}
-
-	__global__ void kernSigmoid2(int n, float *input) {
 		int index = threadIdx.x + (blockIdx.x * blockDim.x);
 		if (index >= n) {
 			return;
@@ -258,8 +185,9 @@ namespace CharacterRecognition {
 		matrixMultiply(&handle, hidden_matrix_size, dev_wI, dev_X, dev_h1);
 		cudaMemcpy(h1, dev_h1, mem_size_pred, cudaMemcpyDeviceToHost);
 		checkCUDAError("cudaMemcpy pred");
-		printf("\n\n Matriz h1:");
-		printf("\n %f %f", h1[0], h1[1]);
+		printf("Matriz h1: \n");
+		//printf("%f %f \n", h1[0], h1[1]);
+		printMat(h1, hidden_matrix_size.WC, hidden_matrix_size.HC);
 
 		kernSigmoid <<<grid, threads>> > (hidden_matrix_size.HC*hidden_matrix_size.WC, dev_h1);
 		checkCUDAError("kernSigmoid");
@@ -271,11 +199,10 @@ namespace CharacterRecognition {
 		matrixMultiply(&handle, output_matrix_size, dev_wO, dev_h1, dev_pred);
 		cudaMemcpy(pred, dev_pred, mem_size_pred, cudaMemcpyDeviceToHost);
 		checkCUDAError("cudaMemcpy pred");
-		printf("\n\n Matriz pred:");
-		printf("\n %f", pred[0]);
-		printf("\n");
+		printf("Matriz pred: \n");
+		printMat(pred, output_matrix_size.WC, output_matrix_size.HC);
 
-		kernSigmoid2 << <grid1, threads >> > (output_matrix_size.HC*output_matrix_size.WC, dev_pred);
+ 		kernSigmoid << <grid1, threads >> > (output_matrix_size.HC*output_matrix_size.WC, dev_pred);
 		checkCUDAError("kernSigmoid");
 
 		cudaMemcpy(pred, dev_pred, mem_size_pred, cudaMemcpyDeviceToHost);
@@ -307,9 +234,9 @@ namespace CharacterRecognition {
 		fixedInit(wI, size_wI);
 		fixedInit(wO, size_wO);
 
-		float *permuteData = (float *)malloc(numData);
-		float *Xi = (float *)malloc(sizeData);
-		float *yi = (float *)malloc(numLabels);
+		float *permuteData = (float *)malloc(sizeof(float)*numData);
+		float *Xi = (float *)malloc(sizeof(float)*sizeData);
+		float *yi = (float *)malloc(sizeof(float)*numLabels);
 
 		unsigned int size_pred = output_matrix_size.WC * output_matrix_size.HC;
 		unsigned int mem_size_pred = sizeof(float) * size_pred;
@@ -323,28 +250,29 @@ namespace CharacterRecognition {
 				memcpy(Xi, (void **)&X[sizeData*index], sizeData * sizeof(float));
 				memcpy(yi, (void **)&y[numLabels*index], numLabels * sizeof(float));
 
-				printf("index %i \n", index);
-				printf("data: %f %f label: %f \n", Xi[0] , Xi[1], yi[0]);
+				printf("index: %i data: %f %f label: %f \n", index, Xi[0] , Xi[1], yi[0]);
 
 				forward(pred, Xi, wI, wO, hidden_matrix_size, output_matrix_size);
 				for (int j = 0; j < numLabels; j++) {
-					printf("prediction: %f \n", pred[j]);
+					printf("prediction: %f \n\n", pred[j]);
 				}
 			}
 			printf("forward done \n");
 		}
 		printf("predictions done \n");
 
-		//free(wI);
-		//free(wO);
-		//free(Xi);
-		//free(yi);
-		//free(permuteData);
-		//free(pred);
+		free(wI);
+		free(wO);
+		free(Xi);
+		free(yi);
+		free(permuteData);
+		free(pred);
 	}
 
+	void test(){}
+
 	void testMatrixMultiply() {
-		sMatrixSize matrix_size = { 3, 4, 3, 2, 2, 4};
+		sMatrixSize matrix_size = { 2, 2, 1, 2, 1, 2};
 
 		// allocate host memory for matrices A and B
 		unsigned int size_A = matrix_size.WA * matrix_size.HA;
@@ -358,8 +286,9 @@ namespace CharacterRecognition {
 		srand(2006);
 
 		// initialize host memory
-		indexInit(h_A, size_A);
-		indexInit(h_B, size_B);
+		fixedInit(h_A, size_A);
+		h_B[0] = 1; h_B[1] = 1;
+		//fixedInit(h_B, size_B);
 
 		// allocate device memory
 		float *d_A, *d_B, *d_C;
@@ -386,8 +315,7 @@ namespace CharacterRecognition {
 		cublasCreate(&handle);
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		//matrixMultiply(&handle, matrix_size, d_A, d_B, d_C);
-		MatrixMulCUDA <blockSize><< < grid, threads >> > (d_C, d_A, d_B, matrix_size.HA, matrix_size.HB);
+		matrixMultiply(&handle, matrix_size, d_A, d_B, d_C);
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 		// copy result from device to host
