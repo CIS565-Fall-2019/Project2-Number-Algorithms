@@ -45,4 +45,11 @@ For the above, we see that the optimized implementations are when the Block size
 
 #### Q1. Write a brief explanation of the phenomena you see here?
 
+From the above analysis, we observe that the performance of all the versions vary with the array input size. Initially, with the less input size array, we see CPU scan implementation being faster than the rest and for some of very small input sizes, Thrust implementation also takes more time. As the array size incrases, we see the curver getting changed and word-efficeint GPU version becoming better as compared to CPU, which we observe in the second plot where the curves start diverging with GPU-naive taking the most time following Serial-CPU, GPU-Work Efficient and Thrust Implementation is taking the minimum time as its the most optimized one. The reason for these graphs is as follows
+  
+  * As input size increases, GPU-Naive is doing more additions (which are doubling), hence, the performance is taking the hit.
+  * As input size increases, GPU-Work Efficient time less complexity and less additions take the precedence over Serial-CPU and Vaive-       GPU and starts performing better.
+
+To understand better of Thurst implemetation, here is the Nsight analysis of the Thrust implementation:
+
 
