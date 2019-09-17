@@ -11,6 +11,8 @@
 #include <character_recognition/common.h>
 #include "testing_helpers.hpp"
 
+#define DIM = 101;
+
 /*const int SIZE = 1 << 8; // feel free to change the size of array
 const int NPOT = SIZE - 3; // Non-Power-Of-Two
 int *a = new int[SIZE];
@@ -27,7 +29,22 @@ float sigmoid(float x) {
 	return 1 / (1 + exp(-x));
 }
 
+void train() {
+
+}
+
+void evaluate() {
+
+}
+
+void init() {
+	
+}
+
 int main(int argc, char* argv[]) {
+
+
+
     /*// Scan tests
 
     printf("\n");

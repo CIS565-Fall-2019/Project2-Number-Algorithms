@@ -16,6 +16,7 @@ The list of features includes:
 * Naive scan implementation on the GPU
 * Work-efficient scan implementation on the GPU
 * Work-efficient compact implementation on the GPU
+* Wrapper for thrust's scan implementation to compare performance
 
 ![](img/timeOverLength.png)
 
