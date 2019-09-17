@@ -11,8 +11,18 @@ Neural Network in the Multi-Layer Perceptron where the classifier is designing b
 
 ![](img/Weighting.PNG)
 
-As shown in the figure above, we will be creating a neural network which has a single hidden layer. But we will vary the number of hidden units in the hidden layer. Note that the above figure is for the single datapoint. We see the for each hidden unit is calculated as the weighted sum of each of features present in the data. Later on, to bring non-linearity, activation function such as Signmoid, ReLu are used. After hidden units are computed, we can calculate the value of the units as the same as that of the hidden layer and then add on the classifier which increases the confidence of the classification by increasing and decreasing the probabilites to the extremes. 
+As shown in the figure above, we will be creating a neural network which has a single hidden layer. 
+
+Here are the three main components of the Neural Network:
+
+* **Input Layer**: The layer has the nodes equivalent to the number of features in the data point. We feed the input into the layer.
+
+* **Hidden Layer**: These are the layers which increase the non-linearity model in the classifier and can able to design the models which are very complex to classify for other classifiers. We can vary the number of layers and the number of hidden units in each layer according to our implementation. 
+
+* **Output Layer**: The output layer contains the number of units to which we have compressed our input to and we can use the output layer to classify the output using various other methods like Softmax, reduction in dimensions, etc.
+
+But we will vary the number of hidden units in the hidden layer. Note that the above figure is for the single datapoint. We see the for each hidden unit is calculated as the weighted sum of each of features present in the data. Later on, to bring non-linearity, activation function such as Signmoid, ReLu are used. After hidden units are computed, we can calculate the value of the units as the same as that of the hidden layer and then add on the classifier which increases the confidence of the classification by increasing and decreasing the probabilites to the extremes. 
 
 ### My Neural Network Implementation
 
-In my implemetation of Neural network, I'm training all the data points at the same time, hence, we have the input data as the array of `DATA_POINTS * NUMBER_OF_FEATURES`
+In my implemetation of Neural network, I'm training all the data points at the same time, hence, we have the input data as the array of `DATA_POINTS * NUMBER_OF_FEATURES` as we finally have to train our network for all the data points.
