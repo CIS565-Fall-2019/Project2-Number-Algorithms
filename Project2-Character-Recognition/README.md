@@ -97,7 +97,13 @@ Then, I had a bear of a time training across all manner of situations, because I
 
 After a boatload of time, I ended up going with final parameters of hidden layer size (`F2SIZE`) of `156`, a `LAMBDA` training weight of `0.05`, and it took some number of hundreds of thousands of batch iterations through the training data set. In the end, I acheived some, but not perfect, success.
 
-After 10 iterations, I summed the squared error for each entry and logged it against the iteration number. Here is a graph of what that looked like:
+After 10 iterations, I summed the squared error for each entry and logged it against the iteration number. Here is a graph of what that looked like (sans the first iteration, for scaling purposes):
+
+![Training error over time](img/trainingError.png)
+
+## Performance Analysis
+
+Frankly, it took the better part of three whole days just to get a neural network that DID anything.
 
 ## Results
 
