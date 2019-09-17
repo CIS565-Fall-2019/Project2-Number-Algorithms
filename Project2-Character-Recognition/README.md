@@ -3,12 +3,27 @@ CUDA Character Recognition
 
 **University of Pennsylvania, CIS 565: GPU Programming and Architecture, Project 2**
 
-* (TODO) YOUR NAME HERE
-  * (TODO) [LinkedIn](), [personal website](), [twitter](), etc.
-* Tested on: (TODO) Windows 22, i7-2222 @ 2.22GHz 22GB, GTX 222 222MB (Moore 2222 Lab)
+* Tabatha Hickman
+  * LinkedIn:https://www.linkedin.com/in/tabatha-hickman-335987140/
+* Tested on: Windows 10 Pro, i7-5600U CPU @ 2.60GHz 16GB, GeForce 840M (personal computer)
 
-### (TODO: Your README)
+## Neural Network Implementation
 
-Include analysis, etc. (Remember, this is public, so don't put
-anything here that you don't want to share with the world.)
+This project's purpose was to create a neural network which does its computations on the GPU. I created a multi-layer perceptron with one hidden layer, so in total there are 3 layers (input, hidden, output). We evaluate the network by feeding information forward to the next layer. To process each new layer, I performed a summation for each output node on all the input nodes multiplied by the corresponding weight between those two nodes, then ran that sum through an activation function. In this case our function was ```f(x) = 1/(1+e^-x)```. 
+
+We want to find the best set of weights so that the outputs of the network are as accurate as possible. We do this by entering a training phase. First we start with random values for the weights. Then, provided with inputs and corresponding target outputs, we run the inputs through the network and compare the outputs with their targets and find the error associated. Then through backward propagation, we can go through each weight and update it based on the results so that next time the output is more accurate.
+
+Once the network has been trained adequately, we can run new inputs on it and see if we get some good results.
+
+Using provided weights for a working XOR neural network, I was able to verify my code correctly feeds forward and builds the network. I've been able to produce my own fairly accurate weights for XOR, but they certainly aren't perfect and it already takes 1000s of iterations of training to get as close as they are.
+
+```
+Ran 13101 iterations of training
+    (0, 0) expected: 0.000000, result 0.071486
+    (0, 1) expected: 1.000000, result 0.930205
+    (1, 0) expected: 1.000000, result 0.923021
+    (1, 1) expected: 0.000000, result 0.063928
+```
+
+ 
 

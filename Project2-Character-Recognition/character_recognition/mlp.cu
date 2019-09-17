@@ -24,7 +24,7 @@ namespace CharacterRecognition {
     }
     */
 
-#define blockSize 128
+    #define blockSize 128
 
     __host__ __device__ unsigned int hash(unsigned int a) {
         a = (a + 0x7ed55d16) + (a << 12);
@@ -36,8 +36,8 @@ namespace CharacterRecognition {
         return a;
     }
 
-    __host__ __device__ float genRandom(int index) {
-        thrust::default_random_engine rng(hash((int)(index)));
+    __host__ __device__ float genRandom(float time, int index) {
+        thrust::default_random_engine rng(hash((int)(index * time)));
         thrust::uniform_real_distribution<float> unitDistrib(-1, 1);
 
         return (float)unitDistrib(rng);
@@ -47,7 +47,7 @@ namespace CharacterRecognition {
     {
         int index = (blockIdx.x * blockDim.x) + threadIdx.x;
         if (index < N) {
-            float rand = genRandom(index);
+            float rand = genRandom(N, index);
             wtMat[index] = scale * rand;
         }
     }
@@ -66,10 +66,9 @@ namespace CharacterRecognition {
         int index = (blockIdx.x * blockDim.x) + threadIdx.x;
         if (index >= oDim) { return; }
 
-        int row = index * iDim;
         for (int idx = 0; idx < iDim; idx++)
         {
-            int wtIdx = idx + row;
+            int wtIdx = idx * oDim + index;
             odata[index] += wtMat[wtIdx] * idata[idx];
         }
     }
@@ -80,7 +79,8 @@ namespace CharacterRecognition {
         if (index >= N) { return; }
 
         float x = idata[index];
-        odata[index] = 1.0f / (1.0f + exp(-x));
+        float e = exp(-x);
+        odata[index] = 1.0f / (1.0f + e);
     }
 
     __global__ void kernCalcErrors(int N, float* target, float* output, float* odata)
@@ -91,7 +91,7 @@ namespace CharacterRecognition {
         odata[index] = target[index] - output[index];
     }
 
-    __global__ void kernEditWeightsji(int N, int jDim, float lambda, float* hidden, float* errors, float* outputSums, 
+    __global__ void kernEditWeightsji(int N, int iDim, float lambda, float* hidden, float* errors, float* outputSums, 
         float* partialErr, float* wtMat)
     {
         // for hidden to output weights:
@@ -101,8 +101,8 @@ namespace CharacterRecognition {
         int index = (blockIdx.x * blockDim.x) + threadIdx.x;
         if (index >= N) { return; }
 
-        int i = index % jDim;
-        int j = index - i;
+        int i = index % iDim;
+        int j = index / iDim;
         
         float x = outputSums[i];
         float fx = 1.0f / (1.0f + exp(-x));
@@ -112,7 +112,7 @@ namespace CharacterRecognition {
         wtMat[index] += deltaW;
     }
 
-    __global__ void kernEditWeightskj(int N, int kDim, int jDim, int iDim, float lambda, float* input, float* hiddenSums, 
+    __global__ void kernEditWeightskj(int N, int jDim, int iDim, float lambda, float* input, float* hiddenSums, 
         float* partialErr, float* wji,
         float* wtMat)
     {
@@ -123,8 +123,8 @@ namespace CharacterRecognition {
         int index = (blockIdx.x * blockDim.x) + threadIdx.x;
         if (index >= N) { return; }
 
-        int j = index % kDim;
-        int k = index - j;
+        int j = index % jDim;
+        int k = index / jDim;
 
         float sumPropErrs = 0;
         for (int i = 0; i < iDim; i++)
@@ -139,8 +139,19 @@ namespace CharacterRecognition {
         wtMat[index] += deltaW;
     }
 
+    void makeWeightMat(int n, float* data)
+    {
+        float* dev_data;
+        cudaMalloc((void**)&dev_data, n * sizeof(float));
+
+        kernInitRandomWeights << <n, blockSize >> > (n, dev_data, 30);
+
+        cudaMemcpy(data, dev_data, n * sizeof(float), cudaMemcpyDeviceToHost);
+        cudaFree(dev_data);
+    }
+
 	// TODO: implement required elements for MLP sections 1 and 2 here
-    void mlpTrain(int i, int j, int k, float* odata, float* idata, float* wkj, float* wji, float* target)
+    float mlpTrain(int i, int j, int k, float* odata, float* idata, float* wkj, float* wji, float* target)
     {
         float *dev_input, *dev_hidden, *dev_output;
         float *dev_hiddenSums, *dev_outputSums;
@@ -150,13 +161,15 @@ namespace CharacterRecognition {
         cudaMalloc((void**)&dev_input, k * sizeof(float));
         cudaMalloc((void**)&dev_hidden, j * sizeof(float));
         cudaMalloc((void**)&dev_output, i * sizeof(float));
-        cudaMemcpy(dev_input, idata, i * sizeof(float), cudaMemcpyHostToDevice);
+        cudaMemcpy(dev_input, idata, k * sizeof(float), cudaMemcpyHostToDevice);
 
         cudaMalloc((void**)&dev_hiddenSums, j * sizeof(float));
         cudaMalloc((void**)&dev_outputSums, i * sizeof(float));
 
         cudaMalloc((void**)&dev_wkj, k * j * sizeof(float));
         cudaMalloc((void**)&dev_wji, j * i * sizeof(float));
+        cudaMemcpy(dev_wkj, wkj, k * j * sizeof(float), cudaMemcpyHostToDevice);
+        cudaMemcpy(dev_wji, wji, j * i * sizeof(float), cudaMemcpyHostToDevice);
 
         cudaMalloc((void**)&dev_target, i * sizeof(float));
         cudaMalloc((void**)&dev_errors, i * sizeof(float));
@@ -164,32 +177,20 @@ namespace CharacterRecognition {
         cudaMalloc((void**)&dev_tempwji, i * j * sizeof(float));
         cudaMemcpy(dev_target, target, i * sizeof(float), cudaMemcpyHostToDevice);
 
-        //cudaMemcpy(dev_wkj, wkj, k * j * sizeof(float), cudaMemcpyHostToDevice);
-        //cudaMemcpy(dev_wji, wji, j * i * sizeof(float), cudaMemcpyHostToDevice);
-
-        dim3 ifullBlocksPerGrid((i + blockSize - 1) / blockSize);
-        dim3 jfullBlocksPerGrid((j + blockSize - 1) / blockSize);
-        dim3 kfullBlocksPerGrid((k + blockSize - 1) / blockSize);
-        dim3 wkjfullBlocksPerGrid((k*j + blockSize - 1) / blockSize);
-        dim3 wjifullBlocksPerGrid((j*i + blockSize - 1) / blockSize);
-
-        // initialize non input buffers to zeros and give weight matrices random values
-        kernInitRandomWeights << <wkjfullBlocksPerGrid, blockSize >> > (k*j, dev_wkj, 100);
-        kernInitRandomWeights << <wjifullBlocksPerGrid, blockSize >> > (j*i, dev_wji, 100);
-
-        kernInitZero << <jfullBlocksPerGrid, blockSize >> > (j, dev_hidden);
-        kernInitZero << <ifullBlocksPerGrid, blockSize >> > (i, dev_output);
+        // initialize non input buffers to zeros
+        kernInitZero << <j, blockSize >> > (j, dev_hidden);
+        kernInitZero << <i, blockSize >> > (i, dev_output);
 
         // input -> hidden
-        kernSumWeights << <jfullBlocksPerGrid, blockSize >> > (k, j, dev_wkj, dev_input, dev_hiddenSums);
-        kernActivationFxn << <jfullBlocksPerGrid, blockSize >> > (j, dev_hiddenSums, dev_hidden);
+        kernSumWeights << <j, blockSize >> > (k, j, dev_wkj, dev_input, dev_hiddenSums);
+        kernActivationFxn << <j, blockSize >> > (j, dev_hiddenSums, dev_hidden);
 
         // hidden -> output
-        kernSumWeights << <ifullBlocksPerGrid, blockSize >> > (j, i, dev_wji, dev_hidden, dev_outputSums);
-        kernActivationFxn << <ifullBlocksPerGrid, blockSize >> > (i, dev_outputSums, dev_output);
+        kernSumWeights << <i, blockSize >> > (j, i, dev_wji, dev_hidden, dev_outputSums);
+        kernActivationFxn << <i, blockSize >> > (i, dev_outputSums, dev_output);
 
         // calculate error, lambda 
-        kernCalcErrors << <ifullBlocksPerGrid, blockSize >> > (i, dev_target, dev_output, dev_errors);
+        kernCalcErrors << <i, blockSize >> > (i, dev_target, dev_output, dev_errors);
         
         float* errs = new float[i];
         cudaMemcpy(errs, dev_errors, i * sizeof(float), cudaMemcpyDeviceToHost);
@@ -198,18 +199,70 @@ namespace CharacterRecognition {
         {
             sumErr += (errs[e]*errs[e]);
         }
-        float lambda = sumErr/2.0f;
+        sumErr /= 2.0f;
+        float lambda = sumErr;
 
         // update weights
         cudaMemcpy(dev_tempwji, dev_wji, j * i * sizeof(float), cudaMemcpyDeviceToDevice);
-        kernEditWeightsji << <wjifullBlocksPerGrid, blockSize >> > (j*i, j, lambda, dev_hidden, dev_errors, dev_outputSums,
+        kernEditWeightsji << <j*i, blockSize >> > (j*i, i, lambda, dev_hidden, dev_errors, dev_output,
             dev_partialErr, dev_wji);
-        kernEditWeightskj << <wjifullBlocksPerGrid, blockSize >> > (k*j, k, j, i, lambda, dev_input, dev_hiddenSums, dev_partialErr,
+        kernEditWeightskj << <k*j, blockSize >> > (k*j, j, i, lambda, dev_input, dev_hidden, dev_partialErr,
             dev_tempwji, dev_wkj);
 
         cudaMemcpy(odata, dev_output, i * sizeof(float), cudaMemcpyDeviceToHost);
         cudaMemcpy(wkj, dev_wkj, k * j * sizeof(float), cudaMemcpyDeviceToHost);
         cudaMemcpy(wji, dev_wji, j * i * sizeof(float), cudaMemcpyDeviceToHost);
+
+        cudaFree(dev_input);
+        cudaFree(dev_hidden);
+        cudaFree(dev_output);
+
+        cudaFree(dev_hiddenSums);
+        cudaFree(dev_outputSums);
+
+        cudaFree(dev_wkj);
+        cudaFree(dev_wji);
+
+        cudaFree(dev_target);
+        cudaFree(dev_errors);
+        cudaFree(dev_partialErr);
+        cudaFree(dev_tempwji);
+
+        return sumErr;
+    }
+
+    void mlpRun(int i, int j, int k, float* odata, float* idata, float* wkj, float* wji)
+    {
+        float *dev_input, *dev_hidden, *dev_output;
+        float *dev_hiddenSums, *dev_outputSums;
+        float *dev_wkj, *dev_wji;
+
+        cudaMalloc((void**)&dev_input, k * sizeof(float));
+        cudaMalloc((void**)&dev_hidden, j * sizeof(float));
+        cudaMalloc((void**)&dev_output, i * sizeof(float));
+        cudaMemcpy(dev_input, idata, k * sizeof(float), cudaMemcpyHostToDevice);
+
+        cudaMalloc((void**)&dev_hiddenSums, j * sizeof(float));
+        cudaMalloc((void**)&dev_outputSums, i * sizeof(float));
+
+        cudaMalloc((void**)&dev_wkj, k * j * sizeof(float));
+        cudaMalloc((void**)&dev_wji, j * i * sizeof(float));
+        cudaMemcpy(dev_wkj, wkj, k * j * sizeof(float), cudaMemcpyHostToDevice);
+        cudaMemcpy(dev_wji, wji, j * i * sizeof(float), cudaMemcpyHostToDevice);
+
+        // initialize non input buffers to zeros
+        kernInitZero << <j, blockSize >> > (j, dev_hidden);
+        kernInitZero << <i, blockSize >> > (i, dev_output);
+
+        // input -> hidden
+        kernSumWeights << <j, blockSize >> > (k, j, dev_wkj, dev_input, dev_hiddenSums);
+        kernActivationFxn << <j, blockSize >> > (j, dev_hiddenSums, dev_hidden);
+
+        // hidden -> output
+        kernSumWeights << <i, blockSize >> > (j, i, dev_wji, dev_hidden, dev_outputSums);
+        kernActivationFxn << <i, blockSize >> > (i, dev_outputSums, dev_output);
+
+        cudaMemcpy(odata, dev_output, i * sizeof(float), cudaMemcpyDeviceToHost);
 
         cudaFree(dev_input);
         cudaFree(dev_hidden);
