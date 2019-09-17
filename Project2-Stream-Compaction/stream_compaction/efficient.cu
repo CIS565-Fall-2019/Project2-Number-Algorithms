@@ -91,12 +91,14 @@ namespace StreamCompaction {
 				kernDownSweep << <blocksPerGrid, threadsPerBlock >> > (numThreads, power, dev_inputArray);
 				checkCUDAError("kernDownSweep failed!");
 			}
-			cudaMemcpy(odata, dev_inputArray, n * sizeof(int), cudaMemcpyDeviceToHost);
 
-            // TODO
 			if (newTimer) {
 				timer().endGpuTimer();
 			}
+			cudaMemcpy(odata, dev_inputArray, n * sizeof(int), cudaMemcpyDeviceToHost);
+
+            // TODO
+			
 			cudaFree(dev_inputArray);
         }
 
@@ -202,12 +204,12 @@ namespace StreamCompaction {
 
 			kernScatter << <blocksPerGrid, threadsPerBlock >> > (numThreadsScatter, dev_final, dev_inputArray, dev_scanArray);
 
+			timer().endGpuTimer();
 
 
 			cudaMemcpy(odata, dev_final, length * sizeof(int), cudaMemcpyDeviceToHost);
 
 
-            timer().endGpuTimer();
 			cudaFree(dev_inputArray);
 			cudaFree(dev_tempInOutArray);
 			cudaFree(dev_scanArray);

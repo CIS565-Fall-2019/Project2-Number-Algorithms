@@ -99,9 +99,9 @@ namespace StreamCompaction {
 			kernShift<<<blocksPerGrid, threadsPerBlock>>>(bufferLength * sizeof(int), dev_arrayB, dev_arrayA);
 			checkCUDAError("kernShift failed!");
 
-			cudaMemcpy(odata, dev_arrayA, n * sizeof(int), cudaMemcpyDeviceToHost);
+			timer().endGpuTimer();
 
-            timer().endGpuTimer();
+			cudaMemcpy(odata, dev_arrayA, n * sizeof(int), cudaMemcpyDeviceToHost);
 
 			cudaFree(dev_arrayA);
 			cudaFree(dev_arrayB);
