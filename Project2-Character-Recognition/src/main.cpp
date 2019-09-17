@@ -49,7 +49,7 @@ int main(int argc, char* argv[]) {
 	//	}
 	//}
 
-	CharacterRecognition::train(SIZE, a, b);
+	CharacterRecognition::train_cpu(SIZE, a, b);
 
  //   // initialize b using StreamCompaction::CPU::scan you implement
  //   // We use b for further comparison. Make sure your StreamCompaction::CPU::scan is correct.

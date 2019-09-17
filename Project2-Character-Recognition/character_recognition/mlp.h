@@ -7,4 +7,5 @@ namespace CharacterRecognition {
 
     // TODO: implement required elements for MLP sections 1 and 2 here
 	void train(int n, int *odata, const int *idata);
+	void train_cpu(int n, int *odata, const int *idata);
 }
