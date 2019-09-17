@@ -28,3 +28,9 @@ But we will vary the number of hidden units in the hidden layer. Note that the a
 In my implemetation of Neural network, I'm training all the data points at the same time, hence, we have the input data as the array of `DATA_POINTS * NUMBER_OF_FEATURES` as we finally have to train our network for all the data points. Training all the data points once will result in Matrix Multplication for Feed forward and Backpropagation stages of training, which could be easy to model given that we have fixed our parameters shuch as the number of hidden layers and number of hidden units in each layer. 
 
 I will be explaining my network taking reference of 1 data point, although I have trained for all the data points together. As we have 2 features in each data point, we have the number of units in our input layer. For the hidden layer, I have varies it and the number of units at 4 gives the good output. Finally, we have the number of units at the output layer as 2 as there are two classes we need to identify for, i.e., 0(low) and 1(high). This form of network can easily be then migrated to character recognition as it can be easily scaled and the number of classes at the output can be increased to the requirement. I'm not using biases to model my network. Here, I will have two weight arrays, namely, weightsA and weightsB. The weightsA is the matrix which tranforms the input layer to the hidden layer and has the dimensions of `2x4` in our case.  The weightsB is the matrix which tranforms the hiidden layer to the output layer and has the dimensions of `4x2` in our case. 
+
+### XOR Training Analysis
+
+Here is the loss vs Iterations Plot for the XOR training:
+
+<p align="center"><img src="https://github.com/somanshu25/Project2-Number-Algorithms/blob/master/Project2-Character-Recognition/img/LossVsIterations_XOR.png" width="600"/></p>
