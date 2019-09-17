@@ -36,11 +36,11 @@ For the down sweep phase, we take the array of partial sums and use the tree to 
 
 After implementing the work efficient parallel scan, the next major bottleneck becomes the access speeds of global memory. Because we have a limit on the total amount of memory 1 block can have, we can't just load the entire array into 1 blocks shared memory. The idea is that we split the array over multiple blocks. Each block runs a scan on the part of the array each block should deal with (decided using the blockid). 
 
-![Phase 3](.\img\shared_mem_1.PNG)
+![Phase 3](./img/shared_mem_1.PNG)
 
 Once each scan has finished, we then collect the sum of all the elements and store it in an auxiliary array. We then take that array and run a scan on it (I chose CPU because otherwise the problem becomes recursive). 
 
-![Phase 3](.\img\shared_mem_2.PNG)
+![Phase 3](./img/shared_mem_2.PNG)
 
 Then using this scanned array, each block takes the appropriate value from the auxiliary array and adds that to all its elements in the array. 
 
@@ -56,14 +56,14 @@ Stream compaction is an algorithm used to remove zeros from an array. This is us
 In this repo,  2 methods were implemented. The first (which cannot be run in parallel) is just to run a naive loop over the data and copy it over to a second array if it isn't a zero. 
 
 In order to parallise the copying of data, we head towards  the second method. Here we create a mask array, where 1 indicates an element is non zero.
-![Stream compaction 1](.\img\stream_compaction_1.PNG)
+![Stream compaction 1](./img/stream_compaction_1.PNG)
 Then we can run a scan algorithm on the mask array. The resultant values tell the positions for the non zero elements. 
 
-![Stream compaction 2](.\img\stream_compaction_2.PNG)
+![Stream compaction 2](./img/stream_compaction_2.PNG)
 
 We can then copy over the data (in parallel) because we now know where all the data should go, shown below
 
-![Stream compaction 3](.\img\stream_compaction_3.PNG)
+![Stream compaction 3](./img/stream_compaction_3.PNG)
 
 
 
@@ -81,7 +81,7 @@ For the final algorithm implemented in this repo, we perform parallel sorting us
 * Phase 4: We use a formula (`t[i] = i – f[i] + totalFalses`) to compute the positions of the true matrix, we call this buffer `t`. 
 * Phase 5: We now know the positions of the true and false elements, so we can sort the array (around the current bit) using `t` and `f`, using `d[i] = b[i] ? t[i] : f[i]`, where `d[i]` is the destination array. 
 
-![Radix](.\img\radix.PNG)
+![Radix](./img/radix.PNG)
 
 These 5 phases are repeated for all the bits in the numbers to result in a sorted array.
 
