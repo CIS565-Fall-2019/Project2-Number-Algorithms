@@ -14,13 +14,12 @@ namespace StreamCompaction {
             static PerformanceTimer timer;
             return timer;
         }
-        // TODO: __global__
 		__global__ void naive_parallel_scan(unsigned long long int n, long long *odata, const long long *idata, long d) {
 			unsigned long long int index = blockDim.x * blockIdx.x + threadIdx.x;
 			if (index >= n)
 				return;
 			if (index >= d)
-				odata[index] = idata[index - d] + idata[index]; // todo figure out why this doesnt work with non powers of 2
+				odata[index] = idata[index - d] + idata[index];
 			else
 				odata[index] = idata[index];
 		}
