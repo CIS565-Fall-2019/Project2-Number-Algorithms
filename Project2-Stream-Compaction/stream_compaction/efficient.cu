@@ -48,6 +48,8 @@ namespace StreamCompaction {
 			return;
 		}
 
+
+
 		// according to notes we need to padd with zeros to accomodate not 
 		// perfect logs.
 		__global__ void kernel_padd_0s(int* idata,int bufflength,int padded_length)
@@ -150,8 +152,8 @@ namespace StreamCompaction {
         /**
          * Performs prefix-sum (aka scan) on idata, storing the result into odata.
          */
-        void scan(int n, int *odata, const int *idata) {
-         
+		void scan(int n, int *odata, const int *idata) {
+
 			int* dev_data;
 			int pow = 0;
 			int byte[1] = { 0 };
@@ -176,7 +178,7 @@ namespace StreamCompaction {
 			timer().startGpuTimer();
 			// run the actual work efficient algorithm
 			dev_scan(n, rounded_depth, rounded_elements, dev_data, fullBlocksPerGrid);
-			
+
 			timer().endGpuTimer();
 
 			cudaMemcpy(odata, dev_data, n * sizeof(int), cudaMemcpyDeviceToHost);
@@ -184,7 +186,7 @@ namespace StreamCompaction {
 
 			cudaFree(dev_data);
 			checkCUDAErrorFn("free input failed!");
-        }
+		}
 
         /**
          * Performs stream compaction on idata, storing the result into odata.
