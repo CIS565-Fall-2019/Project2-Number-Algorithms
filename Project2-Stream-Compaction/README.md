@@ -29,8 +29,12 @@ In stream compaction part, we are using the above work-efficient scan implementa
 
 ### 2 c) Thrust implementtion
 
-For comparing our alogirhtms with the exclusive scna implementation thrust library uses, we are using the exclusive scan implementation of the thrust. We created a wrapper function in which we are initializing the device pointers to the input data and using these pinters to create the exlcusinve scan and copuing the output to the pointer located in the host memory.
+For comparing our alogirhtms with the exclusive scna implementation thrust library uses, we are using the exclusive scan implementation of the thrust. We created a wrapper function in which we are initializing the device pointers to the input data and using these pinters to create the exlcusinve scan and copying the output to the pointer located in the host memory.
 
 ## 3. Performance Analysis
+
+In the performance analysis, we are first checking the best blockSize value for Naive and Work-Efficient algorithms. The plot for the analysis of the time elapsed vs Block size for both these implementations are given below:
+
+[]! (img/Block_Size_vary.png)
 
 
