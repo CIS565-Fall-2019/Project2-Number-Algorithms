@@ -26,7 +26,7 @@
 #define training 1 // If set to 1, indicates we are in training mode
 #define acceptedError 0.01
 #define inputSize 10201
-#define numInputs 52
+#define numInputs 2
 
 
 int main(int argc, char* argv[]) {
@@ -143,7 +143,7 @@ int main(int argc, char* argv[]) {
 		int numRandIters = 0;
 		float accumulatedError = 3.0; // Larger than accepted error
 		bool done = false;
-		while (!done && numRandIters < 10000) {
+		while (!done && numRandIters < 1000) {
 			// Fill new random weights
 			auto end1 = std::chrono::steady_clock::now();
 			CharacterRecognition::fillRandomWeights(layer1_numWeights, layer1_weights, std::chrono::duration_cast<std::chrono::nanoseconds>(end1 - start).count());
@@ -153,17 +153,24 @@ int main(int argc, char* argv[]) {
 			
 			int numInnerIters = 0.0;
 			// Try refining weights iteratively
-			while (!done && numInnerIters < 10) {
+			while (!done && numInnerIters < 10000) {
 				accumulatedError = 0.0;
+				bool resultAll1 = true;
 
 				for (int k = 0; k < numInputs; ++k) {
 					float currExpected = expectedData.at(k);
 					float output = CharacterRecognition::mlp(inputSize, numHiddenLayers, currExpected, 
 						layer1_weights, layer2_weights, inputData.at(k), partials1.at(k), partials2.at(k));
+					if (output != 1) {
+						resultAll1 = false;
+					}
 
 					float currError = (output - currExpected) * (output - currExpected);
 					std::cout << "expected output: " << currExpected << "  Result: " << output << std::endl;
 					accumulatedError += currError;
+				}
+				if (resultAll1) {
+					break;
 				}
 				accumulatedError /= 2.0;
 				std::cout << "Accumulated error: " << accumulatedError << std::endl;
