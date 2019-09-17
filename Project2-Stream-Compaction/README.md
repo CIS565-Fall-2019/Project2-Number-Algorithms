@@ -7,6 +7,10 @@ CUDA Stream Compaction
   * [LinkedIn](https://www.linkedin.com/in/taylor-k-7b2110191/), [twitter](https://twitter.com/nelms_taylor), etc.
 * Tested on: Windows 10, Intel i3 Coffee Lake 4-core 3.6GHz processor, 16GB RAM, NVidia GeForce GTX1650 4GB
 
+### Relevant picture
+
+You must forgive me, I have no fancy picture to demonstrate performance metrics; in another world where this project had no machine learning element, I'm sure I would have come up with something quite special.
+
 ### Design Decisions
 
 I decided to bundle the `upsweep` threads in such a fashion that adjacent threads would be doing work as we went up the levels of the tree, allowing later threads to quit early. An area of future development would be to only spawn the necessary number of threads, but I didn't quite get there.
@@ -24,6 +28,12 @@ Notably, every one my implementations was suboptimal. The real kicker was the "w
 
 The time for the `thrust` scan is the strangest of them all, appearing to take less time as the input number increased. I have no reasonable explanation for this; it is possible that my testing environment was not clean/precise enough to get a good measurement of each implementation. In fact, multiple runs of the same input sizes yield wild variations in run time, so I would wager much of the trends on the graph can be attributed, in some part, to noise.
 
+Notably, the `thrust` implementation is also slower than the CPU approach. This tells me that:
+
+* Even for `2^16` inputs, the memory overhead of putting all the data onto the GPU, and then taking it off the GPU, is the primary limiting factor
+* It takes a significant amount of data for a GPU approach to function better than a CPU approach
+
+By a similar token, I would wager that the performance failings of my implementations came primarily from treating both thread generation overhead and global memory accesses as "free," when they, in fact, have a significant impact on overall performance.
 
 ### Limitations
 
