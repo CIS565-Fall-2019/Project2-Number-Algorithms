@@ -20,7 +20,8 @@ int *a = new int[SIZE];
 int *b = new int[SIZE];
 int *c = new int[SIZE];
 
-#define RADIX_CLASS_EXAMPLE 1;
+#define RADIX_CLASS_EXAMPLE 1
+#define RUN_RADIX 1 // turn off radix to collect data
 
 int main(int argc, char* argv[]) {
     // Scan tests
@@ -150,7 +151,7 @@ int main(int argc, char* argv[]) {
     //printArray(count, c, true);
     printCmpLenResult(count, expectedNPOT, b, c);
 
-
+#if RUN_RADIX
 	printf("\n");
 	printf("**********************\n");
 	printf("** RADIX SORT TESTS **\n");
@@ -193,6 +194,7 @@ int main(int argc, char* argv[]) {
 	printElapsedTime(StreamCompaction::Thrust::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
 	printArray(npot, c, true);
 	printCmpResult(npot, sorted_arrayNPOT, c);
+#endif
 
     system("pause"); // stop Win32 console from closing on exit
 	delete[] a;
