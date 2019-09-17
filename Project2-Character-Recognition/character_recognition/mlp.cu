@@ -6,7 +6,8 @@
 
 //#include "cublas_v2.h"
 
-# define blockSize 1
+# define blockSize 128
+# define block 15
 
 namespace CharacterRecognition {
     using Common::PerformanceTimer;
@@ -209,23 +210,21 @@ namespace CharacterRecognition {
 	}
 	void createNN(float *input, float* hidden, float *output, float *weightsA, float *weightsB, int n, int h, int m, int d) {
 		
+		dim3 blockDim(block, block);
 		dim3 fullBlocks1((n + blockSize - 1) / blockSize);
 		dim3 fullBlocks2((n*h + blockSize - 1) / blockSize);
 		//dim3 fullBlocks3((n + blockSize - 1) / blockSize);
-		dim3 fullBlocksMult1((h + blockSize - 1) / blockSize, (n + blockSize - 1) / blockSize);
-		dim3 fullBlocksMult2((m + blockSize - 1) / blockSize, (n + blockSize - 1) / blockSize);
+		dim3 fullBlocksMult1((h + blockDim.x - 1) / blockDim.x, (n + blockDim.y - 1) / blockDim.y);
+		dim3 fullBlocksMult2((m + blockDim.x - 1) / blockDim.x, (n + blockDim.x - 1) / blockDim.x);
 
-		kernMatrixMultiplication << <fullBlocksMult1, (blockSize,blockSize) >> > (input,weightsA,hidden,n, d,h);
+		kernMatrixMultiplication << <fullBlocksMult1, blockDim >> > (input,weightsA,hidden,n, d,h);
 		checkCUDAErrorFn("Multiplication 1 failed");
 		//gpu_blas_mmul(dev_input, dev_weightsIH, dev_hiddenLayer, n, d, h);
-
-		//cudaMemcpy(dev_hiddenLayer, hidden, sizeof(float) * (n*h), cudaMemcpyHostToDevice);
-		//checkCUDAErrorFn("Copying hidden layer units failed");
 
 		kernSigmoidFunction << <fullBlocks2, blockSize >> > (n*h, hidden);
 		checkCUDAErrorFn("Kernel Activation function failed");
 
-		kernMatrixMultiplication << <fullBlocksMult2, (blockSize,blockSize) >> > (hidden, weightsB, output, n, h, m);
+		kernMatrixMultiplication << <fullBlocksMult2, blockDim >> > (hidden, weightsB, output, n, h, m);
 		checkCUDAErrorFn("Multiplication 2 failed");
 		//gpu_blas_mmul(dev_hiddenLayer, dev_weightsHO, dev_output, h, d, m);
 
@@ -276,11 +275,12 @@ namespace CharacterRecognition {
 		checkCUDAErrorFn("Malloc gradient A failed");
 
 		// Wrote the structure as of now, needs to check later
-		dim3 fullBlocksMult1((h + blockSize - 1) / blockSize, (n + blockSize - 1) / blockSize);
-		gpu_matrix_transpose << <fullBlocksMult1,(blockSize,blockSize) >> > (hidden,hiddenTrans,n,h);
+		dim3 blockDim(block, block);
+		dim3 fullBlocksMult1((h + blockDim.x - 1) / blockDim.x, (n + blockDim.y - 1) / blockDim.y);
+		gpu_matrix_transpose << <fullBlocksMult1, blockDim >> > (hidden,hiddenTrans,n,h);
 		checkCUDAErrorFn("Kernel transpose hidden failed");
 
-		dim3 fullBlocksMult2((m + blockSize - 1) / blockSize, (h + blockSize - 1) / blockSize);
+		dim3 fullBlocksMult2((m + blockDim.x - 1) / blockDim.x, (h + blockDim.y - 1) / blockDim.y);
 		dim3 fullBlocksMult3((n + blockSize - 1) / blockSize);
 
 		//kernSubtraction << <fullBlocksMult3, blockSize >> > (n*m,output, actualOutput,tempOutput);
@@ -296,15 +296,15 @@ namespace CharacterRecognition {
 		printArray(n*m, check0, true);
 		*/
 
-		kernMatrixMultiplication << <fullBlocksMult2,(blockSize, blockSize)>> > (hiddenTrans, gradSoftMax ,dev_gradB,h,n,m);
+		kernMatrixMultiplication << <fullBlocksMult2, blockDim >> > (hiddenTrans, gradSoftMax ,dev_gradB,h,n,m);
 		checkCUDAErrorFn("Kernel Matrix Multiplication hiiden and loss failed");
 
 		//float *check0 = new float[d*h];
 		
-		gpu_matrix_transpose << <fullBlocksMult2, (blockSize, blockSize) >> > (weightsB, weightsBTrans, h, m);
+		gpu_matrix_transpose << <fullBlocksMult2, blockDim >> > (weightsB, weightsBTrans, h, m);
 		checkCUDAErrorFn("Kernel Transpose for weightsB failed");
 
-		kernMatrixMultiplication << <fullBlocksMult1, (blockSize, blockSize) >> > (gradSoftMax,weightsBTrans,devGrad,n,m,h);
+		kernMatrixMultiplication << <fullBlocksMult1, blockDim >> > (gradSoftMax,weightsBTrans,devGrad,n,m,h);
 		checkCUDAErrorFn("Kernel Matrix Multiplication for Devgrad failed");
 
 		dim3 fullBlocksMult4((n*h + blockSize - 1) / blockSize);
@@ -314,13 +314,13 @@ namespace CharacterRecognition {
 		kernDotProduct << <fullBlocksMult4,blockSize >> > (n*h,dev_hiddenLayerGrad,devGrad,devGrad2);
 		checkCUDAErrorFn("Kernel Dot Product failed");
 
-		dim3 fullBlocksMult5((d + blockSize - 1) / blockSize, (n + blockSize - 1) / blockSize);
-		dim3 fullBlocksMult6((h + blockSize - 1) / blockSize, (d + blockSize - 1) / blockSize);
+		dim3 fullBlocksMult5((d + blockDim.x - 1) / blockDim.x, (n + blockDim.y - 1) / blockDim.y);
+		dim3 fullBlocksMult6((h + blockDim.x - 1) / blockDim.x, (d + blockDim.y - 1) / blockDim.y);
 
-		gpu_matrix_transpose << <fullBlocksMult5, (blockSize, blockSize) >> > (input, inputTrans, n, d);
+		gpu_matrix_transpose << <fullBlocksMult5, blockDim >> > (input, inputTrans, n, d);
 		checkCUDAErrorFn("Kernel Transpose for input failed");
 
-		kernMatrixMultiplication << <fullBlocksMult6, (blockSize,blockSize) >> > (inputTrans,devGrad2,dev_gradA,d,n,h);
+		kernMatrixMultiplication << <fullBlocksMult6, blockDim >> > (inputTrans,devGrad2,dev_gradA,d,n,h);
 		checkCUDAErrorFn("Kernel Matrix Multiplication for gradA failed");
 
 		/*
