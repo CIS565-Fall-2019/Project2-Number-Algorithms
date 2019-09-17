@@ -9,7 +9,7 @@ CUDA Stream Compaction
 
 ###
 
-![](images/timeOverLength.png)
+![](img/timeOverLength.png)
 
 I do not know how the thrust implementation manages to be so efficient at such large array sizes. In fact, it seems to become increasingly efficient with array length.
 
