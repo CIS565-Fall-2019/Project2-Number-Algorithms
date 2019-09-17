@@ -30,7 +30,7 @@ namespace CharacterRecognition {
 	@param records Array full of records to be used as training data
 	@param numIterations How many times to run the forward/back propagation
 	*/
-	void trainWeights(InputData_v records, int numIterations = 100);
+	void trainWeights(InputData_v records, int numIterations = 100, int_v* iterRecord = NULL, float_v* errorRecord = NULL, bool noRandom = false);
 
 	/**
 	Forward-propagate in host memory space
@@ -48,6 +48,16 @@ namespace CharacterRecognition {
 	Does not work backwards in back-propagation (filters remain static)
 	*/
 	int convolveStep(float* inputLayer, int inputLayerSize, float* outputPoolingLayer, float* outputLayer, int poolWidth);
+
+	/**
+	reads in weights
+	*/
+	void inputWeights(std::string pathName);
+
+	/**
+	writes out weights
+	*/
+	void outputWeights(std::string pathName, bool inText = false);
 
 	/**
 	Gives the error value between the two data points
@@ -80,6 +90,16 @@ namespace CharacterRecognition {
 	Function to make sure our matrix multiplication is operating correctly
 	*/
 	void testMatMul();
+
+	/**
+	Puts a record of the weights into the given filename
+	File format:
+	sizeof(W1)\n//in number of floats
+	sizeof(W2)\n//in number of floats
+	W1
+	W2
+	*/
+	void outputWeights(std::string pathName);
 
 
 }

@@ -20,10 +20,6 @@
 //Just guessing at what's appropriate here, will benchmark later (read: never)
 #define BLOCKSIZE 512
 
-//development defines
-#define RSIZE 52
-#define NUMTRAINING 52
-
 
 //production defines
 #ifndef RSIZE
@@ -37,6 +33,7 @@
 typedef std::vector<uint8_t>	uint8_v;
 typedef std::vector<float>		float_v;
 typedef std::vector<float_v>	float_vv;
+typedef std::vector<int>		int_v;
 
 typedef struct filter3 {
 	float kernel[9];

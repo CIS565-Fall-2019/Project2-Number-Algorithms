@@ -7,9 +7,9 @@
 #include "common.h"
 #include "mlp.h"
 
-#define ALLOWKERNEL5 0
-#define RANDSEED 0x0bad1bad2bad127
-#define LAMBDA 0.2 //the learning delta
+#define RANDSEED 0x0bad1bad2bad104 //was 104 for the glory run
+#define LAMBDA 0.05 //the learning delta //was 0.05 for the glory run
+#define GOODENOUGH 0.00001
 
 //These are definitions for index math in the 1d-2d world
 #define UL(idx, w) (idx - w - 1)
@@ -40,7 +40,7 @@ namespace CharacterRecognition {
 #define POOLWIDTH 3
 
 #define F0SIZE 10201
-#define F0WIDTH ((int)sqrt(F0SIZE))
+#define F0WIDTH (101)
 
 #define SINCONVRAWSIZE ((F0WIDTH - (KERNWIDTH - 1)) * (F0WIDTH - (KERNWIDTH - 1)))
 #define CONVRAWSIZE (SINCONVRAWSIZE * NUMFILTERS)
@@ -50,7 +50,7 @@ namespace CharacterRecognition {
 #define F1SIZE (CONVPOOLSIZE + 1)
 //#define F1SIZE (6535)
 
-#define F2SIZE 200
+#define F2SIZE 156 //was 156 for the glory run
 #define F2SIZEA (F2SIZE + 1)
 #define W1SIZE (F1SIZE * F2SIZE)
 
@@ -367,7 +367,7 @@ namespace CharacterRecognition {
 
 		float rA = thetaA[r];
 		float psi = (rA * (1 - rA)) * omega[r];
-		weightChange[index] += LAMBDA * psi * data[c];
+		weightChange[index] += psi * data[c];//formerly: * LAMBDA
 		psiOut[r] = psi;
 		return;
 
@@ -383,7 +383,7 @@ namespace CharacterRecognition {
 
 		float rA = thetaA[r];
 		float psi = (rA * (1 - rA)) * omegaError[r];
-		weightChange[index] += LAMBDA * data[c] * psi;
+		weightChange[index] += data[c] * psi;//formerly: * LAMBDA
 		psiOut[r] = psi;
 		return;
 
@@ -411,7 +411,7 @@ namespace CharacterRecognition {
 	}//calcWeightChange
 
 	void applyWeightChanges(cublasHandle_t* handle, float* weight, float* delta, int weightSize) {
-		float alpha = 1.0;
+		float alpha = LAMBDA;
 		cublasSaxpy(*handle, weightSize, &alpha, delta , 1, weight, 1);
 		checkCUDAErrorFn("saxpy failed\n", NULL, __LINE__);
 	}//applyWeightChanges
@@ -471,11 +471,6 @@ namespace CharacterRecognition {
 		memcpy(dataPtr, x.fData.data(), F0SIZE * sizeof(float));
 		memcpy(truePtr, x.resultArray.data(), RSIZE * sizeof(float));
 
-
-#if DEBUGGINGTRANSFERS
-		float testOut[F2SIZE] = {};
-#endif
-
 		//printFloatPic(dataPtr, 101, 101);
 
 		//load data into kernel memory
@@ -484,7 +479,6 @@ namespace CharacterRecognition {
 		cudaMemcpy(dRT, truePtr, RSIZE * sizeof(float), cudaMemcpyHostToDevice);
 		checkCUDAErrorFn("cudaMemcpy failed\n", NULL, __LINE__);
 		
-
 		//convolve step
 		convolveStep(dF0, F0SIZE, dC0, dF1, POOLWIDTH);
 		checkCUDAErrorFn("convolveStep failed\n", NULL, __LINE__);
@@ -519,7 +513,7 @@ namespace CharacterRecognition {
 		return calcErrorSingle(x, resultArray);
 	}//forwardPropH
 
-	void trainWeights(InputData_v records, int numIterations) {
+	void trainWeights(InputData_v records, int numIterations, int_v* iterRecord, float_v* errorRecord, bool noRandom) {
 		printSizes();
 
 		cublasHandle_t handle;
@@ -527,9 +521,11 @@ namespace CharacterRecognition {
 
 		float results[RSIZE] = {};//floating space for the results to be put
 
-		//initialize random weights between -1 and 1
-		gpuFillRand(dW1, F1SIZE, F2SIZE, -1.0, 1.0);
-		gpuFillRand(dW2, F2SIZE, RSIZE, -1.0, 1.0);
+		if (!noRandom) {
+			//initialize random weights between -1 and 1
+			gpuFillRand(dW1, F1SIZE, F2SIZE, -1.0, 1.0);
+			gpuFillRand(dW2, F2SIZE, RSIZE, -1.0, 1.0);
+		}//if
 
 		printForwardResults(records);//see our starting point
 
@@ -545,6 +541,8 @@ namespace CharacterRecognition {
 		std::vector<int> indexVector = std::vector<int>();
 		for (int i = 0; i < records.size(); i++) indexVector.push_back(i);
 
+
+		timer().startCpuTimer();
 		for (int iter = 0; iter < numIterations; iter++) {
 		//for (int iter = 0; true; iter++) {
 			float_vv errorValues = float_vv();
@@ -564,15 +562,22 @@ namespace CharacterRecognition {
 				//go backwards
 				backPropagate(&handle);
 			}//for
-
+			
 			applyAllWeightChanges(&handle);
 
-			float_v sseError = calcSumSquareErrors(errorValues);
-			energy = calcEnergy(sseError);
 			if (iter % 10 == 0){
-				printf("i#%04d: Total energy is %.8f\n", iter, energy);
+				float_v sseError = calcSumSquareErrors(errorValues);
+				energy = calcEnergy(sseError);
+				printf("i#%04d: Total energy is %.9f\n", iter, energy);
+				iterRecord->push_back(iter);
+				errorRecord->push_back(energy);
+
+				if (energy < GOODENOUGH) {
+					break;//we're probably all trained!
+				}
 			}//if
 		}//for
+		timer().endCpuTimer();
 
 		cublasDestroy(handle);
 
@@ -580,17 +585,38 @@ namespace CharacterRecognition {
 
 	void printForwardResults(InputData_v allRecords) {
 		float resultArray[RSIZE];
+		int_v correctResults = int_v();
 		for (int i = 0; i < allRecords.size(); i++) {
 			float_v errorResult = CharacterRecognition::forwardPropagate(allRecords[i], resultArray);
 			printf("=========RESULT FOR RECORD %d==============\n", i);
-			for (int i = 0; i < RSIZE; i++) {
-				printf("@%02d:  %0.4f\t", i, resultArray[i]);
-				if ((i + 1) % 4 == 0) {
+			bool isCorrect = true;
+			for (int j = 0; j < RSIZE; j++) {
+				if (resultArray[j] >= 0.5 && j != i) isCorrect = false;
+				if (resultArray[j] < 0.5 && j == i) isCorrect = false;
+				printf("@%02d:  %0.2f\t", j, resultArray[j]);
+				if ((j + 1) % 8 == 0) {
 					printf("\n");
 				}
 			}//for
+			if (isCorrect) correctResults.push_back(1);
+			else correctResults.push_back(0);
 			printf("\n");
 		}//for
+
+		printf("*****************\n");
+		printf("*****SUMMARY*****\n");
+		printf("*****************\n");
+		int totalCorrect = 0;
+		for (int i = 0; i < correctResults.size(); i++) {
+			if (correctResults[i]) {
+				printf("\tCorrect for entry %02d: TRUE\n", i);
+				totalCorrect++;
+			}//if
+			else {
+				printf("\tCorrect for entry %02d: FALSE\n", i);
+			}//else
+		}//for
+		printf("Total Correct: %d\n", totalCorrect);
 	}//printForwardResults
 
 
@@ -711,6 +737,97 @@ namespace CharacterRecognition {
 
 		return outputLayerSize;
 	}//convolveStep
+
+	void outputWeights(std::string pathName, bool inText) {
+		float* w1 = (float*)malloc(W1SIZE * sizeof(float));
+		float* w2 = (float*)malloc(W2SIZE * sizeof(float));
+
+		std::FILE* oF = std::fopen(pathName.c_str(), "wb");
+
+		cudaMemcpy((void*) w1, dW1, W1SIZE * sizeof(float), cudaMemcpyDeviceToHost);
+		checkCUDAErrorFn("cudaMemcpy failed\n", NULL, __LINE__);
+		cudaMemcpy((void*) w2, dW2, W2SIZE * sizeof(float), cudaMemcpyDeviceToHost);
+		checkCUDAErrorFn("cudaMemcpy failed\n", NULL, __LINE__);
+
+		int totalWritten = 0;
+		int numWritten = 0;
+		//weights 1
+		while (totalWritten < W1SIZE) {
+			numWritten = std::fwrite(w1 + totalWritten, sizeof(float), W1SIZE - totalWritten, oF);
+			if (!numWritten) {
+				printf("Wrote none of them for some reason\n");
+				exit(0);
+			}//if
+			totalWritten += numWritten;
+		}//while
+
+		totalWritten = 0;
+		//weights 2
+		while (totalWritten < W2SIZE) {
+			numWritten = std::fwrite(w2 + totalWritten, sizeof(float), W2SIZE - totalWritten, oF);
+			if (!numWritten) {
+				printf("Wrote none of them for some reason\n");
+				exit(0);
+			}//if
+			totalWritten += numWritten;
+		}//while
+
+		int ending = 0;
+		std::fwrite(&ending, sizeof(int), 1, oF);//ending 0-pad?
+
+		std::fflush(oF);
+		std::fclose(oF);
+
+		free(w1);
+		free(w2);
+		
+	}//outputWeights
+
+	void inputWeights(std::string pathName) {
+		float* w1 = (float*)malloc(W1SIZE * sizeof(float));
+
+		std::FILE* iF = std::fopen(pathName.c_str(), "rb");
+
+
+		int totalRead = 0;
+		int numRead = 0;
+		//weights1
+		while (totalRead < W1SIZE) {
+			numRead = std::fread(w1 + totalRead, sizeof(float), W1SIZE - totalRead, iF);
+			if (!numRead) {
+				printf("Read none of them for some reason, errno %d\n", errno);
+				exit(0);
+			}//if
+			totalRead += numRead;
+		}//while
+
+		printf("Read W1; last element %f\n", w1[W1SIZE - 1]);
+		
+		float* w2 = (float*)malloc(W2SIZE * sizeof(float));
+
+		totalRead = 0;
+		numRead = 0;
+		//weights2
+		while (totalRead < W2SIZE) {
+			numRead = std::fread(w2 + totalRead, sizeof(float), W2SIZE - totalRead, iF);
+			if (!numRead) {
+				printf("Read none of them for some reason, errno %d\n", errno);
+				exit(0);
+			}//if
+			totalRead += numRead;
+		}//while
+
+		cudaMemcpy(dW1, w1, W1SIZE * sizeof(float), cudaMemcpyHostToDevice);
+		checkCUDAErrorFn("cudaMemcpy failed\n", NULL, __LINE__);
+		cudaMemcpy(dW2, w2, W2SIZE * sizeof(float), cudaMemcpyHostToDevice);
+		checkCUDAErrorFn("cudaMemcpy failed\n", NULL, __LINE__);
+
+
+		std::fclose(iF);
+		free(w1);
+		free(w2);
+
+	}//inputWeights
 
 	void testMatMul() {
 		cublasHandle_t handle;
