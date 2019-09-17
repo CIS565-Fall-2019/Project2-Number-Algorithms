@@ -15,4 +15,4 @@ As shown in the figure above, we will be creating a neural network which has a s
 
 ### My Neural Network Implementation
 
-In my implemetation of Neural network, I'm training all the data points at the same time, hence, we have the input data as the array of 'DATA_POINTS * NUMBER_OF_FEATURES'
+In my implemetation of Neural network, I'm training all the data points at the same time, hence, we have the input data as the array of `DATA_POINTS * NUMBER_OF_FEATURES`
