@@ -73,15 +73,11 @@ Stream compaction, also known as stream filtering or selection, usually produces
   (with array size on the independent axis).**
   
    Description.
-   
-  *Scan performace with increasing data size*
   
-   SCAN                      |  
+   SCAN with increasing data size  |  
   :-------------------------:|:-------------------------:
   ![](img/Scan1.png)         |  ![](img/Scan2.png)
-  
-  
-  *Scan performace with increasing data size - Non powers of two*
+  :-------------------------:|:-------------------------:
    SCAN NonPowersof2         |  
   :-------------------------:|:-------------------------:
   ![](img/Scan1NP.png)       |  ![](img/Scan2NP.png)  
