@@ -7,6 +7,13 @@ CUDA Character Recognition
   * [LinkedIn](https://www.linkedin.com/in/taylor-k-7b2110191/), [twitter](https://twitter.com/nelms_taylor), etc.
 * Tested on: Windows 10, Intel i3 Coffee Lake 4-core 3.6GHz processor, 16GB RAM, NVidia GeForce GTX1650 4GB
 
+![Input image, acii-art style](img/noFilter.png)
+*Input image, acii-art style*
+
+![Gaussian Filter w/ max pooling](img/filter0_gauss.png)![Outline filter w/ max pooling](img/filter1_outline.png)
+![Sobel Filter (top) w/ max pooling](img/filter2_sobelTop.png)![Sobel Filter (right) w/ max pooling](img/filter3_sobelRight.png)
+![Sobel Filter (bottom) w/ max pooling](img/filter4_sobelBottom.png)![Sobel Filter (left) w/ max pooling](img/filter5_sobelLeft.png)
+
 ## CMake Notes
 
 Notably, I needed to add the following line to `CMakeLists.txt`:
@@ -49,7 +56,9 @@ One frustrating thing about this approach is that the random seed I'm using to g
 
 ...Or at least, that's what I thought, but changing around the seed, while occasionally very important, did not have as much impact as what were occasionally just one-element differences in hidden layer size.
 
-I've attached an unsatisfying chart here, and decided to go with a hidden layer of size equal to 12 times the size of the result layer, because I am no data scientist.
+I've attached an unsatisfying chart here, and decided to go with a hidden layer of size equal to 3 times the size of the result layer, because I am no data scientist, and it is the approach that came closest to working.
+
+![](img/traininggraph.png)
 
 ### LAMBDA value
 
