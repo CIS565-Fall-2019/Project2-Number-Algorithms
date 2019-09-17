@@ -37,9 +37,9 @@ int counter = 0;
 for (int k = 0; k < n; ++k) {
     int currentValue = inputData[k];
     if (currentValue != 0) {
-				    outputData[counter] = currentValue;
-					   counter++;
-				}
+        outputData[counter] = currentValue;
+        counter++;
+    }
 }
 ```
 
