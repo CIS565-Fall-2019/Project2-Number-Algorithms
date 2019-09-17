@@ -77,10 +77,7 @@ Stream compaction, also known as stream filtering or selection, usually produces
    SCAN with increasing data size  |  
   :-------------------------:|:-------------------------:
   ![](img/Scan1.png)         |  ![](img/Scan2.png)
-  :-------------------------:|:-------------------------:
-   SCAN NonPowersof2         |  
-  :-------------------------:|:-------------------------:
-  ![](img/Scan1NP.png)       |  ![](img/Scan2NP.png)  
+
   
   * To guess at what might be happening inside the Thrust implementation (e.g.
     allocation, memory copy), take a look at the Nsight timeline for its
