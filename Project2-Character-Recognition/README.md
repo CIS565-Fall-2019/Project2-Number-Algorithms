@@ -10,10 +10,6 @@ CUDA Character Recognition
 ![Input image, acii-art style](img/noFilter.png)
 *Input image, acii-art style*
 
-![Gaussian Filter w/ max pooling](img/filter0_gauss.png)![Outline filter w/ max pooling](img/filter1_outline.png)
-![Sobel Filter (top) w/ max pooling](img/filter2_sobelTop.png)![Sobel Filter (right) w/ max pooling](img/filter3_sobelRight.png)
-![Sobel Filter (bottom) w/ max pooling](img/filter4_sobelBottom.png)![Sobel Filter (left) w/ max pooling](img/filter5_sobelLeft.png)
-
 ## CMake Notes
 
 Notably, I needed to add the following line to `CMakeLists.txt`:
@@ -34,11 +30,20 @@ Set your flags accordingly, compile the program, and go at it!
 ## ML Design Notes
 As a relative novice to machine learning, I have elected to primarily put in only two fully-connected hidden layers.
 
-However, I HAVE elected to process the images on the front end through some common image convolutions, followed by a run through a max pooling layer. These results become the first "feature layer." This has the advantage of reducing the number of "pixels" from 10201 to 6534, as I'm running the images through convolution with 3x3 kernels, followed by a 3x3 max pooling operation. Both the convolution and max-pooling are hand-implemented.
+I added a bias term to the result of these convolutions and poolings, and again inside the hidden layer. The hidden layer I ended up going with was of size `156`, as that was larger than the number of outputs to that layer, smaller than the number of inputs, and got reasonably close to training successfully.
+
+### Convolution
+
+I elected to process the images on the front end through some common image convolutions, followed by a run through a max pooling layer. These results become the first "feature layer." This has the advantage of reducing the number of "pixels" from 10201 to 6534, as I'm running the images through convolution with 3x3 kernels, followed by a 3x3 max pooling operation. Both the convolution and max-pooling are hand-implemented.
+
+Some results are here, in the form of more sweet, sweet ascii art. These have all been through the subsequent max pooling layer, as well.
+
+![Gaussian Filter](img/filter0_gauss.png)
+*Gaussian filter*
 
 There is the slight hiccup that I am not sure how to property back-propogate through a convolutional layer and update convolution kernel weights. That said, I stand by the decision, as the resultant data sets have more activated information than the original data.
 
-I added a bias term to the result of these convolutions and poolings, and again inside the hidden layer.
+
 
 
 ## Training Time Analysis
