@@ -39,19 +39,20 @@ int main(int argc, char* argv[]) {
 //		std::cout << length << std::endl;
 	const int inp_dim = 2;
 	const int classes = 2;
-	float data[inp_dim] = {1};
-	float y[classes] = {1};
+	double data[4][inp_dim] = { {0,0} ,{0,1},{1,0},{1,1} };
+	double y[4][classes] = { {1,0},{0,1},{0,1},{1,0}};
 	vector<int>layers = {4,3};
 	CharacterRecognition::NeuralNet nn(inp_dim, classes, layers);
-
-	float *output = nn.forward(data);
-	nn.backward(y);
-	float sum = 0;
-	for (int i = 0; i < classes; i++) {
-		std::cout << output[i] << std::endl;
-		sum += output[i];
+	for (int i = 0; i < 100; i++) {
+		for (int j = 0; j < 4; j++) {
+			double *output = nn.forward(data[j]);
+			nn.backward(y[j]);
+		}
 	}
-	std::cout << sum << std::endl;
-	delete[] output;
+		for (int j = 0; j < 4; j++) {
+			double *output = nn.forward(data[j]);
+			std::cout << y[j][0] << " " << y[j][1] << std::endl;
+			std::cout << output[0] <<" "<<output[1]<< std::endl;
+		}
 	return 0;
 	}
