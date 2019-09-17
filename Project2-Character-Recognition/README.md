@@ -17,14 +17,14 @@ The input size, hidden layer size (number of perceptron units in a layer) and th
 
 The complete neural network architecture implemented can be picturized as follows,
 
-![]()
+![](img/mlp.png)
 [Image reference](https://www.google.com/url?sa=i&source=images&cd=&ved=2ahUKEwjFj--K3djkAhWsq1kKHWfaCkAQjRx6BAgBEAQ&url=https%3A%2F%2Fwww.cc.gatech.edu%2F~san37%2Fpost%2Fdlhc-fnn%2F&psig=AOvVaw3n6z_jJ1Gt-TEhuC_wXEFM&ust=1568839521037348)
 
 The network implemented has a single hidden layer. The size of the hidden layer can be easily configured during initializing the network. The input layer will have size equal to the dimension of the each input. The output layer will similarly have a size equal to the number of classes to be used for classification. 
 
 We need to use a non-linear function after passing through each layer of the network till the last layer. This is to make sure the neural network does not learn a linear function eventually. So, I have used the sigmoid activation function after the hidden layer. The Sigmoid function takes the form as shown in the below figure.
 
-![]()
+![](img/sigmoid.jpg)
 [Image reference](https://www.google.com/url?sa=i&source=images&cd=&ved=2ahUKEwjgrNPqztjkAhVow1kKHeCzBIIQjRx6BAgBEAQ&url=https%3A%2F%2Ftwitter.com%2Fhashtag%2Fsigmoid&psig=AOvVaw3DJLoIr81ZD90Mq1ZBwYQj&ust=1568835764647240)
 
 At the end of the last layer, to transform the outputs to look like probabilities, we use the softmax function. This makes sure the outputs for all classes sum to 1.
@@ -68,7 +68,7 @@ I tested the implementation first on the XOR function. The network converged in 
 
 The architecture of the neural network used to train can be found in the following figure,
 
-![]()
+![](img/xor_network.svg)
 
 Number of epcohs for convergence = 1500
 Final Loss = 
@@ -76,7 +76,7 @@ Test accuracy = 100%
 
 The training plot of the network tested on the XOR function can be seen in the following figure.
 
-![]()
+![](img/training_curve_xor.PNG)
 
 After testing for the XOR function, I loaded the character recognition dataset and trainied the network on it. 
 
@@ -88,7 +88,13 @@ Test accuracy = 100%
 
 The training plot of the network tested on the Character Recognition can be seen in the following figure.
 
-![]()
+![](img/training_curve_character.PNG)
+
+I also tested the networks performance for different network architectures (number of perceptron in the hidden layer). The following figure shows the comparison.
+
+![](img/training_curve_layers.PNG)
+
+The trained weights can be found [here](img/trained_weights_200_layers.xlsx)
 
 ### Testing the network
 
@@ -96,6 +102,6 @@ I tested the network on all the images in the data-set in a reverse order to mak
 
 The predictions for all tests are as shown in the following figure. The figure shows the true labels, the predicted class and the probabilities associated with the class.
 
-![]()
+![](img/MLP_test_predictions.PNG)
 
 
