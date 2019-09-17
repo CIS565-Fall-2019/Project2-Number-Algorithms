@@ -6,7 +6,7 @@ namespace CharacterRecognition {
     Common::PerformanceTimer& timer();
 
     // TODO: implement required elements for MLP sections 1 and 2 here
-	void fillRandomWeights(int n, float *data);
+	void fillRandomWeights(int n, float *data, float seed);
 
 	void updateWeights(int n, int *input, float *weights, const float *patialErrorDeriv, float error);
 
