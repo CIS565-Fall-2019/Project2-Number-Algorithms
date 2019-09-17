@@ -22,7 +22,7 @@ namespace StreamCompaction {
         void scan(int n, int *odata, const int *idata) {
 	        if (!timeInProg) { timer().startCpuTimer(); }
 
-            // TODO - Exclusive Prefix Sum
+			// Exclusive Prefix Sum
 			if (n >= 1) { odata[0] = 0; }
 
 			for (int i = 1; i < n; i++) {
@@ -40,7 +40,7 @@ namespace StreamCompaction {
         int compactWithoutScan(int n, int *odata, const int *idata) {
 	        timer().startCpuTimer();
 
-            // TODO - Only output the indices of idata that aren't 0s
+            // Only output the indices of idata that aren't 0s
 			int currIdx = 0;
 			for (int i = 0; i < n; i++) {
 				if (idata[i] == 0) { continue; }
@@ -60,7 +60,7 @@ namespace StreamCompaction {
         int compactWithScan(int n, int *odata, const int *idata) {
 	        timer().startCpuTimer();
 			timeInProg = true;
-	        // TODO
+	        
 			// Mapping input to [0,1]
 			int* binaryMap = new int[n];
 			for (int i = 0; i < n; i++) {
