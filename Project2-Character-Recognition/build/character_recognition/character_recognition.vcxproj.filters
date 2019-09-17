@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="C:\Users\saketk\Project2-Number-Algorithms\Project2-Character-Recognition\character_recognition\common.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\saketk\Project2-Number-Algorithms\Project2-Character-Recognition\character_recognition\mlp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\saketk\Project2-Number-Algorithms\Project2-Character-Recognition\character_recognition\common.cu">
+      <Filter>Source Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\Users\saketk\Project2-Number-Algorithms\Project2-Character-Recognition\character_recognition\mlp.cu">
+      <Filter>Source Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\Users\saketk\Project2-Number-Algorithms\Project2-Character-Recognition\character_recognition\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="C:\Users\saketk\Project2-Number-Algorithms\Project2-Character-Recognition\build\character_recognition\CMakeFiles\character_recognition.dir\$(Configuration)\character_recognition_generated_common.cu.obj">
+      <Filter>Object Files</Filter>
+    </Object>
+    <Object Include="C:\Users\saketk\Project2-Number-Algorithms\Project2-Character-Recognition\build\character_recognition\CMakeFiles\character_recognition.dir\$(Configuration)\character_recognition_generated_mlp.cu.obj">
+      <Filter>Object Files</Filter>
+    </Object>
+    <Object Include="C:\Users\saketk\Project2-Number-Algorithms\Project2-Character-Recognition\build\character_recognition\CMakeFiles\character_recognition.dir\$(Configuration)\character_recognition_intermediate_link.obj">
+      <Filter>Object Files</Filter>
+    </Object>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{DFA321FA-D7AE-31EA-9A1B-E908E3F15B51}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Object Files">
+      <UniqueIdentifier>{33284D54-4892-373E-AE7D-C661B27EC863}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{E44590E9-4DD6-3FE6-B5CF-A2331427CAA6}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

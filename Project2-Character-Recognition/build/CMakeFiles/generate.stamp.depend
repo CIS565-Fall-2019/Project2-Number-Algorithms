@@ -1,0 +1,33 @@
+# CMake generation dependency list for this directory.
+C:/Program Files/CMake/share/cmake-3.15/Modules/CMakeCInformation.cmake
+C:/Program Files/CMake/share/cmake-3.15/Modules/CMakeCXXInformation.cmake
+C:/Program Files/CMake/share/cmake-3.15/Modules/CMakeCommonLanguageInclude.cmake
+C:/Program Files/CMake/share/cmake-3.15/Modules/CMakeGenericSystem.cmake
+C:/Program Files/CMake/share/cmake-3.15/Modules/CMakeInitializeConfigs.cmake
+C:/Program Files/CMake/share/cmake-3.15/Modules/CMakeLanguageInformation.cmake
+C:/Program Files/CMake/share/cmake-3.15/Modules/CMakeRCInformation.cmake
+C:/Program Files/CMake/share/cmake-3.15/Modules/CMakeSystemSpecificInformation.cmake
+C:/Program Files/CMake/share/cmake-3.15/Modules/CMakeSystemSpecificInitialize.cmake
+C:/Program Files/CMake/share/cmake-3.15/Modules/CheckCSourceCompiles.cmake
+C:/Program Files/CMake/share/cmake-3.15/Modules/CheckIncludeFile.cmake
+C:/Program Files/CMake/share/cmake-3.15/Modules/CheckLibraryExists.cmake
+C:/Program Files/CMake/share/cmake-3.15/Modules/Compiler/CMakeCommonCompilerMacros.cmake
+C:/Program Files/CMake/share/cmake-3.15/Modules/Compiler/MSVC-C.cmake
+C:/Program Files/CMake/share/cmake-3.15/Modules/Compiler/MSVC-CXX.cmake
+C:/Program Files/CMake/share/cmake-3.15/Modules/FindPackageHandleStandardArgs.cmake
+C:/Program Files/CMake/share/cmake-3.15/Modules/FindPackageMessage.cmake
+C:/Program Files/CMake/share/cmake-3.15/Modules/FindThreads.cmake
+C:/Program Files/CMake/share/cmake-3.15/Modules/Platform/Windows-MSVC-C.cmake
+C:/Program Files/CMake/share/cmake-3.15/Modules/Platform/Windows-MSVC-CXX.cmake
+C:/Program Files/CMake/share/cmake-3.15/Modules/Platform/Windows-MSVC.cmake
+C:/Program Files/CMake/share/cmake-3.15/Modules/Platform/Windows.cmake
+C:/Program Files/CMake/share/cmake-3.15/Modules/Platform/WindowsPaths.cmake
+C:/Users/saketk/Project2-Number-Algorithms/Project2-Character-Recognition/CMakeLists.txt
+C:/Users/saketk/Project2-Number-Algorithms/Project2-Character-Recognition/build/CMakeFiles/3.15.0-rc1/CMakeCCompiler.cmake
+C:/Users/saketk/Project2-Number-Algorithms/Project2-Character-Recognition/build/CMakeFiles/3.15.0-rc1/CMakeCXXCompiler.cmake
+C:/Users/saketk/Project2-Number-Algorithms/Project2-Character-Recognition/build/CMakeFiles/3.15.0-rc1/CMakeRCCompiler.cmake
+C:/Users/saketk/Project2-Number-Algorithms/Project2-Character-Recognition/build/CMakeFiles/3.15.0-rc1/CMakeSystem.cmake
+C:/Users/saketk/Project2-Number-Algorithms/Project2-Character-Recognition/cmake/CMakeParseArguments.cmake
+C:/Users/saketk/Project2-Number-Algorithms/Project2-Character-Recognition/cmake/FindCUDA.cmake
+C:/Users/saketk/Project2-Number-Algorithms/Project2-Character-Recognition/cmake/FindPackageHandleStandardArgs.cmake
+C:/Users/saketk/Project2-Number-Algorithms/Project2-Character-Recognition/cmake/FindPackageMessage.cmake

@@ -1,0 +1,5 @@
+﻿  main.cpp
+c:\users\saketk\project2-number-algorithms\project2-character-recognition\src\testing_helpers.hpp(53): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+C:\Users\saketk\Project2-Number-Algorithms\Project2-Character-Recognition\src\main.cpp(51): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+     Creating library C:/Users/saketk/Project2-Number-Algorithms/Project2-Character-Recognition/build/Release/cis565_character_recognition.lib and object C:/Users/saketk/Project2-Number-Algorithms/Project2-Character-Recognition/build/Release/cis565_character_recognition.exp
+  cis565_character_recognition.vcxproj -> C:\Users\saketk\Project2-Number-Algorithms\Project2-Character-Recognition\build\Release\cis565_character_recognition.exe

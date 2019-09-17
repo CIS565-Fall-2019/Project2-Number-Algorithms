@@ -1,0 +1,5 @@
+# CMake generation dependency list for this directory.
+C:/Users/saketk/Project2-Number-Algorithms/Project2-Character-Recognition/build/character_recognition/CMakeFiles/character_recognition.dir/character_recognition_generated_common.cu.obj.depend
+C:/Users/saketk/Project2-Number-Algorithms/Project2-Character-Recognition/build/character_recognition/CMakeFiles/character_recognition.dir/character_recognition_generated_mlp.cu.obj.depend
+C:/Users/saketk/Project2-Number-Algorithms/Project2-Character-Recognition/character_recognition/CMakeLists.txt
+C:/Users/saketk/Project2-Number-Algorithms/Project2-Character-Recognition/cmake/FindCUDA/run_nvcc.cmake

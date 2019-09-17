@@ -1,0 +1,4 @@
+C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/build/CMakeFiles/cis565_stream_compaction_test.dir
+C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/build/CMakeFiles/ALL_BUILD.dir
+C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/build/CMakeFiles/ZERO_CHECK.dir
+C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/stream_compaction.dir
