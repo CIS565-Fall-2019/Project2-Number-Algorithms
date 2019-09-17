@@ -103,7 +103,7 @@ namespace Functions {
 	{
 		int index = blockIdx.x * blockDim.x + threadIdx.x;
 		if (index < x_dim * y_dim) {
-			array[index] = ((array[index] * 2) - 1) / 10;
+			array[index] = ((array[index] * 2) - 1);
 		}
 	}
 }
