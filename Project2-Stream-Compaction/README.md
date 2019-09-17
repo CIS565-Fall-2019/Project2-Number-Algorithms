@@ -35,7 +35,7 @@ For comparing our alogirhtms with the exclusive scna implementation thrust libra
 
 In the performance analysis, we are first checking the best blockSize value for Naive and Work-Efficient algorithms. The plot for the analysis of the time elapsed vs Block size for both these implementations are given below:
 
-![](img/Block_Size_vary.png)
+![](img/Block_Size_vary.png | width = 100)
 
 For the above, we see that the optimized implementations are when the Block size is 512 for both the algorithms. For checking how all of the versions of GPU compare with CPU version when varying the input size, I have broken the ployts into 2 plots as shown below. The first plot on the left side is from input size 2^10 to 2^18 while the second plot on the right side varies from 2^19 to 2^25 for better visualization of the plots.
 
