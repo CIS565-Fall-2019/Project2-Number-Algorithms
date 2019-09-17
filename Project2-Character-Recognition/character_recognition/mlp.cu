@@ -7,7 +7,6 @@
 //#include "cublas_v2.h"
 
 # define blockSize 1
-# define hiddenLayerLen 10
 
 namespace CharacterRecognition {
     using Common::PerformanceTimer;
@@ -227,6 +226,7 @@ namespace CharacterRecognition {
 		checkCUDAErrorFn("Kernel Activation function failed");
 
 		kernMatrixMultiplication << <fullBlocksMult2, (blockSize,blockSize) >> > (hidden, weightsB, output, n, h, m);
+		checkCUDAErrorFn("Multiplication 2 failed");
 		//gpu_blas_mmul(dev_hiddenLayer, dev_weightsHO, dev_output, h, d, m);
 
 		kernSoftMax << <fullBlocks1, blockSize >> > (n,output,m);
@@ -252,25 +252,25 @@ namespace CharacterRecognition {
 		checkCUDAErrorFn("Malloc geadient B weights failed");
 
 		cudaMalloc((void**)&gradSoftMax, (n*m) * sizeof(float));
-		checkCUDAErrorFn("Malloc temporay arr1 failed");
+		checkCUDAErrorFn("Malloc Soft gradient failed");
 
 		cudaMalloc((void**)&weightsBTrans, (m*h) * sizeof(float));
-		checkCUDAErrorFn("Malloc temporary arr2 failed");
+		checkCUDAErrorFn("Malloc weightsB Transpose failed");
 
 		cudaMalloc((void**)&devGrad, (n*h) * sizeof(float));
-		checkCUDAErrorFn("Malloc temporary arr3 failed");
+		checkCUDAErrorFn("Malloc devGrad failed");
 
 		cudaMalloc((void**)&devGrad2, (n*h) * sizeof(float));
-		checkCUDAErrorFn("Malloc temporary arr3 failed");
+		checkCUDAErrorFn("Malloc devGrad2 failed");
 
 		cudaMalloc((void**)&hiddenTrans, (n*h) * sizeof(float));
-		checkCUDAErrorFn("Malloc temporary arr3 failed");
+		checkCUDAErrorFn("Malloc hiddenTrans failed");
 
 		cudaMalloc((void**)&dev_hiddenLayerGrad, (n*h) * sizeof(float));
 		checkCUDAErrorFn("Malloc hiddenlayer gradient failed");
 
 		cudaMalloc((void**)&inputTrans, (n*d) * sizeof(float));
-		checkCUDAErrorFn("Malloc hiddenlayer gradient failed");
+		checkCUDAErrorFn("Malloc input trans failed");
 
 		cudaMalloc((void**)&dev_gradA, (n*h) * sizeof(float));
 		checkCUDAErrorFn("Malloc gradient A failed");
@@ -312,7 +312,7 @@ namespace CharacterRecognition {
 		checkCUDAErrorFn("Kernel Sigmoid gradient failed");
 
 		kernDotProduct << <fullBlocksMult4,blockSize >> > (n*h,dev_hiddenLayerGrad,devGrad,devGrad2);
-		checkCUDAErrorFn("Kernel Sigmoid gradient failed");
+		checkCUDAErrorFn("Kernel Dot Product failed");
 
 		dim3 fullBlocksMult5((d + blockSize - 1) / blockSize, (n + blockSize - 1) / blockSize);
 		dim3 fullBlocksMult6((h + blockSize - 1) / blockSize, (d + blockSize - 1) / blockSize);
@@ -332,12 +332,14 @@ namespace CharacterRecognition {
 		printf("Grad A \n");
 		printArray(d*h, check2, true);
 		*/
+		/*
 		float eta_rate = 0.3;
 
 		float *check = new float[d*h];
 
 		cudaMemcpy(check, dev_gradA, sizeof(float) * (d*h), cudaMemcpyDeviceToHost);
 		checkCUDAErrorFn("Copying data to output failed");
+		*/
 		/*
 		printf("Grad A \n");
 		printArray(d*h, check, true);
@@ -351,6 +353,7 @@ namespace CharacterRecognition {
 		printf("Grad B \n");
 		printArray(h*m, check2, true);
 		*/
+		float eta_rate = 0.3;
 		dim3 fullBlocksMult7((d*h + blockSize - 1) / blockSize);
 		kernUpdateWeights << <fullBlocksMult7,blockSize >> > (d*h,weightsA,newWeightsA,dev_gradA,eta_rate);
 		checkCUDAErrorFn("kernel update weights A failed");
@@ -479,7 +482,13 @@ namespace CharacterRecognition {
 			printf("Iteration: %d \n", iterations);
 			printf("Total loss is :%0.3f\n", totalLoss);
 		}
-		
+		float *check = new float[n*m];
+
+		cudaMemcpy(check, dev_output, sizeof(float) * (n*m), cudaMemcpyDeviceToHost);
+		checkCUDAErrorFn("Copying data to hidden layer failed");
+
+		printArray(n*m, check, true);
+
 		//dim3 fullBlocks4((n + blockSize - 1) / blockSize);
 		kernGetAccuracy << < fullBlocks1,blockSize>> > (n*m,dev_output,dev_predict,m);
 		checkCUDAErrorFn("Kernel accuracy failed");

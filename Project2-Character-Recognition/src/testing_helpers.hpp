@@ -39,7 +39,7 @@ void printCmpLenResult(int n, int expN, T *a, T *b) {
 
 void zeroArray(int n, float *a) {
     for (int i = 0; i < n; i++) {
-        a[i] = 0;
+        a[i] = 0.0;
     }
 }
 
