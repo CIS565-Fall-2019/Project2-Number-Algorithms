@@ -9,9 +9,37 @@
 #include <algorithm>
 #include <chrono>
 #include <stdexcept>
+#include <vector>
+#include <wchar.h>
 
 #define FILENAME (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
 #define checkCUDAError(msg) checkCUDAErrorFn(msg, FILENAME, __LINE__)
+
+#define DEBUGGINGTRANSFERS 0
+
+//Just guessing at what's appropriate here, will benchmark later (read: never)
+#define BLOCKSIZE 512
+
+
+//production defines
+#ifndef RSIZE
+#define RSIZE 52
+#endif
+#ifndef NUMTRAINING
+#define NUMTRAINING (RSIZE)
+#endif
+
+
+typedef std::vector<uint8_t>	uint8_v;
+typedef std::vector<float>		float_v;
+typedef std::vector<float_v>	float_vv;
+typedef std::vector<int>		int_v;
+
+typedef struct filter3 {
+	float kernel[9];
+} filter3;
+
+void printFloatPic(float* begin, int width, int height);
 
 /**
  * Check for CUDA errors; print and exit if there was a problem.
@@ -124,3 +152,32 @@ namespace Common {
 	    float prev_elapsed_time_gpu_milliseconds = 0.f;
     };
 }
+
+/**
+* This class wraps up various data we have regarding our input into one package
+*/
+class InputData {
+public:
+	InputData();//constructor
+	int value;//0-indexed "character value"
+	int numElements;
+	int width;
+	int height;
+	uint8_v data;
+	float_v fData;
+	float_v resultArray;
+
+public:
+	/**
+	Puts the stored internal data into a regular array
+	Assumes enough memory has been allocated
+	*/
+	void fillArray(uint8_t* dest);
+	/**
+	Creates a "correct" activation array,
+	Which is all zeroes except where our feature is
+	*/
+	void fillActivationArray();
+};//InputData
+
+typedef std::vector<InputData> InputData_v;
