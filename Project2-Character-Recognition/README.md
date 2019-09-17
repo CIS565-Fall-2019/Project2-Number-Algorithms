@@ -64,12 +64,26 @@ Stream compaction, also known as stream filtering or selection, usually produces
 
 ### Questions and Performance Analysis
 
-* **BockSize Optimization for each Implementation**
+* **BlockSize Optimization for each Implementation**
+  We compare the rumtime of GPU Naive scan and and the work efficient naive scan with the number of threads per block to pick  the most optimal configuration for furhter tests.
+  
+ *Block Size v/s Runtime*
+![](Project2-Stream-Compaction/img/BlockSize_vs_Runtime.png)
 
 * **Compare all of these GPU Scan implementations (Naive, Work-Efficient, and
   Thrust) to the serial CPU version of Scan. Plot a graph of the comparison
   (with array size on the independent axis).**
-
+  
+   Description.
+   
+  *Scan performace with increasing data size*
+  :-------------------------:|:-------------------------:
+  ![](Project2-Stream-Compaction/img/Scan1.png)   |  ![](Project2-Stream-Compaction/img/Scan2.png)
+  
+  *Scan performace with increasing data size - Non powers of two *
+  :-------------------------:|:-------------------------:
+  ![](Project2-Stream-Compaction/img/Scan1NP.png)   |  ![](Project2-Stream-Compaction/img/Scan2NP.png)  
+  
   * To guess at what might be happening inside the Thrust implementation (e.g.
     allocation, memory copy), take a look at the Nsight timeline for its
     execution. Your analysis here doesn't have to be detailed, since you aren't
