@@ -35,6 +35,6 @@ For comparing our alogirhtms with the exclusive scna implementation thrust libra
 
 In the performance analysis, we are first checking the best blockSize value for Naive and Work-Efficient algorithms. The plot for the analysis of the time elapsed vs Block size for both these implementations are given below:
 
-[]! (img/Block_Size_vary.png)
+![](img/Block_Size_vary.png)
 
 
