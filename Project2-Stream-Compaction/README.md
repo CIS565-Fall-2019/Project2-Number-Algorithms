@@ -30,6 +30,19 @@ for (int k = 1; k < n; ++k) {
 }
 ```
 
+#### Stream Compaction without Scan
+The basic stream compaction algorithm tracks a counter of how many elements to include that we have seen. If we see an element to include, it sets the output at the index of the counter to the element value, then increments the counter.
+```
+int counter = 0;
+for (int k = 0; k < n; ++k) {
+    int currentValue = inputData[k];
+    if (currentValue != 0) {
+				    outputData[counter] = currentValue;
+					   counter++;
+				}
+}
+```
+
 ## GPU
 ### Naive
 ### Efficient
