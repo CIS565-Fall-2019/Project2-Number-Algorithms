@@ -40,16 +40,38 @@ int main(int argc, char* argv[]) {
 	//get_line
 	// train data 
 
-	//std::fstream file("../trainingdata.txt");
-	////std::ofstream file2("..\temp.txt");
-	//std::string str;
-	//if (file.is_open()) {
-	//	while (std::getline(file, str)) {
-	//		std::cout << str << "n";
-	//	}
-	//}
+	std::fstream file("../trainingdata.txt");
+	std::string str;
+	if (file.is_open()) {
+		while (std::getline(file, str)) {
+			std::cout << str << std::endl;
+			float* data = new float[str.size() - 1];
+			int found = str.find(",");
+			int next = 0;
+			while (found != -1)
+			{
+				std::string temp(str.begin(), str.begin() + found);
+				std::cout <<" found at: " << found << '\n';
+				data[next] = std::atoi(temp.c_str());
+				str.erase(str.begin(), str.begin() + found+1);
+				found = str.find(",");
+				next++;
+			}
+			
+			float expected = std::atoi(str.c_str());
+			std::cout <<"expected " << expected << std::endl;
+			std::cout << "input " << data[0] << " " << data[1] << std::endl;
+			std::cout << "next " << next << std::endl;
 
-	CharacterRecognition::train_cpu(SIZE, a, b);
+			CharacterRecognition::train_cpu(next,data,expected);
+
+			delete data;
+		}
+	}
+
+
+
+	//CharacterRecognition::train_cpu(SIZE, , b);
 
  //   // initialize b using StreamCompaction::CPU::scan you implement
  //   // We use b for further comparison. Make sure your StreamCompaction::CPU::scan is correct.

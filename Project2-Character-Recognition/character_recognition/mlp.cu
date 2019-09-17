@@ -62,37 +62,37 @@ namespace CharacterRecognition {
 		dev_in[tid] = 1 / (1 + e);
 	}
 
-	float transfer_function(float var)
+	float transfer_function(float in)
 	{
-		float var = (var * -1);
+		float var = (in * -1);
 		float e = exp(var);
 		return( 1 / (1 + e) );
 	}
 
-	float transfer_derivative(float var)
-	{
-		float var = (var * -1);
-		float e = exp(var);
-		return(1 - (1 / (1 + e)));
-	}
+	//float transfer_derivative(float var)
+	//{
+	//	float var = (var * -1);
+	//	float e = exp(var);
+	//	return(1 - (1 / (1 + e)));
+	//}
 
-	void feed_forward(float* in, float* weights, int length)
+	void feed_forward(float* in, float* out, float* weights, int length)
 	{
 		for (int i = 0; i < length; i++)
 		{
 			float temp = in[i];
-			in[i] = 0;
+			out[i] = 0;
 
 			for (int j = 0; j < INPUT_NODES; j++) // or layers?
 			{
 				float weight = *((weights+i* INPUT_NODES) + j);
-				in[i] += (temp * weight);
+				out[i] += (temp * weight);
 				printf("in[%d] = %f * %f\n", i, temp, weight);
 			}
 
-			printf("feed[%d] = %f\n", i, in[i]);
-			in[i] = transfer_function(in[i]);
-			printf("activate: %f\n", in[i]);
+			printf("feed[%d] = %f\n", i, out[i]);
+			out[i] = transfer_function(out[i]);
+			printf("activate: %f\n", out[i]);
 		}
 	}
 
@@ -107,65 +107,65 @@ namespace CharacterRecognition {
 	//	}
 	//}
 
-	void update_weights(float* delta_weights, float* weights, float* gradient, float* data, int length)
-	{
-		for (int i = 0; i < 6; i++)
-		{
+	//void update_weights(float* delta_weights, float* weights, float* gradient, float* data, int length)
+	//{
+	//	for (int i = 0; i < 6; i++)
+	//	{
 
-		}
-	}
+	//	}
+	//}
 
-	float calculate_hidden_gradient( float* weight, float* gradient )
-	{
-		weight[]
-		return (delta * transfer_derivative(out));
-	}
+	//float calculate_hidden_gradient( float* weight, float* gradient )
+	//{
+	//	weight[]
+	//	return (delta * transfer_derivative(out));
+	//}
 
-	float calculate_gradient( float out, float target)
-	{
-		
-		return (out*target); // I think 1 / e + x 
-	}
+	//float calculate_gradient( float out, float target)
+	//{
+	//	
+	//	return (out*target); // I think 1 / e + x 
+	//}
 
-	void back_propagate(float* data, int length,float* weights, float expected_value, float* gradient, float* delta_weight)
-	{
-		float error = 0;
-		// loop through and compute the rms not including the bias node 
-		for (int i = 0; i < length; i++)
-		{
-			// get the delta between what we predicted vs expected
-			float delta = data[i] - expected_value;
+	//void back_propagate(float* data, int length,float* weights, float expected_value, float* gradient, float* delta_weight)
+	//{
+	//	float error = 0;
+	//	// loop through and compute the rms not including the bias node 
+	//	for (int i = 0; i < length; i++)
+	//	{
+	//		// get the delta between what we predicted vs expected
+	//		float delta = data[i] - expected_value;
 
-			error = delta * delta;
-		}
-		error /= length;
-		error = std::sqrt(error);
+	//		error = delta * delta;
+	//	}
+	//	error /= length;
+	//	error = std::sqrt(error);
 
-		// calcuate gradient on input layer?
-		// only have one output layer node thing
-		for (int n = 4; n < 6; n++)
-		{
-			// calculate gradient of the layer
-			gradient[n] = calculate_gradient( weights[n], error );
-		}
+	//	// calcuate gradient on input layer?
+	//	// only have one output layer node thing
+	//	for (int n = 4; n < 6; n++)
+	//	{
+	//		// calculate gradient of the layer
+	//		gradient[n] = calculate_gradient( weights[n], error );
+	//	}
 
-		//calculate gradient on hidden layer?
+	//	//calculate gradient on hidden layer?
 
-		for (int n = 0; n < 4; n+=2)
-		{
-			// calculate hidden layer
-			calculate_hidden_gradient(weights[n], gradient[6-1-n], data[n]);
-		}
+	//	for (int n = 0; n < 4; n+=2)
+	//	{
+	//		// calculate hidden layer
+	//		calculate_hidden_gradient(weights[n], gradient[6-1-n], data[n]);
+	//	}
 
-		// update the weights
-		update_weights();
+	//	// update the weights
+	//	update_weights();
 
-	}
+	//}
 
     /**
         * Example of use case (follow how you did it in stream compaction)
         */
-    void train(int n, int *odata, const int *idata) {
+    void train(int n, int *data, int expected) {
         timer().startGpuTimer();
         
 		float weights[6];
@@ -231,54 +231,39 @@ namespace CharacterRecognition {
         timer().endGpuTimer();
     }
     
-	void train_cpu(int n, int *odata, const int *idata)
+	void train_cpu(int n, float *data, float expected)
 	{
 		
-		float weights[6];
-		float in_data[8] = { 0,0,0,1,1,0,1,1 };
-		float expected[8] = { 0,0,1,1,1,1,0,0 };
-		float out_data[4];
-		float temp[4] = { 0,0 };
-		weights[0] = 10.1;
-		weights[1] = .9;
-		weights[2] = 20;
-		weights[3] = .87;
-		weights[4] = 41;
-		weights[5] = -54;
+		float weights_layer1[4];
+		float weights_layer2[2]
+		weights_layer1[0] = 10.1;
+		weights_layer1[1] = .9;
+		weights_layer1[2] = 20;
+		weights_layer1[3] = .87;
+		weights_layer2[4] = 41;
+		weights_layer2[5] = -54;
 		int wt_idx = 0;
-		int input_idx = 0;
-		float gradient[4];
 
-		int training = 0;
-		int next = 0;
-		while (training < 2000)
+		float* hidden_layer = new float[n];
+		float* out_put_layer = new float[n];
+		float* temp[NUM_LAYERS + 1]; // pointer to arrays
+		temp[0] = data;
+		temp[1] = hidden_layer;
+		temp[2] = out_put_layer;
+		float* temp_weights[NUM_LAYERS]; // pointer to arrays
+		temp[0] = weights_layer1;
+		temp[1] = weights_layer2;
+
+
+		for (int i = 0; i < NUM_LAYERS; i++)
 		{
-			temp[0] = in_data[next];
-			temp[1] = in_data[next + 1];
-			float exp = expected[next];
-			next += 2;
-			if (next >= 8)
-			{
-				next = 0;
-			}
-
-			for (int i = NUM_LAYERS; i > 0; i--)
-			{
-				feed_forward(&temp[0], (float*)&weights[wt_idx], i);
-				//activate_function(&temp[0],&out_data[input_idx], i );
-				wt_idx += 4; // length of array? NUM_NODES* INPUT NODES?
-				memcpy(&out_data[input_idx], temp, i * sizeof(float));
-				input_idx += i;
-			}
-
-			printf("error %f \n", out_data[0]);
-			printf("error %f \n", out_data[1]);
-			printf("error %f \n", out_data[2]);
-
-
-			back_propagate(in_data,NUM_LAYERS+1,&weights[0],exp,gradient);
-			training++;
+			feed_forward(temp[i],temp[i+1], temp_weights[i], NUM_LAYERS-i);
 		}
+
+
+		delete hidden_layer;
+		delete out_put_layer;
+		//back_propagate(in_data,NUM_LAYERS+1,&weights[0],exp,gradient
 		
 
 	}
