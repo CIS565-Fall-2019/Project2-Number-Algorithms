@@ -116,3 +116,9 @@ The following graph shows a comparison between the optimized work efficient impl
 ![](img/sc_array_size_3.PNG)
 
 There is a significant improvement in performance with the optimized version of the work efficient scan for stream compaction. The regular implementation is most of the times worse than the CPU implementation.
+
+#### Sample Output
+
+The sample output screen shot:
+
+![](img/scan_sc_results.PNG)
