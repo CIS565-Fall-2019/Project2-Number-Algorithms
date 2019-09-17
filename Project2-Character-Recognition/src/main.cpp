@@ -53,10 +53,6 @@ int main(int argc, char* argv[]) {
 
 	CharacterRecognition::train(numInputXOR, inputs, expected);
 
-	for (int i = 0; i < numTotalInput; i++) {
-		delete[] inputs[i];
-	}
-
 
     printf("\n");
     printf("*********************************\n");

@@ -10,7 +10,8 @@
 #include <sstream>
 #include <thrust/random.h>
 
-#define EPSILON 0.0001
+#define EPSILON 0.0005
+#define MAX_ITER 1 << 10
 
 namespace CharacterRecognition {
     using Common::PerformanceTimer;
@@ -46,11 +47,11 @@ namespace CharacterRecognition {
 		thrust::default_random_engine rng(hash((int)(index * time)));
 		thrust::uniform_real_distribution<float> unitDistrib(0, 1);
 
-		return (float)unitDistrib(rng);
+		return (double)unitDistrib(rng);
 	}
 
 	// compute random float value between 0 and 1
-	__global__ void kernRandom(int n, int time, float* out) {
+	__global__ void kernRandom(int n, int time, double* out) {
 		int index = (blockIdx.x * blockDim.x) + threadIdx.x;
 		if (index >= n) {
 			return;
@@ -75,7 +76,7 @@ namespace CharacterRecognition {
 	// per OUTPUT
 	// numHidden, dev_hiddenLayer, numInput, dev_input, dev_weights, 0
 	// 1,         dev_output,      numHidden, dev_hiddenLayer, dev_weights, numWeights1s
-	__global__ void kernComputeLayerSum(int n, float *out, int inCount, float *in, float *weights, int weightsOffset) {
+	__global__ void kernComputeLayerSum(int n, float *out, int inCount, float *in, double *weights, int weightsOffset) {
 		int index = (blockIdx.x * blockDim.x) + threadIdx.x;
 		if (index >= n) {
 			return;
@@ -103,7 +104,7 @@ namespace CharacterRecognition {
 		in[index] = activationFxn(in[index]);
 	}
 
-	__global__ void kernComputePartialDerivativeLayer1(int n, float *outDerivatives, float *weights, 
+	__global__ void kernComputePartialDerivativeLayer1(int n, double *outDerivatives, double *weights,
 		int numWeights1, float *input, int numHidden, float *hiddenOutput, float output, float expected) {
 		int index = (blockIdx.x * blockDim.x) + threadIdx.x;
 		if (index >= n) {
@@ -121,7 +122,7 @@ namespace CharacterRecognition {
 		outDerivatives[index] = partialDerivative;
 	}
 
-	__global__ void kernComputePartialDerivativeLayer2(int n, float *outDerivatives, float *weights,
+	__global__ void kernComputePartialDerivativeLayer2(int n, double *outDerivatives, double *weights,
 		int numWeights1, float *input, int numHidden, float *hiddenOutput, float output, float expected) {
 		int index = (blockIdx.x * blockDim.x) + threadIdx.x;
 		if (index >= n) {
@@ -134,10 +135,10 @@ namespace CharacterRecognition {
 		outDerivatives[numWeights1 + index] = partialDerivative;
 	}
 
-	void getWeights(int numWeights, float *weights, bool training) {
+	void getWeights(int numWeights, double *weights, bool training) {
 		if (training) {
-			float *dev_weights;
-			cudaMalloc((void**)&dev_weights, numWeights * sizeof(float));
+			double *dev_weights;
+			cudaMalloc((void**)&dev_weights, numWeights * sizeof(double));
 			checkCUDAError("cudaMalloc dev_weights failed!");
 
 			// fill weights with random numbers between 0 and 1
@@ -146,17 +147,17 @@ namespace CharacterRecognition {
 			checkCUDAError("kernRandom failed!");
 
 			// copy weights back to host
-			cudaMemcpy(weights, dev_weights, numWeights * sizeof(float), cudaMemcpyDeviceToHost);
+			cudaMemcpy(weights, dev_weights, numWeights * sizeof(double), cudaMemcpyDeviceToHost);
 			checkCUDAError("cudaMemcpy weights dev_weights failed!");
 
 			// TODO: REMOVE LATER
-			/*
+			
 			weights[0] = 10.1;
 			weights[1] = 0.9;
 			weights[2] = 20.0;
 			weights[3] = 0.87;
 			weights[4] = 41.0;
-			weights[5] = -54.0;*/
+			weights[5] = -54.0;
 
 			cudaFree(dev_weights);
 			checkCUDAError("cudaFree dev_weights failed!");
@@ -167,7 +168,7 @@ namespace CharacterRecognition {
 		}
 	}
 
-	__global__ void kernScale(int n, float *buffer, float scale) {
+	__global__ void kernScale(int n, double *buffer, float scale) {
 		int index = (blockIdx.x * blockDim.x) + threadIdx.x;
 		if (index >= n) {
 			return;
@@ -176,14 +177,7 @@ namespace CharacterRecognition {
 		buffer[index] = scale * buffer[index];
 	}
 
-	__global__ void kernSumWeights(int n, float *allWeightsDerivatives, int numWeights) {
-		int index = (blockIdx.x * blockDim.x) + threadIdx.x;
-		if (index >= n) {
-			return;
-		}
-	}
-
-	__global__ void kernScanUpsweep(int n, int iteration, float *buffer) {
+	__global__ void kernScanUpsweep(int n, int iteration, double *buffer) {
 		int index = (blockIdx.x * blockDim.x) + threadIdx.x;
 		if (index >= n) {
 			return;
@@ -210,20 +204,20 @@ namespace CharacterRecognition {
 		return 1 << count;
 	}
 
-	__global__ void kernModifyWeights(int n, float *weights, float *allWeightsErrors, int offset) {
+	__global__ void kernModifyWeights(int n, double *weights, double *allWeightsErrors, int offset) {
 		int index = (blockIdx.x * blockDim.x) + threadIdx.x;
 		if (index >= n) {
 			return;
 		}
-		weights[index] += allWeightsErrors[offset * index + offset];
+		weights[index] += allWeightsErrors[offset * index + (offset - 1)];
 	}
 
-	void adjustWeights(int numTotalInput, int numWeights, float *weights, std::vector<float*> allWeightsDerivatives, float error) {
+	void adjustWeights(int numTotalInput, int numWeights, double *weights, std::vector<double*> allWeightsDerivatives, float error) {
 		int numTotalPowerOf2 = nextPowerOfTwo(numTotalInput);
 
 		// reorganize all weights derivatives to be in one buffer
 		// buffer with zero's so it can be used in scan upsweep
-		float *allWeightsDerivativesShuffled = new float[numTotalPowerOf2 * numWeights];
+		double *allWeightsDerivativesShuffled = new double[numTotalPowerOf2 * numWeights];
 		for (int i = 0; i < numTotalInput; i++) {
 			for (int j = 0; j < numWeights; j++) {
 				allWeightsDerivativesShuffled[j * numTotalPowerOf2 + i] = allWeightsDerivatives[i][j];
@@ -236,18 +230,18 @@ namespace CharacterRecognition {
 		}
 
 
-		float *dev_allWeightsDerivatives;
-		cudaMalloc((void**)&dev_allWeightsDerivatives, (numTotalPowerOf2 * numWeights) * sizeof(float));
+		double *dev_allWeightsDerivatives;
+		cudaMalloc((void**)&dev_allWeightsDerivatives, (numTotalPowerOf2 * numWeights) * sizeof(double));
 		checkCUDAError("cudaMalloc dev_allWeightsDerivatives failed!");
 
-		cudaMemcpy(dev_allWeightsDerivatives, allWeightsDerivativesShuffled, (numTotalPowerOf2 * numWeights) * sizeof(float), cudaMemcpyHostToDevice);
+		cudaMemcpy(dev_allWeightsDerivatives, allWeightsDerivativesShuffled, (numTotalPowerOf2 * numWeights) * sizeof(double), cudaMemcpyHostToDevice);
 		checkCUDAError("cudaMemcpy dev_allWeightsDerivatives allWeightsDerivativesShuffled failed!");
 
-		float *dev_weights;
-		cudaMalloc((void**)&dev_weights, numWeights * sizeof(float));
+		double *dev_weights;
+		cudaMalloc((void**)&dev_weights, numWeights * sizeof(double));
 		checkCUDAError("cudaMalloc dev_weights failed!");
 
-		cudaMemcpy(dev_weights, weights, numWeights * sizeof(float), cudaMemcpyHostToDevice);
+		cudaMemcpy(dev_weights, weights, numWeights * sizeof(double), cudaMemcpyHostToDevice);
 		checkCUDAError("cudaMemcpy dev_weights weights failed!");
 
 		// for each weight derivative, compute delta weight
@@ -256,7 +250,7 @@ namespace CharacterRecognition {
 		kernScale<<<gridSize, blockSize>>>(numTotalPowerOf2 * numWeights, dev_allWeightsDerivatives, lambda);
 		checkCUDAError("kernScale failed!");
 
-		cudaMemcpy(allWeightsDerivativesShuffled, dev_allWeightsDerivatives, (numTotalPowerOf2 * numWeights) * sizeof(float), cudaMemcpyDeviceToHost);
+		cudaMemcpy(allWeightsDerivativesShuffled, dev_allWeightsDerivatives, (numTotalPowerOf2 * numWeights) * sizeof(double), cudaMemcpyDeviceToHost);
 		checkCUDAError("cudaMemcpy dev_allWeightsDerivatives allWeightsDerivativesShuffled failed!");
 
 		// sum delta weights over all test input for a given weight
@@ -266,7 +260,7 @@ namespace CharacterRecognition {
 			checkCUDAError("kernScanUpsweep failed!");
 		}
 
-		cudaMemcpy(allWeightsDerivativesShuffled, dev_allWeightsDerivatives, (numTotalPowerOf2 * numWeights) * sizeof(float), cudaMemcpyDeviceToHost);
+		cudaMemcpy(allWeightsDerivativesShuffled, dev_allWeightsDerivatives, (numTotalPowerOf2 * numWeights) * sizeof(double), cudaMemcpyDeviceToHost);
 		checkCUDAError("cudaMemcpy dev_allWeightsDerivatives allWeightsDerivativesShuffled failed!");
 
 		// add delta weights to weights
@@ -275,7 +269,7 @@ namespace CharacterRecognition {
 		checkCUDAError("kernModifyWeights failed!");
 
 		// copy weights back to host
-		cudaMemcpy(weights, dev_weights, numWeights * sizeof(float), cudaMemcpyDeviceToHost);
+		cudaMemcpy(weights, dev_weights, numWeights * sizeof(double), cudaMemcpyDeviceToHost);
 		checkCUDAError("cudaMemcpy weights dev_weights failed!");
 
 		cudaFree(dev_allWeightsDerivatives);
@@ -293,15 +287,15 @@ namespace CharacterRecognition {
 		timer().endGpuTimer();
 	}
 	*/
-float runOneInput(int numInput, int numHidden, const float *input, const float *weights, float *weightDerivatives, float expected, bool training) {
+float runOneInput(int numInput, int numHidden, const float *input, const double *weights, double *weightDerivatives, float expected, bool training) {
 	int numWeights1 = numInput * numHidden;
 	int numWeights2 = numHidden;
 
 	float *dev_input;
 	float *dev_hiddenLayer;
 	float *dev_output;
-	float *dev_weights;
-	float *dev_weightDerivatives;
+	double *dev_weights;
+	double *dev_weightDerivatives;
 
 	// malloc device buffers
 	cudaMalloc((void**)&dev_input, numInput * sizeof(float));
@@ -313,14 +307,14 @@ float runOneInput(int numInput, int numHidden, const float *input, const float *
 	cudaMalloc((void**)&dev_output, numHidden * sizeof(float));
 	checkCUDAError("cudaMalloc dev_output failed!");
 
-	cudaMalloc((void**)&dev_weights, (numWeights1 + numWeights2) * sizeof(float));
+	cudaMalloc((void**)&dev_weights, (numWeights1 + numWeights2) * sizeof(double));
 	checkCUDAError("cudaMalloc dev_weights failed!");
 
-	cudaMalloc((void**)&dev_weightDerivatives, (numWeights1 + numWeights2) * sizeof(float));
+	cudaMalloc((void**)&dev_weightDerivatives, (numWeights1 + numWeights2) * sizeof(double));
 	checkCUDAError("cudaMalloc dev_weightsError failed!");
 
 	// copy weights from host to device
-	cudaMemcpy(dev_weights, weights, (numWeights1 + numWeights2) * sizeof(float), cudaMemcpyHostToDevice);
+	cudaMemcpy(dev_weights, weights, (numWeights1 + numWeights2) * sizeof(double), cudaMemcpyHostToDevice);
 	checkCUDAError("cudaMemcpy dev_weights weights failed!");
 
 	// copy input from host to device
@@ -372,7 +366,7 @@ float runOneInput(int numInput, int numHidden, const float *input, const float *
 		checkCUDAError("kernComputePartialDerivativeLayer2 failed!");
 
 		// copy derivatives to host
-		cudaMemcpy(weightDerivatives, dev_weightDerivatives, (numWeights1 + numWeights2) * sizeof(float), cudaMemcpyDeviceToHost);
+		cudaMemcpy(weightDerivatives, dev_weightDerivatives, (numWeights1 + numWeights2) * sizeof(double), cudaMemcpyDeviceToHost);
 		checkCUDAError("cudaMemcpy weightDerivatives dev_weightDerivatives failed!");
 	}
 
@@ -397,17 +391,18 @@ void train(int numInput, std::vector<float*> inputs, std::vector<int> expected) 
 	int numWeights = (numInput * numHidden) + numHidden;
 
 	// get weights
-	float *weights = new float[numWeights];
+	double *weights = new double[numWeights];
 	getWeights(numWeights, weights, true);
 
 	// create weight errors 
-	std::vector<float*> allWeightErrors;
+	std::vector<double*> allWeightErrors;
 	for (int i = 0; i < numTotalInput; i++) {
-		float *weightErrors = new float[numWeights];
+		double *weightErrors = new double[numWeights];
 		allWeightErrors.push_back(weightErrors);
 	}
 
 	float totalError;
+	int numIter = 0;
 
 	while (true) {
 		totalError = 0.f;
@@ -418,7 +413,7 @@ void train(int numInput, std::vector<float*> inputs, std::vector<int> expected) 
 		}
 		totalError /= 2.f;
 
-		if (totalError < EPSILON) {
+		if (totalError < EPSILON || numIter > MAX_ITER) {
 			// finished training
 			// save weights to txt file
 			std::ofstream weightsFile;
@@ -434,6 +429,7 @@ void train(int numInput, std::vector<float*> inputs, std::vector<int> expected) 
 		else {
 			adjustWeights(numTotalInput, numWeights, weights, allWeightErrors, totalError);
 		}
+		numIter++;
 	}
 
 	delete[] weights;
@@ -456,13 +452,13 @@ void train(int numInput, std::vector<float*> inputs, std::vector<int> expected) 
 		int numWeights = (numInput * numHidden) + numHidden;
 
 		// get weights
-		float* weights = new float[numWeights];
+		double* weights = new double[numWeights];
 		getWeights(numWeights, weights, false);
 
 		float totalError = 0.f;
 		for (int i = 0; i < inputs.size(); i++) {
 			float *in = inputs[i];
-			float* weightDerivatives = new float[0];
+			double* weightDerivatives = new double[0];
 			totalError += runOneInput(numInput, numHidden, in, weights, weightDerivatives, expected[i], false);
 		}
 
