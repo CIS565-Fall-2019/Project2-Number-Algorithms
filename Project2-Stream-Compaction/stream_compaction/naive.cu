@@ -4,6 +4,8 @@
 #include "common.h"
 #include "naive.h"
 
+#define blockSize 512
+
 
 namespace StreamCompaction {
     namespace Naive {
@@ -52,13 +54,7 @@ namespace StreamCompaction {
          */
         void scan(int n, int *odata, const int *idata) {
 			bool timer_started = false;
-			try {
-				timer().startGpuTimer();
-			}
-			catch (const std::exception& e) {
-				timer_started = true;
-			}
-			int blockSize = 32;
+			
 			//printArray(n, idata);
 			cudaMalloc((void**)&dev_idata, n * sizeof(int));
 			cudaMemcpy(dev_idata, idata, sizeof(int) * n, cudaMemcpyHostToDevice);
@@ -66,17 +62,27 @@ namespace StreamCompaction {
 			cudaMalloc((void**)&dev_odata, n * sizeof(int));
 			cudaMemcpy(dev_odata, odata, sizeof(int) * n, cudaMemcpyHostToDevice);
 
+			try {
+				timer().startGpuTimer();
+			}
+			catch (const std::exception& e) {
+				timer_started = true;
+			}
+
 			dim3 fullBlocksPerGrid((n + blockSize - 1) / blockSize);
+
+
 			for (int d = 1; d <= ilog2ceil(n); d++) {
 				scan_GPU << <fullBlocksPerGrid, blockSize >> > (n, dev_idata, dev_odata, d);
 				cudaMemcpy(dev_idata, dev_odata, sizeof(int) * n, cudaMemcpyDeviceToDevice);
 			}
-			cudaMemcpy(odata+1, dev_odata, sizeof(int) * (n-1), cudaMemcpyDeviceToHost);
-			odata[0] = 0;
-			//printArray(n, odata);
+
 			if (timer_started == false) {
 				timer().endGpuTimer();
 			}
+			cudaMemcpy(odata+1, dev_odata, sizeof(int) * (n-1), cudaMemcpyDeviceToHost);
+			odata[0] = 0;
+			//printArray(n, odata);
 			cudaFree(dev_odata);
 			cudaFree(dev_idata);
         }
