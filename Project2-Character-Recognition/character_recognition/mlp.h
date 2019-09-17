@@ -12,5 +12,5 @@ namespace CharacterRecognition {
 
 	float mlp(int inputSize, int numHiddenLayers, float expectedValue, 
 		const float *weights1, const float *weights2, 
-		const float *idata, float *adjustedWeights1, float *adjustedWeights2);
+		const float *idata, float *adjustedWeights1, float *adjustedWeights2, float *partialDerivatives1, float *partialDerivatives2);
 }
