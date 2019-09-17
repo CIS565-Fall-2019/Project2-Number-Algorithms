@@ -25,9 +25,9 @@ The scan algorithm on the cpu is a simple loop over the data.  For an exclusive 
 
 ```
 outputData[0] = 0;
-				for (int k = 1; k < n; ++k) {
-					outputData[k] = outoutData[k - 1] + inputData[k - 1];
-				}
+for (int k = 1; k < n; ++k) {
+    outputData[k] = outoutData[k - 1] + inputData[k - 1];
+}
 ```
 
 ## GPU
