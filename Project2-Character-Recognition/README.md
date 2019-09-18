@@ -14,7 +14,7 @@ Unfortunately, I will be taking a zero for this part of the project. I implement
 
 Thursday morning I flew to Michigan to be in a wedding and came back Monday morning. Needless to say time was not on my side.
 
-Instead of grading my project please enjoy these nice photos of me from the wedding.
+Instead of grading my project please enjoy these nice photos of me from the wedding and a yak I found.
 
 * Me trying to hack my neural network ... (yes that is me ... don't lock your keys in your trunk when you are in the middle of no where Michigan )
 
@@ -27,3 +27,13 @@ Instead of grading my project please enjoy these nice photos of me from the wedd
 * Me pointing at my working neural network like ... 
 
 ![](img/nn.jpg)
+
+* A random yak in Michigan?
+
+![](img/yak.jpg)
+
+
+
+![](img/ss.jpg)
+
+
