@@ -25,25 +25,32 @@ After each a forward pass is run, an error in the difference between the actual 
 
  ![](./img/MLP.png)
 
-### Trainig Details
+### Implementation Details
 
   ![](img/MLPmine.PNG)
  
  We design our MLP network to train on batches of data. Therefore, the input dimension is NxD where N is the number of examples in a batch and D is the dimentionality of each example. After the hidden layer (NxH) is computed, the values are activated useing a Sigmoid activation function. Finally, the ouput layer, of dimension NxC where C is the numbe of classes, is fed into a softmax layer to compute probabilties over classes. We compute loss over these class probablity vectors using Multi Class Cross Entropy. 
 
-Sequential flow of forward pass:
+Forward Pass:
 ```
-f1 = W1*X1
-X2 = sigmod(f1)
-Scores = W2*X2
-Probab = Softmax(Scores)
+h = W1*X1
+X2 = sigmod(h)
+O = W2*X2
+Probab = Softmax(O)
 Loss = CrossEntropy(Probab)
 
 ```
-Once the Loss is computed, the gradients with respect to W1 and W2 are computed using the chain rule and are reduced to simple matrix forms. See the code for more details about loss simplification.
+Once the Loss is computed, the gradients with respect to W1 and W2 are computed using the chain rule and are reduced to simple matrix forms. See the code comments for more details about loss simplification.
+
+Backward Pass:
 ```
-dL/dw1 = dL/Pr * dPr/dSc * dSc/x2 * dx2/df1 * df1/w1;
+//Compute Derivatives Using Chain Rule
+dL/dw1 = dL/Pr * dPr/dSc * dSc/x2 * dx2/dh * dh/w1;
 dL/dw2 = dL/Pr * dPr/dSc * dSc/x2;
+
+//Update Weights 
+w1 = w1 - LearningRate*dw1;
+w2 = w2 - LearningRate*dw2;
 ```
 
 ###  1: Training MLP to Predict a 2x2 XOR
@@ -86,9 +93,19 @@ We train an MLP to predict characters from images in this task. Given 52 images 
  ![](img/CharRecStats.PNG)
  
  ![](img/CharRecLoss.PNG)
- 
+  The training is stable as the loss reduces consistanly at every uweight update.
   The learned weights have been added to the repo [here](/build).
-  
+
+### Performance
+
+Inference Time v/s Hidden Nodes
+
+Inference Time v/s Data Size
+
+
 ### Observations and Comments
 - The MLP describled above is able to learn XOR, a non-linearly seperable function, only when a bias term is added to the input.
 - In case of character recognition, we only have one image sample per class of characters, therefore the networks learns to memorise the data mapping to the classes and would not generalise well. In order to build a robust character recongition network, an ideal dataset of charcters per class would need to have enough variation in font intentsity. 
+
+### Extra Credit
+We implemented batch processing of data instead of running one exampe at a time. This required simplyfying gradinets at the matrix level. These have been laid out in detail in the code. 
