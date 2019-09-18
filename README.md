@@ -3,14 +3,24 @@ CUDA Number Algorithms
 
 **University of Pennsylvania, CIS 565: GPU Programming and Architecture, Project 2**
 
-* (TODO) YOUR NAME HERE
-  * (TODO) [LinkedIn](), [personal website](), [twitter](), etc.
-* Tested on: (TODO) Windows 22, i7-2222 @ 2.22GHz 22GB, GTX 222 222MB (Moore 2222 Lab)
+Davis Polito 
+*  [https://github.com/davispolito/Project0-Getting-Started/blob/master]()
+* Tested on: Windows 10, i7-8750H @ 2.20GHz 16GB, GTX 1060       
+#Optimizing Block Size Per Algorithm
 
-### (TODO: Your README)
+First we must optimize block size per algorithm
+![block optimization graph](/Project2-Character-Recognition/img/blocksizeopt.png)
+After creating this graph I chose blocksize to be 128 and 512 for naive and work efficient scan
 
-Link to the readmes of the other two subprojects.
+#Scan comparison
+![size vs. time graph](/Project2-Character-Recognition/img/sizevstime.png)
 
-Add anything else you think is relevant up to this point.
-(Remember, this is public, so don't put anything here that you don't want to share with the world.)
+
+##Questions
+#Explanations for each result
+
+######cpu
+######naive
+######work-efficient
+#####thrust
 
