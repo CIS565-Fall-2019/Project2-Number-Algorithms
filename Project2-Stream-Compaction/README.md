@@ -111,7 +111,7 @@ The above figure is the time vs array size plots for the stream compaction algor
 
 
 
-The above figure is the time vs array size plots for the the sorting algorithm running powers of 2 while the picture below is the stream compaction algorithm running for non powers of 2.
+The above figure is the time vs array size plots for the the sorting algorithm running powers of 2 while the picture below is the sorting algorithm running for non powers of 2.
 
 ![sort_pow2](./img/sort_nonpow2.png)
 
