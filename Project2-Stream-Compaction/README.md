@@ -8,8 +8,10 @@ CIS 565: GPU Programming and Architecture**
 
 ### Index
 
-- [Introduction]( )
-- [Algorithm]()
+- [Introduction](https://github.com/chhavisharma/Project2-Number-Algorithms/blob/master/Project2-Stream-Compaction/README.md#introduciton)
+- [Algorithms](https://github.com/chhavisharma/Project2-Number-Algorithms/blob/master/Project2-Stream-Compaction/README.md#algorithms)
+- [Questions and Performance Analysis](https://github.com/chhavisharma/Project2-Number-Algorithms/blob/master/Project2-Stream-Compaction/README.md#questions-and-performance-analysis)
+
 
 ### Introduciton
 
