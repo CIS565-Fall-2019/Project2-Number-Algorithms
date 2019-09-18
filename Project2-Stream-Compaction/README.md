@@ -86,7 +86,7 @@ Finally in the downsweep, starting from the Root node, we perfom the following s
 
 ![DownSweep](img/DownSweepScan.png)
 
-##### 4: Work-Efficient Stream Compaction
+#### 4: Work-Efficient Stream Compaction
 Work efficient stram compaction is nothing but the stream compaction algorithm explained above that uses the work-efficient scan. 
     ```
      compactWithScan(n, odata, idata) 
@@ -94,7 +94,7 @@ Work efficient stram compaction is nothing but the stream compaction algorithm e
         Compute scan (Work efficiently)
         Scatter 
     ```
-####  5: Using Thrust's Implementation
+#### 5: Using Thrust's Implementation
 We also experiemented with CUDA's `thrust::exclusive_scan(first, last, result)` function to compute scan and compare performance.
 
 
