@@ -30,7 +30,7 @@ Instead of grading my project please enjoy these nice photos of me from the wedd
 
 * A random yak in Michigan?
 
-![](img/yak.jpg)
+![](img/yak.jpg?style=centerme)
 
 
 
