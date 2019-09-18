@@ -88,64 +88,8 @@ Here we use a simple scan (single pass over the array) to calculate the indices 
 Here we follow similar to CPU compaction with scanning, but we perform the scan using our work-efficient GPU scan.
 
 
-<a name = "output"/>
-## Sample Output
-```
-****************
-** SCAN TESTS **
-****************
-    [  23  47  49  19  49  18  42  24  39  24   0  23  17 ...   9   0 ]
-==== cpu scan, power-of-two ====
-   elapsed time: 4.554ms    (std::chrono Measured)
-    [   0  23  70 119 138 187 205 247 271 310 334 334 357 ... 25650262 25650271 ]
-==== cpu scan, non-power-of-two ====
-   elapsed time: 1.5641ms    (std::chrono Measured)
-    [   0  23  70 119 138 187 205 247 271 310 334 334 357 ... 25650190 25650225 ]
-    passed
-==== naive scan, power-of-two ====
-   elapsed time: 5.29328ms    (CUDA Measured)
-    passed
-==== naive scan, non-power-of-two ====
-   elapsed time: 5.14387ms    (CUDA Measured)
-    passed
-==== work-efficient scan, power-of-two ====
-   elapsed time: 1.35523ms    (CUDA Measured)
-    passed
-==== work-efficient scan, non-power-of-two ====
-   elapsed time: 1.34246ms    (CUDA Measured)
-    passed
-==== thrust scan, power-of-two ====
-   elapsed time: 3.9569ms    (CUDA Measured)
-    passed
-==== thrust scan, non-power-of-two ====
-   elapsed time: 3.39987ms    (CUDA Measured)
-    passed
 
-*****************************
-** STREAM COMPACTION TESTS **
-*****************************
-    [   1   3   3   3   1   2   2   0   1   0   2   1   1 ...   3   0 ]
-==== cpu compact without scan, power-of-two ====
-   elapsed time: 2.5452ms    (std::chrono Measured)
-    [   1   3   3   3   1   2   2   1   2   1   1   3   3 ...   1   3 ]
-    passed
-==== cpu compact without scan, non-power-of-two ====
-   elapsed time: 2.6496ms    (std::chrono Measured)
-    [   1   3   3   3   1   2   2   1   2   1   1   3   3 ...   1   2 ]
-    passed
-==== cpu compact with scan ====
-   elapsed time: 9.8439ms    (std::chrono Measured)
-    [   1   3   3   3   1   2   2   1   2   1   1   3   3 ...   1   3 ]
-    passed
-==== work-efficient compact, power-of-two ====
-   elapsed time: 6.4849ms    (CUDA Measured)
-    passed
-==== work-efficient compact, non-power-of-two ====
-   elapsed time: 6.31091ms    (CUDA Measured)
-    passed
-Press any key to continue . . .
-
-```
+<a name = "performance"/>
 ## Performance Analysis
 ### Effect of Number of Elements
 We perform this by choosing the optimal blockSize for each implementation.
