@@ -27,7 +27,7 @@ ________________________________________________________________________________
 
 <a name = "Introduction"/>  
 
-## Overview
+## Introduction
 
 We have implemented Stream Compaction in CUDA from scratch in this project. Stream compaction is widely used in graphics pipelines like pathtracers. 
 In particular we use stream compaction to simply remove `0`s from an array of integers which is similar to removing terminated paths from an array of rays for a pathtracing pipeline.
@@ -50,6 +50,8 @@ In a naive attempt to parallelize, we observe that we can optimize by calculatin
 
 ![](img/NaiveParallelScan.jpg)
 
+<a name = "work"/>
+
 ### Work Efficient GPU Scan
 
 The aim is to go even further beyond, and we achieve that by clever indexing, 2 stage calculation and a balanced binary trees (didn't expect that did you?). For stage one, we perform the upsweep operation which propagates the partial sums upwards, as we can see in the image : 
@@ -71,7 +73,7 @@ Interestingly, it was observed that following the above algorithm exactly produc
 
 We can also use the thrust library's thrust::exclusive_scan to calculate the exclusive scan for the array.
 
-<a name = "results"/>
+<a name = "(#streamcompaction) "/>
 
 
 ## Stream Compaction Algorithm  
@@ -179,7 +181,7 @@ Finally we believe memory I/O cause significant bottlenecks in our GPU implement
 
 
 
-<a name = "output"/>    
+<a name = "outputs"/>    
 
 ## Output  
 
