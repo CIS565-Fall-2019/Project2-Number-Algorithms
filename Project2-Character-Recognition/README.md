@@ -18,7 +18,7 @@ CIS 565: GPU Programming and Architecture**
 - [Training MLP to Predict a 2x2 XOR](https://github.com/chhavisharma/Project2-Number-Algorithms/blob/master/Project2-Character-Recognition/README.md#training-mlp-to-predict-a-2x2-xor)
 - [Training MLP for Character Recognition](https://github.com/chhavisharma/Project2-Number-Algorithms/blob/master/Project2-Character-Recognition/README.md#2-training-mlp-for-character-recognition)
 - [Observations and Comments](https://github.com/chhavisharma/Project2-Number-Algorithms/blob/master/Project2-Character-Recognition/README.md#observations-and-comments)
-- [Extra Credit](https://github.com/chhavisharma/Project2-Number-Algorithms/blob/master/Project2-Character-Recognition/README.md#extra-credits)
+- [Extra Credit](https://github.com/chhavisharma/Project2-Number-Algorithms/blob/master/Project2-Character-Recognition/README.md#extra-credit)
 
 
 ### Introduciton
@@ -84,7 +84,7 @@ We train an MLP to predict output of a two bit XOR gate. Given 4 2-bit inputs an
  
  ![](img/XorLoss.PNG)
  
- The learned weights have been added to the repo [here](/build).
+ The learned weights have been added to the repo.
  
 ### Training MLP for Character Recognition
  
@@ -102,7 +102,7 @@ We train an MLP to predict characters from images in this task. Given 52 images 
  
  ![](img/CharRecLoss.PNG)
   The training is stable as the loss reduces consistanly at every uweight update.
-  The learned weights have been added to the repo [here](/build).
+  The learned weights have been added to the repo.
 
 ### Observations and Comments
 - The MLP describled above is able to learn XOR, a non-linearly seperable function, only when a bias term is added to the input.
