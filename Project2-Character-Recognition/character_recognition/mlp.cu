@@ -88,55 +88,51 @@ namespace CharacterRecognition {
 	
 	
 	
-	__global__ void addVectors(float *vec1, float *vec2, float *result) {
+	__global__ void SumVectors(float *vec1, float *vec2, float *out) {
 
 		int index = blockIdx.x * blockDim.x + threadIdx.x;
-		result[index] = vec1[index] + vec2[index];
+		out[index] = vec1[index] + vec2[index];
 	}
 
+	// help from http://luniak.io/cuda-neural-network-implementation-part
+	__global__ void ForwardLayer(float* W, float* activation, float* Z, float* b, int W_x_dim, int W_y_dim, int Acti_x_dim, int Acti_y_dim) {
 
-	__global__ void linearForward(float* W, float* A, float* Z, float* b,
-		int W_x_dim, int W_y_dim,
-		int A_x_dim, int A_y_dim) {
 		int row = blockIdx.y * blockDim.y + threadIdx.y;
 		int col = blockIdx.x * blockDim.x + threadIdx.x;
 
-		int Z_x_dim = A_x_dim;
+		int Z_x_dim = Acti_x_dim;
 		int Z_y_dim = W_y_dim;
 
 		float Z_value = 0;
 
 		if (row < Z_y_dim && col < Z_x_dim) {
 			for (int i = 0; i < W_x_dim; i++) {
-				Z_value += W[row * W_x_dim + i] * A[i * A_x_dim + col];
+				Z_value += W[row * W_x_dim + i] * activation[i * Acti_x_dim + col];
 			}
 			Z[row * Z_x_dim + col] = Z_value + b[row];
 		}
 	}
 
-	__global__ void linearBackprop(float* W, float* dZ, float *dA,
-		int W_x_dim, int W_y_dim,
-		int dZ_x_dim, int dZ_y_dim) {
+	__global__ void BackpropLayer(float* W, float* dZ, float *dActi, int W_x_dim, int W_y_dim, int dZ_x_dim, int dZ_y_dim) {
 
 		int col = blockIdx.x * blockDim.x + threadIdx.x;
 		int row = blockIdx.y * blockDim.y + threadIdx.y;
 
-		// W is treated as transposed
-		int dA_x_dim = dZ_x_dim;
-		int dA_y_dim = W_x_dim;
+		int dActi_x_dim = dZ_x_dim;
+		int dActi_y_dim = W_x_dim;
 
 		float dA_value = 0.0f;
 
-		if (row < dA_y_dim && col < dA_x_dim) {
+		if (row < dActi_y_dim && col < dActi_x_dim) {
 			for (int i = 0; i < W_y_dim; i++) {
 				dA_value += W[i * W_x_dim + row] * dZ[i * dZ_x_dim + col];
 			}
-			dA[row * dA_x_dim + col] = dA_value;
+			dActi[row * dActi_x_dim + col] = dA_value;
 		}
 	}
 
 
-	__global__ void reluActivationForward(float *Z, float *A, int n) {
+	__global__ void reluActivationForward(float *Z, float *activation, int n) {
 		int index = blockIdx.x * blockDim.x + threadIdx.x;
 
 		if (index < n) {
@@ -144,12 +140,12 @@ namespace CharacterRecognition {
 		}
 	}
 
-	__global__ void reluActivationBackprop(int n ,float *Z, float *dA, float *dZ) {
+	__global__ void reluActivationBackprop(int n ,float *Z, float *dZ, float *dactivation) {
 		int index = blockIdx.x * blockDim.x + threadIdx.x;
 
 		if (index < n) {
 			if (Z[index] > 0) {
-				dZ[index] = dA[index];
+				dZ[index] = dactivation[index];
 			}
 			else {
 				dZ[index] = 0;
@@ -161,19 +157,19 @@ namespace CharacterRecognition {
 		return 1.0f / (1 + exp(-x));
 	}
 
-	__global__ void sigmoidActivationForward(int n, float* Z, float* A) {
+	__global__ void sigmoidActivationForward(int n, float* Z, float* activation) {
 		int index = blockIdx.x * blockDim.x + threadIdx.x;
 
 		if (index < n) {
-			A[index] = sigmoid(Z[index]);
+			activation[index] = sigmoid(Z[index]);
 		}
 	}
 
-	__global__ void sigmoidActivationBackprop(int n, float *Z, float *dA, float *dZ) {
+	__global__ void sigmoidActivationBackprop(int n, float *Z, float *dZ, float *dactivation) {
 		int index = blockIdx.x * blockDim.x + threadIdx.x;
 
 		if (index < n) {
-			dZ[index] = dA[index] * sigmoid(Z[index]) * (1 - sigmoid(Z[index]));
+			dZ[index] = dactivation[index] * sigmoid(Z[index]) * (1 - sigmoid(Z[index]));
 		}
 	}
 
@@ -184,6 +180,7 @@ namespace CharacterRecognition {
 		if (index < n) {
 			float partial_cost = target[index] * logf(preds[index])
 				+ (1.0f - target[index]) * logf(1.0f - preds[index]);
+			
 			atomicAdd(loss, -partial_cost / n);
 		}
 	}
@@ -196,10 +193,11 @@ namespace CharacterRecognition {
 		}
 	}
 
-	__global__ void ElementWiseMultiplication(int n, float *input1, float *input2, float *output) {
+	__global__ void ElementWiseMultiplication(int n, float *input1, float *input2, float *out) {
 		int index = blockIdx.x * blockDim.x + threadIdx.x;
+
 		if (index <n) {
-			output[index] = input1[index] * input2[index];
+			out[index] = input1[index] * input2[index];
 		}
 	}
 
