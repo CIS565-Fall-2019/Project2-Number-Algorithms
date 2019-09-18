@@ -10,7 +10,14 @@ CUDA Character Recognition
 ## Sections
 
 * [Introduction](#introduction)
-* [Performance Analaysis](#performance-analysis)
-	* [Questions](#questions)
-* [Addition Optimization](#additional-optimization)
+* [Impelmentation](#implementation)
+* [Additions](#additions)
+
+# Introduction
+
+# Implementation
+
+# Additions
+## Matrix multiplication
+Each layer of the network is handle with a matrix multiplication through cublas then feed through the sigmoid activation in parallel.
 
