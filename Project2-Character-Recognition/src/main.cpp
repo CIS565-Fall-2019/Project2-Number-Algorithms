@@ -119,7 +119,7 @@ int main(int argc, char* argv[]) {
     // CHAR RECOG TESTING
     printf("CHAR RECOG TESTING\n");
 
-    i = 52; 
+    i = 1; 
     j = 10202; 
     k = 10202; // +1 for bias
 
@@ -139,8 +139,7 @@ int main(int argc, char* argv[]) {
         for (int f = 0; f < 52; f++)
         {
             float* tgt = new float[i];
-            zeroArray(i, tgt);
-            tgt[f] = 1;
+            tgt[0] = f + 1;
 
             float* input = new float[k];
             readFromFile(f + 1, input);
