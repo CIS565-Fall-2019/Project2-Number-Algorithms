@@ -59,7 +59,6 @@ Stream compaction, also known as stream filtering or selection, usually produces
 
 ####  4: Using Thrust's Implementation
 
-
 ### Questions and Performance Analysis
 
 * **BlockSize Optimization for each Implementation**
@@ -75,11 +74,15 @@ Stream compaction, also known as stream filtering or selection, usually produces
    Description.
   
    SCAN with increasing data size
+   
   ![](img/Scan1.png)    
+  
   ![](img/Scan2.png)    
   
    SCAN with increasing data size and nonPowersOf2
+   
   ![](img/Scan1NP.png)    
+  
   ![](img/Scan2NP.png)   
   
   * To guess at what might be happening inside the Thrust implementation (e.g.
@@ -95,59 +98,4 @@ Stream compaction, also known as stream filtering or selection, usually produces
 *  **Paste the output of the test program into a triple-backtick block in your
    README.**
   
-    ```
-    ****************
-    ** SCAN TESTS **
-    ****************
-        [  31  43   6   3  37   9   8  33  20  31   5   1  48 ...  31   0 ]
-    ==== cpu scan, power-of-two ====
-       elapsed time: 4.8772ms    (std::chrono Measured)
-        [   0  31  74  80  83 120 129 137 170 190 221 226 227 ... 25658550 25658581 ]
-    ==== cpu scan, non-power-of-two ====
-       elapsed time: 1.6622ms    (std::chrono Measured)
-        [   0  31  74  80  83 120 129 137 170 190 221 226 227 ... 25658439 25658476 ]
-        passed
-    ==== GPU naive scan, power-of-two ====
-       elapsed time: 5.3512ms    (CUDA Measured)
-        passed
-    ==== GPU naive scan, non-power-of-two ====
-       elapsed time: 5.20192ms    (CUDA Measured)
-        passed
-    ==== work-efficient scan, power-of-two ====
-       elapsed time: 3.72512ms    (CUDA Measured)
-        passed
-    ==== work-efficient scan, non-power-of-two ====
-       elapsed time: 3.75536ms    (CUDA Measured)
-        passed
-    ==== thrust scan, power-of-two ====
-    Created Thrust pointers
-       elapsed time: 0.438272ms    (CUDA Measured)
-        passed
-    ==== thrust scan, non-power-of-two ====
-    Created Thrust pointers
-       elapsed time: 0.38912ms    (CUDA Measured)
-        passed
-
-    *****************************
-    ** STREAM COMPACTION TESTS **
-    *****************************
-        [   3   1   0   1   1   1   2   3   2   1   1   3   2 ...   1   0 ]
-    ==== cpu compact without scan, power-of-two ====
-       elapsed time: 2.8238ms    (std::chrono Measured)
-        [   3   1   1   1   1   2   3   2   1   1   3   2   3 ...   1   1 ]
-        passed
-    ==== cpu compact without scan, non-power-of-two ====
-       elapsed time: 2.8316ms    (std::chrono Measured)
-        [   3   1   1   1   1   2   3   2   1   1   3   2   3 ...   1   3 ]
-        passed
-    ==== cpu compact with scan ====
-       elapsed time: 12.6421ms    (std::chrono Measured)
-        [   3   1   1   1   1   2   3   2   1   1   3   2   3 ...   1   1 ]
-        passed
-    ==== work-efficient compact, power-of-two ====
-       elapsed time: 13.7866ms    (CUDA Measured)
-        passed
-    ==== work-efficient compact, non-power-of-two ====
-       elapsed time: 14.1353ms    (CUDA Measured)
-        passed
-    ```
+![](img/Project2-Stream-Compaction/img/BlockSz-128-DataSz-20.PNG)
