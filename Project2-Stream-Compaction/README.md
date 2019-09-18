@@ -33,12 +33,12 @@ For comparing our alogirhtms with the exclusive scna implementation thrust libra
 
 ## 3. Performance Analysis
 
-In the performance analysis, we are first checking the best blockSize value for Naive and Work-Efficient algorithms. The plot for the analysis of the time elapsed vs Block size for both these implementations are given below for the data size at `2^20`:
+In the performance analysis, we are first checking the best blockSize value for Naive and Work-Efficient algorithms. The plot for the analysis of the time elapsed vs Block size for both these implementations are given below for the data size at `2^20` (Note that the analysis is for power of two number of elements):
 
 <p align="center"><img src="https://github.com/somanshu25/Project2-Number-Algorithms/blob/master/Project2-Stream-Compaction/img/Block_Size_vary.png" width="800"/></p>
 
 
-For the above, we see that the optimized implementations are when the Block size is 512 for both the algorithms. For checking how all of the versions of GPU compare with CPU version when varying the input size, I have broken the ployts into 2 plots as shown below. The first plot on the top is from input size `2^10` to `2^18` while the second plot on the bottom varies from `2^19` to `2^25` for better visualization of the plots and see how the algorithms are working for larger range of the input array.
+For the above, we see that the optimized implementations are when the Block size is 512 for both the algorithms. For checking how all of the versions of GPU compare with CPU version when varying the input size, I have broken the ployts into 2 plots as shown below. The first plot on the top is from input size `2^10` to `2^18` while the second plot on the bottom varies from `2^19` to `2^25` for better visualization of the plots and see how the algorithms are working for larger range of the input array (Note that the analysis is for power of two number of elements).
 
 <p align="center"><img src="https://github.com/somanshu25/Project2-Number-Algorithms/blob/master/Project2-Stream-Compaction/img/Plot_Scan_1.png" width="800"/></p>
 
@@ -59,7 +59,7 @@ Here, we can observe that the bottleneck for Work-efficient GPU stream compactio
 
 #### Paste the output of the test program into a triple-backtick block in your README.
 
-The output of the time elapsed for input size `2^20` data and blockSize of 512 for both the implementations of GPU-Naive and GPU-Work Efficient is below:
+The output of the time elapsed for input size `2^20` data and blockSize of 512 for both the implementations of GPU-Naive and GPU-Work Efficient is below (Note that the analysis is for power of two number of elements):
 ```
 ****************
 ** SCAN TESTS **
