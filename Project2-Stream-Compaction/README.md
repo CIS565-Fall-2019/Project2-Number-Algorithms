@@ -125,24 +125,24 @@ We also experiemented with CUDA's `thrust::exclusive_scan(first, last, result)` 
     
   * **Write a brief explanation of the phenomena you see here.Can you find the performance bottlenecks? Is it memory I/O? Computation? Is it different for each implementation?**
 
-  ** Scan Comparasion **
-      Varying the data from '2^10' to '2^28', we observe the following:-
-      - The CPU implementation of Scan is realtively faster than all the GPU implementations when the data size is small. This is becuase the compute time is not able to hide the other kernel overheads such as allocating threads and multiple kernel launches. 
-      - As the data size grows, serial compute scan on the CPU grows in time. The naive GPU scan and Work efficint scan are faster. 
-      - For really large data sizes, CPU scan runs faster than Naive GPU scan, which could be becuause the 'n* log2(n)' additional compute in the naive GPU scan overpowers the parallelization. 
-      - Work efficient scan perfroms the best on large data sizs, as comapred to Naive nad CPU scan, becuase of compute 'log(n)' and time 'log(n)' optimization. 
-      - Thrust scan perfroms far better than any other implementation for large data sizes. Thrust maybe optimizing the memory I/O further as comapred to our implementation of Work-efficient scan. 
+  **Scan Comparasion**
+  Varying the data from '2^10' to '2^28', we observe the following:-
+  - The CPU implementation of Scan is realtively faster than all the GPU implementations when the data size is small. This is becuase the compute time is not able to hide the other kernel overheads such as allocating threads and multiple kernel launches. 
+  - As the data size grows, serial compute scan on the CPU grows in time. The naive GPU scan and Work efficint scan are faster. 
+  - For really large data sizes, CPU scan runs faster than Naive GPU scan, which could be becuause the 'n* log2(n)' additional compute in the naive GPU scan overpowers the parallelization. 
+  - Work efficient scan perfroms the best on large data sizs, as comapred to Naive nad CPU scan, becuase of compute 'log(n)' and time 'log(n)' optimization. 
+  - Thrust scan perfroms far better than any other implementation for large data sizes. Thrust maybe optimizing the memory I/O further as comapred to our implementation of Work-efficient scan. 
     
     
-  ** Compaction Comparasion**
+  **Compaction Comparasion**
 
-    ![](img/SC1.png) 
+  ![](img/SC1.png) 
     
-    ![](img/SC2.png) 
+  ![](img/SC2.png) 
 
-    Varying the data from '2^10' to '2^28', we observe the following:-
-    - The CPU implementation of Compaction with scan is much slower than than the GPU implementations when the data size is large. This is becuase work efficient compaction utilises the work effificnet scan which we showed has lesser time and compute complexities ass comapred to all other scans. 
-    - As the data size grows, serial compute scan on the CPU grows in time. The naive GPU scan and Work efficint scan are faster. 
+  Varying the data from '2^10' to '2^28', we observe the following:-
+  - The CPU implementation of Compaction with scan is much slower than than the GPU implementations when the data size is large. This is becuase work efficient compaction utilises the work effificnet scan which we showed has lesser time and compute complexities ass comapred to all other scans. 
+  - As the data size grows, serial compute scan on the CPU grows in time. The naive GPU scan and Work efficint scan are faster. 
   
 
   * **Paste the output of the test program into a triple-backtick block in your
