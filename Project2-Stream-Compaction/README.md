@@ -10,10 +10,13 @@ Tested on: Windows 10, i5-6500 @ 3.20GHz 16GB, GTX 1660 (personal computer)
 
 This goal of this project was to gain to familiarity with writing parallel algorithms, specifically Scan and Stream Compaction (used to remove values of zero from an array), from scratch in CUDA. The implementations in this project were mainly based on [these slides](https://onedrive.live.com/view.aspx?resid=A6B78147D66DD722!93669&ithint=file%2cpptx&authkey=!AOZdbr6KT8OQ9fs). 
 
+### Scan
+
 The Scan algorithm (also known as prefix sum) takes in an input array and returns an array where each element j in the output array is a sum of the previous elements from the input array. The Scan algorithm can be inclusive or exclusive. In an exclusive Scan, element j of the result does not include element j of the input. In an inclusive Scan, element j of the result includes all elements before and up to element j of the input;
 
 ![](img/scan_example.png)
 
+### Stream Compact
 The goal of Stream Compaction is, given an input array of elements, create a new array with elements from the input array that meet a certain critera (e.g. being non-zero or non-null), while preserving the order of elements from the input array.
 
 ![](img/compact_goal_visual.png)
@@ -26,6 +29,8 @@ Stream Compaction can be accomplished in a few steps. Let In be out input array.
 ![](img/compact_visual.png)
 
 This project contains several implementations of the above algorithms: a CPU version, a naive GPU version, a work-efficient GPU version, and one using the Thrust library functions.
+
+## Implementation Details
 
 ### CPU
 
