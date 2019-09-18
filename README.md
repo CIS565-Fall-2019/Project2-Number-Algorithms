@@ -9,18 +9,21 @@ Davis Polito
 #Optimizing Block Size Per Algorithm
 
 First we must optimize block size per algorithm
-![block optimization graph](/Project2-Character-Recognition/img/blocksizeopt.png)
+![block optimization graph](/Project2-Stream-Compaction/img/blocksizeopt.png)
 After creating this graph I chose blocksize to be 128 and 512 for naive and work efficient scan
 
 #Scan comparison
-![size vs. time graph](/Project2-Character-Recognition/img/sizevstime.png)
+![size vs. time graph](/Project2-Stream-Compaction/img/sizevstime.png)
 
 
 ##Questions
 #Explanations for each result
 
-######cpu
-######naive
-######work-efficient
-#####thrust
+######cpu This method has O(n) runtime and is only affected by size of the aray
+######naivei this method has O(nlogn) runtime
+######work-efficient This has a possible runtime of O(n) but do to memory access and non ideal uses of threads and warps (i.e. warp branching) We see a slower runtime than cpu
+#####thrust 
+![Console Output From Steam compaction](/Project2-Stream-Compaction/img/blocksizeopt.png)
+
+
 
