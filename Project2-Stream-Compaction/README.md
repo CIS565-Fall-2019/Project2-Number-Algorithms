@@ -98,4 +98,4 @@ Stream compaction, also known as stream filtering or selection, usually produces
 *  **Paste the output of the test program into a triple-backtick block in your
    README.**
   
-![](img/Project2-Stream-Compaction/img/BlockSz-128-DataSz-20.PNG)
+![](img/BlockSz-128-DataSz-20.PNG)
