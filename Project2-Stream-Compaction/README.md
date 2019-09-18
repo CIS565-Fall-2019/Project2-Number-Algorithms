@@ -35,13 +35,14 @@ For comparing our alogirhtms with the exclusive scna implementation thrust libra
 
 In the performance analysis, we are first checking the best blockSize value for Naive and Work-Efficient algorithms. The plot for the analysis of the time elapsed vs Block size for both these implementations are given below:
 
-![](img/Block_Size_vary.png) <!-- .element height="30%" width="30%" -->
+<p align="center"><img src="https://github.com/somanshu25/Project2-Number-Algorithms/blob/master/Project2-Stream-Compaction/img/Block_Size_vary.png" width="800"/></p>
+
 
 For the above, we see that the optimized implementations are when the Block size is 512 for both the algorithms. For checking how all of the versions of GPU compare with CPU version when varying the input size, I have broken the ployts into 2 plots as shown below. The first plot on the top is from input size `2^10` to `2^18` while the second plot on the bottom varies from `2^19` to `2^25` for better visualization of the plots.
 
-<p align="center"><img src="https://github.com/somanshu25/Project2-Number-Algorithms/blob/master/Project2-Stream-Compaction/img/Plot_Scan_1.png" width="600"/></p>
+<p align="center"><img src="https://github.com/somanshu25/Project2-Number-Algorithms/blob/master/Project2-Stream-Compaction/img/Plot_Scan_1.png" width="800"/></p>
 
-<p align="center"><img src="https://github.com/somanshu25/Project2-Number-Algorithms/blob/master/Project2-Stream-Compaction/img/Plot_Scan_2.png" width="600"/></p>
+<p align="center"><img src="https://github.com/somanshu25/Project2-Number-Algorithms/blob/master/Project2-Stream-Compaction/img/Plot_Scan_2.png" width="800"/></p>
 
 ## 4. Questions and Inferences
 
