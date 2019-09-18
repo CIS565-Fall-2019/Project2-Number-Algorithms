@@ -70,9 +70,9 @@ set(generated_file_internal "C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Pro
 set(generated_cubin_file_internal "C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Character-Recognition/build/character_recognition/CMakeFiles/character_recognition.dir//$(Configuration)/character_recognition_generated_common.cu.obj.cubin.txt") # path
 
 set(CUDA_NVCC_EXECUTABLE "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v10.1/bin/nvcc.exe") # path
-set(CUDA_NVCC_FLAGS  ;; -arch=sm_20) # list
+set(CUDA_NVCC_FLAGS  ;; -arch=sm_61) # list
 # Build specific configuration flags
-set(CUDA_NVCC_FLAGS_DEBUG  ; )
+set(CUDA_NVCC_FLAGS_DEBUG -G;-g ; )
 set(CUDA_NVCC_FLAGS_RELEASE  ; )
 set(CUDA_NVCC_FLAGS_MINSIZEREL  ; )
 set(CUDA_NVCC_FLAGS_RELWITHDEBINFO  ; )
