@@ -6,12 +6,18 @@ CIS 565: GPU Programming and Architecture**
 * Tested on: Windows 10, Intel Core(R) Core(TM) i7-6700 CPU @ 3.40GHz 16GB, 
              NVIDIA Quadro P1000 4GB (MOORE100B-06)
 
-![Some IMage]()
+[](img/title.png)
 
 ### Index
 
-- [Introduction]( )
-- [Algorithm]()
+- [Introduction](/README.md#introduciton )
+- [Implementation Details](/README.md#implementation-details)
+- [Training MLP to Predict a 2x2 XOR](/README.md#training-mlp-to-predict-a-2x2-xor)
+- [Training MLP for Character Recognition](/README.md#2-training-mlp-for-character-recognition)
+- [Observations and Comments](/README.md#training-mlp-to-predict-a-2x2-xor)
+- [Performance]()
+- [Extra Credit](/README.md#extra-credits)
+
 
 ### Introduciton
 
@@ -53,7 +59,7 @@ w1 = w1 - LearningRate*dw1;
 w2 = w2 - LearningRate*dw2;
 ```
 
-###  1: Training MLP to Predict a 2x2 XOR
+### Training MLP to Predict a 2x2 XOR
  
  <p align="center">
   <img src="img/xor-table.png">
@@ -62,11 +68,16 @@ w2 = w2 - LearningRate*dw2;
 We train an MLP to predict output of a two bit XOR gate. Given 4 2-bit inputs and ground truth labels, we train the network as follows:
 
  Epochs: 1000
+ 
  Learning Rate: 0.1
- N = 4               Number of examples per batch
- D = 2 + 1(bias)     Feature Dimension
- H = 2               Hidden Layer Nodes
- C = 2               Number of classes
+ 
+ N = 4               //Number of examples per batch
+ 
+ D = 2 + 1(bias)     //Feature Dimension
+ 
+ H = 2               //Hidden Layer Nodes
+ 
+ C = 2               //Number of classes
  
  
  The network learns to classify XOR inputs over a 100 epochs correctly.
@@ -78,16 +89,21 @@ We train an MLP to predict output of a two bit XOR gate. Given 4 2-bit inputs an
  
  The learned weights have been added to the repo [here](/build).
  
-###  2: Training MLP for Character Recognition
+### Training MLP for Character Recognition
  
 We train an MLP to predict characters from images in this task. Given 52 images of characters ground truth labels, we train the network as follows:
  
  Epochs: 5000
+ 
  Learning Rate: 0.1
- N = 52               Number of examples per batch
- D = 10201            Feature Dimension (101 x 101)
- H = 10               Hidden Layer Nodes
- C = 52               Number of classes
+ 
+ N = 52               //Number of examples per batch
+ 
+ D = 10201            //Feature Dimension (101 x 101)
+ 
+ H = 10               //Hidden Layer Nodes
+ 
+ C = 52               //Number of classes
  
  
  ![](img/CharRecStats.PNG)
