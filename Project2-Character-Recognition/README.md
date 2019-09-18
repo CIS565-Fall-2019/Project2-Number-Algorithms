@@ -40,7 +40,9 @@ In training mode, we want to use the mlp output to calculate error and adjust th
 ```
 error = (output - expected value)^2
 ```
-Additionally, we calculate the partial derivative of the individual data value's error over the weight for each weight:
+The expected value is a numerical value representing what the input data's correct value is.  For the xor example, it is 1 for true, 0 for false, and for the characters, the characters are number 1 through 52. 
+
+Next, we calculate the partial derivative of the individual data value's error over the weight for each weight:
 
 ![](img/PartialDeriv.PNG)
 
@@ -51,7 +53,7 @@ We then take the accumulation of all of the error values from each input's mlp r
 In my implementation, I run the mlp on each piece of input data, where I calculate the output, the error, and the partial derivatives for each weight.  During this iteratation of all the data, I accumulate the total error, which I then use to calculate the delta values that I then add these to the weights, modifying the weights for the next iteration over the data. If the total accumulated error is low enough, no more error propagation is needed, as the weights are sufficiently converged.
 
 ## Predicting
-
+In the predicting phase, there are no iterative loops of running the mlp.  Instead, we assign predetermined weights, ideally weights that have been found as good predictors in training.  We then run the mlp on the input data with these weights, and just find the output, no error propagation.  This output becomes our prediction.  In both the xor and character data, the expected values are all discrete integers, so when outputting the prediction, I round the mlp result to the nearest integer.  In my network, I was unable to find converged weights for the character data, so the predictor will almost always output all 0's, not close to the expected values ranging from 1 to 52.  However for the xor data, given the weights I found that converged, the predictor is accurate on all inputs. 
 
 
 
