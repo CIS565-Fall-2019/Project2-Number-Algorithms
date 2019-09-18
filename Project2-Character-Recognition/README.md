@@ -12,9 +12,11 @@ CUDA Character Recognition
 
 Unfortunately, I will be taking a zero for this part of the project. I implemented some stuff on the GPU and CPU but not hardly enough to warrant any respect.
 
-Thursday morning I flew to Michigan to be in a wedding and came back Monday morning. Needless to say time was not on my side.
+Thursday morning I flew to Michigan to be in a wedding and came back Monday morning. Needless to say I underestimated time.
 
-Instead of grading my project please enjoy these nice photos of me from the wedding and a yak I found.
+Instead of grading my project please enjoy these nice photos of me from the wedding and a yak I found near my house in MI.
+
+
 
 * Me trying to hack my neural network ... (yes that is me ... don't lock your keys in your trunk when you are in the middle of no where Michigan )
 
@@ -32,6 +34,6 @@ Instead of grading my project please enjoy these nice photos of me from the wedd
 
 ![](img/yak.jpg#center)
 
-
+* finally its over ... 
 
 ![](img/ss.jpg)
