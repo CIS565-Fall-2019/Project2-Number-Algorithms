@@ -101,7 +101,6 @@ namespace StreamCompaction {
          * @returns      The number of elements remaining after compaction.
          */
         int compact(int n, int *odata, const int *idata) {
-            timer().startGpuTimer();
             int logn = ilog2ceil(n);
             int powd = std::pow(2, logn);
             //initialize intermediate arrays
@@ -126,6 +125,7 @@ namespace StreamCompaction {
             cudaMemcpy(temp_scattered, temp_bool, n * sizeof(int), cudaMemcpyDeviceToDevice);
             checkCUDAError("cudaMemcpy temp_scattered failed!");
             //apply scan on bool array
+            timer().startGpuTimer();
             int ceil = logn - 1;
             for (int offset = 0; offset <= ceil; ++offset) {
                 const int pow_d_plus_one = std::pow(2, offset + 1);
