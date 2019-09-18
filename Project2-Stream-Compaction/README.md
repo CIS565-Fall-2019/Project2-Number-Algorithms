@@ -53,6 +53,9 @@ From the above analysis, we observe that the performance of all the versions var
   * As input size increases, GPU-Naive is doing more additions (which are doubling), hence, the performance is taking the hit.
   * As input size increases, GPU-Work Efficient time less complexity and less additions take the precedence over Serial-CPU and Vaive-       GPU and starts performing better.
 
+#### Can you find the performance bottlenecks? Is it memory I/O? Computation? Is it different for each implementation?
+
+Here, we can observe that the bottleneck for Work-efficient GPU stream compaction is the number of cuda Malloc we need to do when we are calling the Work-efficient scan. That is one of the unnecessary memory copy in and out which is the reason for initial bottleneck in the algoirthm with respect to the CPU one. Also, we observe that the  
 
 #### Paste the output of the test program into a triple-backtick block in your README.
 
