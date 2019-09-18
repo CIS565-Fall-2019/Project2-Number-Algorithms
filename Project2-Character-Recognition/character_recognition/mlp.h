@@ -6,7 +6,7 @@ namespace CharacterRecognition {
     Common::PerformanceTimer& timer();
 
 	void init();
-	void train();
-	void evaluate(float *input);
+	void train(float lambda);
+	void evaluate(float *input, float *output);
 	void end();
 }

@@ -18,7 +18,10 @@ The list of features includes:
 * Work-efficient compact implementation on the GPU
 * Wrapper for thrust's scan implementation to compare performance
 
+Tested at block size of 128.
+
 ![](img/timeOverLength.png)
+Less runtime means a more optimal implementation
 
 I do not know how the thrust implementation manages to be so efficient at such large array sizes. In fact, it seems to become increasingly efficient with array length.
 
