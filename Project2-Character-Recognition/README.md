@@ -35,9 +35,3 @@ Instead of grading my project please enjoy these nice photos of me from the wedd
 
 
 ![](img/ss.jpg)
-
-
-img[src*='#center'] { 
-    display: block;
-    margin: auto;
-}
