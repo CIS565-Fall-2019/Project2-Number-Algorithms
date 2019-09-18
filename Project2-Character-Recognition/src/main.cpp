@@ -22,7 +22,7 @@
 
 
 // Define run presets
-#define training 0 // If set to 1, indicates we are in training mode
+#define training 1 // If set to 1, indicates we are in training mode
 #define acceptedError 0.001
 #define numRandomWeightAttempts 10
 #define numConvergeIterations 1000
