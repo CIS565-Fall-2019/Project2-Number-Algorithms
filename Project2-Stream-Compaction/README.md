@@ -8,11 +8,20 @@ CUDA Stream Compaction
 
 ## Description
 Stream Compaction is a very widely used algorithm with path tracer as one of the applications. This project implements GPU stream compaction in CUDA and compares the following algorithms for stream compaction along with analyzing the scan module:
-1. CPU  
-2. GPU: Naive
-3. GPU: Work-Efficient
-4. GPU: Optimized Work-Efficient
-5. GPU: Thrust
+* **CPU**
+  - Scan: This computes an exclusive prefix sum using a for loop.
+  - Compact without Scan: This does stream compaction without using the scan function.
+  - Compact With Scan: This does stream compaction by map the input to binaries, scanning the array using above discussed implementation and then scattering the input according to the scanned array.
+* **GPU: Naive**
+  -- This naive implementation iterates throught the array logarithm of n times and each time it does one addition less than the previous step. So, thsi aproach has logarithm of n number of iterations and n* log n number of additions. 
+* **GPU: Work-Efficient**
+  -- This implementation also iterates logarithm of n times but the total number of additions performed in this approach are n. The number of additions in each iteration decrease by an order of 2. 
+* **GPU: Optimized Work-Efficient**
+  -- In the earlier approach, there are a lot of threads which are not doing any computation. This approach reduces the number of threads spawned and so, boosts the performance significantly.
+* **GPU: Thrust**
+  -- This approach calls thrust library functions and is implemented for the comparison purpose.
+
+It also implements Radix Sort using the optimized work-efficient GPU approach. 
 
 ## Performance Analysis
 ### Array Size
