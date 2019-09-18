@@ -235,7 +235,8 @@ namespace CharacterRecognition {
 	{
 		
 		float weights_layer1[4];
-		float weights_layer2[2]
+		float weights_layer2[2];
+
 		weights_layer1[0] = 10.1;
 		weights_layer1[1] = .9;
 		weights_layer1[2] = 20;
@@ -250,6 +251,7 @@ namespace CharacterRecognition {
 		temp[0] = data;
 		temp[1] = hidden_layer;
 		temp[2] = out_put_layer;
+
 		float* temp_weights[NUM_LAYERS]; // pointer to arrays
 		temp[0] = weights_layer1;
 		temp[1] = weights_layer2;
