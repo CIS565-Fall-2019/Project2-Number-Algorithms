@@ -10,6 +10,7 @@ CUDA Number Algorithms
 ### Number Algorithms
 
 [Stream Compaction](Project2-Stream-Compaction/README.md)
+
 [Character Recognition](Project2-Character-Recognition/README.md)
 
 Add anything else you think is relevant up to this point.

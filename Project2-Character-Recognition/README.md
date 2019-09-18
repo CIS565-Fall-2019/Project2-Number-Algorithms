@@ -10,6 +10,7 @@ CUDA Character Recognition
 ### Character Recognition
 
 ![](img/output.png)
+
 The program outputs the total error before training and total error after training. As you can see, total error decreases after optimizing the network's weights on training data.
 
 My implementation is hard-coded at 3 layers. I cannot test framerates at other network complexities.
