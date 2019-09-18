@@ -108,7 +108,7 @@ We also experiemented with CUDA's `thrust::exclusive_scan(first, last, result)` 
 
   From the above plot, we find that BlockSize 128 was the most optimal for both Naive and Work Efficient Scan.
 
-  * **Compare all of these GPU Scan implementations (Naive, Work-Efficient, and Thrust) to the serial CPU version of Scan. Plot a graph of the comparison (with array size on the independent axis). **
+  * **Compare all of these GPU Scan implementations (Naive, Work-Efficient, and Thrust) to the serial CPU version of Scan. Plot a graph of the comparison (with array size on the independent axis).**
 
      The following plots show the runtime comparasion of all the above scan implementations. 
      
@@ -122,7 +122,8 @@ We also experiemented with CUDA's `thrust::exclusive_scan(first, last, result)` 
 
     ![](img/Scan1NP.png)    
     ![](img/Scan2NP.png)   
-**Write a brief explanation of the phenomena you see here.Can you find the performance bottlenecks? Is it memory I/O? Computation? Is it different for each implementation?**
+    
+  * **Write a brief explanation of the phenomena you see here.Can you find the performance bottlenecks? Is it memory I/O? Computation? Is it different for each implementation?**
 
   ** Scan Comparasion **
       Varying the data from '2^10' to '2^28', we observe the following:-
@@ -144,7 +145,7 @@ We also experiemented with CUDA's `thrust::exclusive_scan(first, last, result)` 
     - As the data size grows, serial compute scan on the CPU grows in time. The naive GPU scan and Work efficint scan are faster. 
   
 
-  *  **Paste the output of the test program into a triple-backtick block in your
+  * **Paste the output of the test program into a triple-backtick block in your
      README.**
 
   ![](img/BlockSz-128-DataSz-20.PNG)
