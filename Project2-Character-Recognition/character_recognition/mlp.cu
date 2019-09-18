@@ -12,7 +12,7 @@
 #define blockSize 32
 #define index(i,j,ld) (((j)*(ld))+(i))
 
-
+float *dev_X, *dev_wI, *dev_wO, *dev_h1, *dev_pred;
 
 namespace CharacterRecognition {
     using Common::PerformanceTimer;
@@ -22,23 +22,21 @@ namespace CharacterRecognition {
         return timer;
     }
 
+
 	typedef struct _matrixSize {
 		int WA, HA, WB, HB, WC, HC;
 	} sMatrixSize;
+
 
 	void printMat(float*P, int uWP, int uHP) {
 		int i, j;
 		for (i = 0; i < uHP; i++) {
 			for (j = 0; j < uWP; j++)
-				printf("%f", P[index(i, j, uHP)]);
+				printf(" %f ", P[index(i, j, uHP)]);
 			printf("\n");
 		}
 	}
 
-	void randomInit(float *data, int size) {
-		for (int i = 0; i < size; ++i)
-			data[i] = rand() / (float)RAND_MAX;
-	}
 
 	void fixedInit(float *data, int size) {
 		if (size == 4) {
@@ -53,10 +51,18 @@ namespace CharacterRecognition {
 		}
 	}
 
+
+	void randomInit(float *data, int size) {
+		for (int i = 0; i < size; ++i)
+			data[i] = rand() / (float)RAND_MAX;
+	}
+
+
 	void indexInit(float *data, int size) {
 		for (int i = 0; i < size; ++i)
 			data[i] = (float)i;
 	}
+
 
 	int getNum(int &n, float *v) {
 		// Generate a random number 
@@ -72,6 +78,7 @@ namespace CharacterRecognition {
 		return num;
 	}
 
+
 	void generateRandom(int n, float *permuteData) {
 		float *v = (float *)malloc(n);
 		// Fill the vector with the values  1, 2, 3, ..., n 
@@ -86,7 +93,8 @@ namespace CharacterRecognition {
 		}
 	}
 
-	/*void deviceMemory(bool create = false, float *Xi = NULL, float *wI = NULL, float *wO = NULL, sMatrixSize &hidden_matrix_size = {}, sMatrixSize &output_matrix_size = {}, float *dev_X = NULL, float *dev_wI = NULL, float *dev_wO = NULL, float *dev_h1 = NULL, float *dev_pred = NULL) {
+
+	void deviceMemory(float *Xi, float *wI, float *wO, sMatrixSize &hidden_matrix_size, sMatrixSize &output_matrix_size, bool create = false) {
 		if (create) {
 			unsigned int size_X = hidden_matrix_size.WB * hidden_matrix_size.HB;
 			unsigned int mem_size_X = sizeof(float) * size_X;
@@ -109,6 +117,13 @@ namespace CharacterRecognition {
 			checkCUDAError("cudaMalloc dev_h1");
 			cudaMalloc((void **)&dev_pred, mem_size_pred);
 			checkCUDAError("cudaMalloc dev_pred");
+
+			cudaMemcpy(dev_X, Xi, mem_size_X, cudaMemcpyHostToDevice);
+			checkCUDAError("cudaMemcpy dev_X");
+			cudaMemcpy(dev_wI, wI, mem_size_wI, cudaMemcpyHostToDevice);
+			checkCUDAError("cudaMemcpy dev_wI");
+			cudaMemcpy(dev_wO, wO, mem_size_wO, cudaMemcpyHostToDevice);
+			checkCUDAError("cudaMemcpy dev_wO");
 		}
 		else {
 			cudaFree(dev_X);
@@ -117,7 +132,8 @@ namespace CharacterRecognition {
 			cudaFree(dev_h1);
 			cudaFree(dev_pred);
 		}
-	}*/
+	}
+
 
 	void matrixMultiply(cublasHandle_t* handle, sMatrixSize &matrix_size, float *d_A, float *d_B, float *d_C){
 			const float alpha = 1.0f;
@@ -127,7 +143,6 @@ namespace CharacterRecognition {
 			checkCUDAError("matrix multiply");
 	}
 
-	// TODO: implement required elements for MLP sections 1 and 2 here
 	__global__ void kernSigmoid(int n, float *input) {
 		int index = threadIdx.x + (blockIdx.x * blockDim.x);
 		if (index >= n) {
@@ -136,43 +151,26 @@ namespace CharacterRecognition {
 		input[index] = 1.0f / (1 + exp(-input[index]));
 	}
 	
-	void backward(){}
+
+	float calculateLoss(float *pred, float *yi) {
+		printf("Calculate least square error loss \n");
+		return -1.0;
+	}
+
+
+	void backward(float loss, float *wI, float *wO){
+		printf("Backward propagate the error to the weights \n");
+	}
+
 
 	void forward(float *pred, float *Xi, float *wI, float *wO, sMatrixSize &hidden_matrix_size, sMatrixSize &output_matrix_size) {
 		// allocate device memory
-		float *dev_X, *dev_wI, *dev_wO, *dev_h1, *dev_pred;
-		//deviceMemory(true, Xi, wI, wO, hidden_matrix_size, output_matrix_size, dev_X, dev_wI, dev_wO, dev_h1, dev_pred);
-		int size_X = hidden_matrix_size.WB * hidden_matrix_size.HB;
-		int mem_size_X = sizeof(float) * size_X;
-		int size_wI = hidden_matrix_size.WA * hidden_matrix_size.HA;
-		int mem_size_wI = sizeof(float) * size_wI;
-		int size_wO = output_matrix_size.WA * output_matrix_size.HA;
-		int mem_size_wO = sizeof(float) * size_wO;
+		deviceMemory(Xi, wI, wO, hidden_matrix_size, output_matrix_size, true);
+
 		int size_h1 = hidden_matrix_size.WC * hidden_matrix_size.HC;
 		int mem_size_h1 = sizeof(float) * size_h1;
 		int size_pred = output_matrix_size.WC * output_matrix_size.HC;
 		int mem_size_pred = sizeof(float) * size_pred;
-
-		cudaMalloc((void **)&dev_X, mem_size_X);
-		checkCUDAError("cudaMalloc dev_X");
-		cudaMalloc((void **)&dev_wI, mem_size_wI);
-		checkCUDAError("cudaMalloc dev_wI");
-		cudaMalloc((void **)&dev_wO, mem_size_wO);
-		checkCUDAError("cudaMalloc dev_wO");
-		cudaMalloc((void **)&dev_h1, mem_size_h1);
-		checkCUDAError("cudaMalloc dev_h1");
-		cudaMalloc((void **)&dev_pred, mem_size_pred);
-		checkCUDAError("cudaMalloc dev_pred");
-
-		cudaMemcpy(dev_X, Xi, mem_size_X, cudaMemcpyHostToDevice);
-		checkCUDAError("cudaMemcpy dev_X");
-		cudaMemcpy(dev_wI, wI, mem_size_wI, cudaMemcpyHostToDevice);
-		checkCUDAError("cudaMemcpy dev_wI");
-		cudaMemcpy(dev_wO, wO, mem_size_wO, cudaMemcpyHostToDevice);
-		checkCUDAError("cudaMemcpy dev_wO");
-		// allocate host memory for result
-		//unsigned int size_pred = output_matrix_size.WC * output_matrix_size.HC;
-		//unsigned int mem_size_pred = sizeof(float) * size_pred;
 		float *h1 = (float *)malloc(mem_size_h1);
 
 		cublasHandle_t handle;
@@ -186,7 +184,6 @@ namespace CharacterRecognition {
 		cudaMemcpy(h1, dev_h1, mem_size_pred, cudaMemcpyDeviceToHost);
 		checkCUDAError("cudaMemcpy pred");
 		printf("Matriz h1: \n");
-		//printf("%f %f \n", h1[0], h1[1]);
 		printMat(h1, hidden_matrix_size.WC, hidden_matrix_size.HC);
 
 		kernSigmoid <<<grid, threads>> > (hidden_matrix_size.HC*hidden_matrix_size.WC, dev_h1);
@@ -211,19 +208,14 @@ namespace CharacterRecognition {
 		cublasDestroy(handle);
 		checkCUDAError("handle");
 
-		//deviceMemory();
-		cudaFree(dev_X);
-		cudaFree(dev_wI);
-		cudaFree(dev_wO);
-		cudaFree(dev_h1);
-		cudaFree(dev_pred);
+		deviceMemory(Xi, wI, wO, hidden_matrix_size, output_matrix_size);
 	}
 
-	void train(float *X, float *y, int sizeData, const int hiddenNodes, const int numLabels, const int numData) {
+	void train(float *X, float *y, int iterations, int sizeData, const int hiddenNodes, const int numLabels, const int numData) {
 		sMatrixSize hidden_matrix_size = {hiddenNodes, sizeData, 1, sizeData, 1, hiddenNodes };
 		sMatrixSize output_matrix_size = {numLabels, hiddenNodes, 1, hiddenNodes, 1, numLabels };
 
-		unsigned int size_wI = hidden_matrix_size.WA * hidden_matrix_size.WA;
+		unsigned int size_wI = hidden_matrix_size.HA * hidden_matrix_size.WA;
 		unsigned int mem_size_wI = sizeof(float) * size_wI;
 		float *wI = (float *)malloc(mem_size_wI);
 
@@ -231,6 +223,8 @@ namespace CharacterRecognition {
 		unsigned int mem_size_wO = sizeof(float) * size_wO;
 		float *wO = (float *)malloc(mem_size_wO);
 
+		//randomInit(wI, size_wI);
+		//randomInit(wO, size_wO);
 		fixedInit(wI, size_wI);
 		fixedInit(wO, size_wO);
 
@@ -241,10 +235,11 @@ namespace CharacterRecognition {
 		unsigned int size_pred = output_matrix_size.WC * output_matrix_size.HC;
 		unsigned int mem_size_pred = sizeof(float) * size_pred;
 		float *pred = (float *)malloc(mem_size_pred);
+		float avgLoss = 0.0;
 
-		for (int iter = 0; iter < 1; iter++) {
+		for (int iter = 0; iter < iterations; iter++) {
 			generateRandom(numData, permuteData);
-			printf("predicting iteration %i \n", iter);
+			printf("training iteration %i \n", iter);
 			for (int i = 0; i < numData; i++) {
 				int index = permuteData[i];
 				memcpy(Xi, (void **)&X[sizeData*index], sizeData * sizeof(float));
@@ -256,23 +251,56 @@ namespace CharacterRecognition {
 				for (int j = 0; j < numLabels; j++) {
 					printf("prediction: %f \n\n", pred[j]);
 				}
-			}
-			printf("forward done \n");
-		}
-		printf("predictions done \n");
 
-		free(wI);
-		free(wO);
-		free(Xi);
-		free(yi);
-		free(permuteData);
-		free(pred);
+				float loss = calculateLoss(pred, yi);
+				avgLoss += loss;
+				backward(loss, wI, wO);
+			}
+		}
+		printf("training done \n");
+
+		avgLoss /= numData;
+		printf("Average Loss: %f \n", avgLoss);
+
+		free(wI); free(wO); free(Xi); free(yi); free(permuteData); free(pred);
 	}
 
-	void test(){}
+	void test(float *X, float *y, float *wI, float *wO, int sizeData, const int hiddenNodes, const int numLabels, const int numData){
+		sMatrixSize hidden_matrix_size = { hiddenNodes, sizeData, 1, sizeData, 1, hiddenNodes };
+		sMatrixSize output_matrix_size = { numLabels, hiddenNodes, 1, hiddenNodes, 1, numLabels };
 
-	void testMatrixMultiply() {
-		sMatrixSize matrix_size = { 2, 2, 1, 2, 1, 2};
+		float *Xi = (float *)malloc(sizeof(float)*sizeData);
+		float *yi = (float *)malloc(sizeof(float)*numLabels);
+
+		unsigned int size_pred = output_matrix_size.WC * output_matrix_size.HC;
+		unsigned int mem_size_pred = sizeof(float) * size_pred;
+		float *pred = (float *)malloc(mem_size_pred);
+		float avgLoss = 0.0;
+
+		for (int i = 0; i < numData; i++) {
+			memcpy(Xi, (void **)&X[sizeData*i], sizeData * sizeof(float));
+			memcpy(yi, (void **)&y[numLabels*i], numLabels * sizeof(float));
+
+			printf("index: %i data: %f %f label: %f \n", i, Xi[0], Xi[1], yi[0]);
+
+			forward(pred, Xi, wI, wO, hidden_matrix_size, output_matrix_size);
+			for (int j = 0; j < numLabels; j++) {
+				printf("prediction: %f \n\n", pred[j]);
+			}
+
+			float loss = calculateLoss(pred, yi);
+			avgLoss += loss;
+		}
+		printf("testing done \n");
+
+		avgLoss /= numData;
+		printf("Average Loss: %f \n", avgLoss);
+
+		free(wI); free(wO); free(Xi); free(yi); free(pred);
+	}
+
+	void testMatrixMultiply(int HA, int WA, int HB, int WB) {
+		sMatrixSize matrix_size = { WA, HA, WB, HB, WB, HA};
 
 		// allocate host memory for matrices A and B
 		unsigned int size_A = matrix_size.WA * matrix_size.HA;
@@ -282,13 +310,9 @@ namespace CharacterRecognition {
 		unsigned int mem_size_B = sizeof(float) * size_B;
 		float *h_B = (float *)malloc(mem_size_B);
 
-		// set seed for rand()
-		srand(2006);
-
 		// initialize host memory
-		fixedInit(h_A, size_A);
-		h_B[0] = 1; h_B[1] = 1;
-		//fixedInit(h_B, size_B);
+		indexInit(h_A, size_A);
+		indexInit(h_B, size_B);
 
 		// allocate device memory
 		float *d_A, *d_B, *d_C;
@@ -314,9 +338,7 @@ namespace CharacterRecognition {
 		cublasHandle_t handle;
 		cublasCreate(&handle);
 
-		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		matrixMultiply(&handle, matrix_size, d_A, d_B, d_C);
-		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 		// copy result from device to host
 		cudaMemcpy(h_C, d_C, mem_size_C, cudaMemcpyDeviceToHost);
@@ -324,11 +346,11 @@ namespace CharacterRecognition {
 		// Destroy the handle
 		cublasDestroy(handle);
 
-		printf("\n\n Matriz A:");
+		printf("\n Matriz A: \n");
 		printMat(h_A, matrix_size.WA, matrix_size.HA);
-		printf("\n\n Matriz B:");
+		printf("\n Matriz B: \n ");
 		printMat(h_B, matrix_size.WB, matrix_size.HB);
-		printf("\n\n Matriz C:");
+		printf("\n Matriz C: \n");
 		printMat(h_C, matrix_size.WC, matrix_size.HC);
 		printf("\n\n");
 
