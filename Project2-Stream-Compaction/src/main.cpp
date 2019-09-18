@@ -11,8 +11,9 @@
 #include <stream_compaction/naive.h>
 #include <stream_compaction/efficient.h>
 #include <stream_compaction/thrust.h>
+#include <stream_compaction/radix_sort.h>
 #include "testing_helpers.hpp"
-
+#include <algorithm>
 void scanTests(const int SIZE, const int NPOT, int *a, int *b , int *c, int blockSize) {
 	genArray(SIZE - 1, a, 50);  // Leave a 0 at the end to test that edge case
 	a[SIZE - 1] = 0;
@@ -205,9 +206,26 @@ int *a = new int[SIZE];
 int *b = new int[SIZE];
 int *c = new int[SIZE];
 
-int main(int argc, char* argv[]) {
-	// Scan tests
+void radixSortTest() {
+	genArray(SIZE - 1, a, 50);  // Leave a 0 at the end to test that edge case
+	a[SIZE - 1] = 0;
+	printArray(SIZE, a, true);
+	zeroArray(SIZE, b);
+	StreamCompaction::RadixSort::sort(SIZE, b, a, 128);
+	printArray(SIZE, b, true);
+	std::sort(a, a + SIZE);
+	printCmpResult(SIZE, b, a);
+}
 
+int main(int argc, char* argv[]) {
+	// Radix Sort Test
+	printf("\n");
+	printf("*********************\n");
+	printf("** RADIX SORT TEST **\n");
+	printf("*********************\n");
+	radixSortTest();
+
+	// Scan tests
 	printf("\n");
 	printf("****************\n");
 	printf("** SCAN TESTS **\n");

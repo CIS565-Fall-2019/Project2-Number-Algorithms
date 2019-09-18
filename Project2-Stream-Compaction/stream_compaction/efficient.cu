@@ -126,6 +126,50 @@ namespace StreamCompaction {
 		/**
 		 * Performs prefix-sum (aka scan) on idata, storing the result into odata.
 		 */
+		 void scanEfficientCUDA(int n, int *odata, const int *idata, int blockSize) {
+			 // Memory Allocation and Copying
+			 int power_size = pow(2, ilog2ceil(n));
+			 int *cdata;
+			 cudaMalloc((void**)&cdata, power_size * sizeof(int));
+			 checkCUDAErrorFn("cudaMalloc adata failed!");
+			 cudaMemset(cdata, 0, power_size * sizeof(int));
+			 cudaMemcpy(cdata, idata, n * sizeof(int), cudaMemcpyDeviceToDevice);
+
+			 bool started_timer = true;
+			 try {
+				 timer().startGpuTimer();
+			 }
+			 catch (const std::exception& e) {
+				 started_timer = false;
+			 }
+
+			 int numThreads;
+			 //Up Sweep
+			 for (int d = 0; d <= ilog2ceil(power_size) - 1; d++) {
+				 numThreads = pow(2, (ilog2ceil(power_size) - 1 - d));
+				 dim3 fullBlocks((numThreads + blockSize - 1) / blockSize);
+				 kernelUpSweepStepEfficient << <fullBlocks, blockSize >> > (numThreads, d, cdata);
+			 }
+
+			 //Down Sweep
+			 cudaMemset(cdata + power_size - 1, 0, sizeof(int));
+			 for (int d = ilog2(power_size) - 1; d >= 0; d--) {
+				 numThreads = pow(2, (ilog2ceil(power_size) - 1 - d));
+				 dim3 fullBlocks((numThreads + blockSize - 1) / blockSize);
+				 kernelDownSweepStepEfficient << <fullBlocks, blockSize >> > (numThreads, d, cdata);
+			 }
+
+			 if (started_timer)
+				 timer().endGpuTimer();
+
+			 // Copy Back and Free Memory
+			 cudaMemcpy(odata, cdata, sizeof(int) * n, cudaMemcpyDeviceToDevice);
+			 cudaFree(cdata);
+		}
+
+		/**
+		 * Performs prefix-sum (aka scan) on idata, storing the result into odata.
+		 */
 		void scan(int n, int *odata, const int *idata, int blockSize) {
 			// Memory Allocation and Copying
 			int power_size = pow(2, ilog2ceil(n));
