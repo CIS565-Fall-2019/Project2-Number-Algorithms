@@ -16,6 +16,9 @@
     <ClInclude Include="C:\Users\saketk\Project2-Number-Algorithms\Project2-Stream-Compaction\stream_compaction\thrust.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="C:\Users\saketk\Project2-Number-Algorithms\Project2-Stream-Compaction\stream_compaction\radix.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="C:\Users\saketk\Project2-Number-Algorithms\Project2-Stream-Compaction\stream_compaction\common.cu">
@@ -31,6 +34,9 @@
       <Filter>Source Files</Filter>
     </CustomBuild>
     <CustomBuild Include="C:\Users\saketk\Project2-Number-Algorithms\Project2-Stream-Compaction\stream_compaction\thrust.cu">
+      <Filter>Source Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\Users\saketk\Project2-Number-Algorithms\Project2-Stream-Compaction\stream_compaction\radix.cu">
       <Filter>Source Files</Filter>
     </CustomBuild>
     <CustomBuild Include="C:\Users\saketk\Project2-Number-Algorithms\Project2-Stream-Compaction\stream_compaction\CMakeLists.txt" />
@@ -49,6 +55,9 @@
       <Filter>Object Files</Filter>
     </Object>
     <Object Include="C:\Users\saketk\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\$(Configuration)\stream_compaction_generated_thrust.cu.obj">
+      <Filter>Object Files</Filter>
+    </Object>
+    <Object Include="C:\Users\saketk\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\$(Configuration)\stream_compaction_generated_radix.cu.obj">
       <Filter>Object Files</Filter>
     </Object>
     <Object Include="C:\Users\saketk\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\$(Configuration)\stream_compaction_intermediate_link.obj">

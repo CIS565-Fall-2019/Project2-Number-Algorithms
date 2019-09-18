@@ -1,4 +1,2 @@
-﻿  main.cpp
-c:\users\saketk\project2-number-algorithms\project2-stream-compaction\src\testing_helpers.hpp(53): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
-     Creating library C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/build/Release/cis565_stream_compaction_test.lib and object C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/build/Release/cis565_stream_compaction_test.exp
+﻿     Creating library C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/build/Release/cis565_stream_compaction_test.lib and object C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/build/Release/cis565_stream_compaction_test.exp
   cis565_stream_compaction_test.vcxproj -> C:\Users\saketk\Project2-Number-Algorithms\Project2-Stream-Compaction\build\Release\cis565_stream_compaction_test.exe

@@ -5,6 +5,7 @@
 #include <iostream>
 #include <string>
 #include <ctime>
+#include <algorithm>
 
 template<typename T>
 int cmpArrays(int n, T *a, T *b) {
@@ -36,6 +37,15 @@ void printCmpLenResult(int n, int expN, T *a, T *b) {
             (n == -1 || n != expN) ? "FAIL COUNT" :
             cmpArrays(n, a, b) ? "FAIL VALUE" : "passed");
 }
+
+//************* RADIX SORT TEST *********************
+template<typename T>
+void printRadixSortTest(int n, T *a, T *b) {
+	std::sort(b, b+n);
+	printf("    %s \n",
+		cmpArrays(n, a, b) ? "FAIL VALUE" : "passed");
+}
+//***************************************************
 
 void zeroArray(int n, int *a) {
     for (int i = 0; i < n; i++) {

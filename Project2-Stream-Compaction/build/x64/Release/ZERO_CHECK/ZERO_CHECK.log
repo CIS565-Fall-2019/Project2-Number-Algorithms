@@ -1,1 +1,9 @@
 ﻿  Checking Build System
+  CMake is re-running because C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/generate.stamp is out-of-date.
+    the file 'C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/stream_compaction/CMakeLists.txt'
+    is newer than 'C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/build/stream_compaction/CMakeFiles/generate.stamp.depend'
+    result='-1'
+  -- Selecting Windows SDK version 10.0.17763.0 to target Windows 10.0.18362.
+  -- Configuring done
+  -- Generating done
+  -- Build files have been written to: C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/build

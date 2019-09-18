@@ -1,31 +1,43 @@
-﻿  Building NVCC (Device) object stream_compaction/CMakeFiles/stream_compaction.dir/Debug/stream_compaction_generated_efficient.cu.obj
-  efficient.cu
-C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/stream_compaction/efficient.cu(100): warning C4002: too many actual parameters for macro 'checkCUDAError'
-C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/stream_compaction/efficient.cu(173): warning C4002: too many actual parameters for macro 'checkCUDAError'
-C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/stream_compaction/efficient.cu(179): warning C4002: too many actual parameters for macro 'checkCUDAError'
-C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/stream_compaction/efficient.cu(186): warning C4002: too many actual parameters for macro 'checkCUDAError'
-C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/stream_compaction/efficient.cu(206): warning C4002: too many actual parameters for macro 'checkCUDAError'
-C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/stream_compaction/efficient.cu(100): warning C4002: too many actual parameters for macro 'checkCUDAError'
-C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/stream_compaction/efficient.cu(173): warning C4002: too many actual parameters for macro 'checkCUDAError'
-C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/stream_compaction/efficient.cu(179): warning C4002: too many actual parameters for macro 'checkCUDAError'
-C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/stream_compaction/efficient.cu(186): warning C4002: too many actual parameters for macro 'checkCUDAError'
-C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/stream_compaction/efficient.cu(206): warning C4002: too many actual parameters for macro 'checkCUDAError'
-C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/stream_compaction/efficient.cu(100): warning C4002: too many actual parameters for macro 'checkCUDAError'
-C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/stream_compaction/efficient.cu(173): warning C4002: too many actual parameters for macro 'checkCUDAError'
-C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/stream_compaction/efficient.cu(179): warning C4002: too many actual parameters for macro 'checkCUDAError'
-C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/stream_compaction/efficient.cu(186): warning C4002: too many actual parameters for macro 'checkCUDAError'
-C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/stream_compaction/efficient.cu(206): warning C4002: too many actual parameters for macro 'checkCUDAError'
-C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/stream_compaction/efficient.cu(100): warning C4002: too many actual parameters for macro 'checkCUDAError'
-C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/stream_compaction/efficient.cu(173): warning C4002: too many actual parameters for macro 'checkCUDAError'
-C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/stream_compaction/efficient.cu(179): warning C4002: too many actual parameters for macro 'checkCUDAError'
-C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/stream_compaction/efficient.cu(186): warning C4002: too many actual parameters for macro 'checkCUDAError'
-C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/stream_compaction/efficient.cu(206): warning C4002: too many actual parameters for macro 'checkCUDAError'
-  efficient.cu
-C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/stream_compaction/efficient.cu(109): warning C4101: 'e': unreferenced local variable
+﻿  Building NVCC (Device) object stream_compaction/CMakeFiles/stream_compaction.dir/Debug/stream_compaction_generated_radix.cu.obj
+  radix.cu
+C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/stream_compaction/radix.cu(80): warning C4002: too many actual parameters for macro 'checkCUDAError'
+C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/stream_compaction/radix.cu(83): warning C4002: too many actual parameters for macro 'checkCUDAError'
+C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/stream_compaction/radix.cu(88): warning C4002: too many actual parameters for macro 'checkCUDAError'
+C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/stream_compaction/radix.cu(91): warning C4002: too many actual parameters for macro 'checkCUDAError'
+C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/stream_compaction/radix.cu(94): warning C4002: too many actual parameters for macro 'checkCUDAError'
+C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/stream_compaction/radix.cu(97): warning C4002: too many actual parameters for macro 'checkCUDAError'
+C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/stream_compaction/radix.cu(100): warning C4002: too many actual parameters for macro 'checkCUDAError'
+C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/stream_compaction/radix.cu(104): warning C4002: too many actual parameters for macro 'checkCUDAError'
+C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/stream_compaction/radix.cu(80): warning C4002: too many actual parameters for macro 'checkCUDAError'
+C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/stream_compaction/radix.cu(83): warning C4002: too many actual parameters for macro 'checkCUDAError'
+C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/stream_compaction/radix.cu(88): warning C4002: too many actual parameters for macro 'checkCUDAError'
+C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/stream_compaction/radix.cu(91): warning C4002: too many actual parameters for macro 'checkCUDAError'
+C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/stream_compaction/radix.cu(94): warning C4002: too many actual parameters for macro 'checkCUDAError'
+C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/stream_compaction/radix.cu(97): warning C4002: too many actual parameters for macro 'checkCUDAError'
+C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/stream_compaction/radix.cu(100): warning C4002: too many actual parameters for macro 'checkCUDAError'
+C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/stream_compaction/radix.cu(104): warning C4002: too many actual parameters for macro 'checkCUDAError'
+C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/stream_compaction/radix.cu(80): warning C4002: too many actual parameters for macro 'checkCUDAError'
+C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/stream_compaction/radix.cu(83): warning C4002: too many actual parameters for macro 'checkCUDAError'
+C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/stream_compaction/radix.cu(88): warning C4002: too many actual parameters for macro 'checkCUDAError'
+C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/stream_compaction/radix.cu(91): warning C4002: too many actual parameters for macro 'checkCUDAError'
+C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/stream_compaction/radix.cu(94): warning C4002: too many actual parameters for macro 'checkCUDAError'
+C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/stream_compaction/radix.cu(97): warning C4002: too many actual parameters for macro 'checkCUDAError'
+C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/stream_compaction/radix.cu(100): warning C4002: too many actual parameters for macro 'checkCUDAError'
+C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/stream_compaction/radix.cu(104): warning C4002: too many actual parameters for macro 'checkCUDAError'
+C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/stream_compaction/radix.cu(80): warning C4002: too many actual parameters for macro 'checkCUDAError'
+C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/stream_compaction/radix.cu(83): warning C4002: too many actual parameters for macro 'checkCUDAError'
+C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/stream_compaction/radix.cu(88): warning C4002: too many actual parameters for macro 'checkCUDAError'
+C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/stream_compaction/radix.cu(91): warning C4002: too many actual parameters for macro 'checkCUDAError'
+C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/stream_compaction/radix.cu(94): warning C4002: too many actual parameters for macro 'checkCUDAError'
+C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/stream_compaction/radix.cu(97): warning C4002: too many actual parameters for macro 'checkCUDAError'
+C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/stream_compaction/radix.cu(100): warning C4002: too many actual parameters for macro 'checkCUDAError'
+C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/stream_compaction/radix.cu(104): warning C4002: too many actual parameters for macro 'checkCUDAError'
+  radix.cu
   Building NVCC intermediate link file stream_compaction/CMakeFiles/stream_compaction.dir/Debug/stream_compaction_intermediate_link.obj
   stream_compaction_generated_common.cu.obj
   stream_compaction_generated_cpu.cu.obj
   stream_compaction_generated_naive.cu.obj
   stream_compaction_generated_efficient.cu.obj
   stream_compaction_generated_thrust.cu.obj
+  stream_compaction_generated_radix.cu.obj
   stream_compaction.vcxproj -> C:\Users\saketk\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\Debug\stream_compaction.lib

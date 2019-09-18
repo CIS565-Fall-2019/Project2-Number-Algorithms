@@ -157,6 +157,71 @@ namespace StreamCompaction {
 			cudaMemcpy(odata, padded_idata, sizeof(int) * n, cudaMemcpyDeviceToHost);
         }
 
+		void scan_device(int n, int *odata, const int *idata, int blockSize) {
+			int padded_size = 1 << (ilog2ceil(n));
+
+			cudaMalloc((void**)&padded_idata, padded_size * sizeof(int));
+			checkCUDAErrorWithLine("cudaMalloc padded_idata failed!");
+
+			cudaMemset(padded_idata, 0, padded_size * sizeof(int));
+			cudaMemcpy(padded_idata, idata, sizeof(int) * n, cudaMemcpyDeviceToDevice);
+
+			bool caught = false;
+			try {
+				timer().startGpuTimer();
+			}
+			catch (const std::exception& e) {
+				caught = true;
+			}
+
+
+
+			int iterations = ilog2(padded_size);
+			dim3 fullBlocksPerGrid((padded_size + blockSize - 1) / blockSize);
+
+			bool optimized = false;
+			//Up-Sweep
+			if (optimized) {
+				int number_of_threads = padded_size;
+				for (int d = 0; d < iterations; d++) {
+					number_of_threads /= 2;
+					dim3 fullBlocksPerGridUpSweep((number_of_threads + blockSize - 1) / blockSize);
+					upSweepOptimized << <fullBlocksPerGridUpSweep, blockSize >> > (padded_size, d, padded_idata);
+				}
+			}
+			else {
+				for (int d = 0; d < iterations; d++) {
+					dim3 fullBlocksPerGrid((padded_size + blockSize - 1) / blockSize);
+					upSweep << <fullBlocksPerGrid, blockSize >> > (padded_size, d, padded_idata);
+				}
+			}
+
+
+			//Down-Sweep
+			cudaMemset(padded_idata + (padded_size - 1), 0, sizeof(int));
+
+
+			if (optimized) {
+				int number_of_threads = 1;
+				for (int d = iterations - 1; d >= 0; d--) {
+					dim3 fullBlocksPerGridDownSweep((number_of_threads + blockSize - 1) / blockSize);
+					downSweepOptimized << <fullBlocksPerGridDownSweep, blockSize >> > (padded_size, d, padded_idata);
+					number_of_threads *= 2;
+				}
+			}
+			else {
+				for (int d = iterations - 1; d >= 0; d--) {
+					dim3 fullBlocksPerGrid((padded_size + blockSize - 1) / blockSize);
+					downSweep << <fullBlocksPerGrid, blockSize >> > (padded_size, d, padded_idata);
+				}
+			}
+			if (!caught) {
+				timer().endGpuTimer();
+			}
+
+			cudaMemcpy(odata, padded_idata, sizeof(int) * n, cudaMemcpyDeviceToDevice);
+		}
+
         /**
          * Performs stream compaction on idata, storing the result into odata.
          * All zeroes are discarded.
