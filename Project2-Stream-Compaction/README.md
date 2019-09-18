@@ -142,13 +142,14 @@ Following is the output of the main program for Stream Compaction showing the ar
 I analyzed the performance of Work Efficient GPU approach. The occupancy of the threads keeps on dropping by a factor of two with each iteration of up and down sweep. I implemented the optimized variant of Work Efficient Approach to make sure that all threads are occupied in each iteration. It makes sure that It only lanuches the required number of threads in each iteration rather than launchng the fixed number of threads in each iteartion. It improved the performance significantly in scan as well as stream compaction, it can be seen in the plots above. 
 
 ### Radix Sort
-I have implemented Radix Sort using the optimized version of Work Efficient GPU Scan. Code is present in the `` radix_sort.cu `` and ``radix_sort.h `` files under stream_compaction folder. I have added a corresponding test function ``void radixSortTest()`` in the main.cpp file to test the accuracy of the my implementation. This function is also called in the beginning of main function. Following is a sample ouput from the test.
+I have implemented Radix Sort using the optimized version of Work Efficient GPU Scan. Code is present in the `` radix_sort.cu `` and ``radix_sort.h `` files under stream_compaction folder. I have added a corresponding test function ``void radixSortTest()`` in the main.cpp file to test the accuracy of the my implementation. This function is also called in the beginning of main function. Following is a sample ouput from the test for n = 2 raise to power 20. 
 
 ```
 *********************
 ** RADIX SORT TEST **
 *********************
-    [  46   7  12  24  12  24  30   0 ]
-    [   0   7  12  12  24  24  30  46 ]
+    [  21  33  35  49  49  24   5  13  33  40  28  34   6 ...  24   0 ]
+   elapsed time: 51.3554ms
+    [   0   0   0   0   0   0   0   0   0   0   0   0   0 ...  49  49 ]
     passed
 ```
