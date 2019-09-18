@@ -34,4 +34,5 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
     character_recognition
     ${CORELIBS}
 	cublas
+	curand
     )

@@ -14,42 +14,53 @@
 using CharacterRecognition::Matrix;
 using CharacterRecognition::ImageFile;
 using CharacterRecognition::Perceptron;
-
-constexpr int PIXELS = 10201;
-constexpr int OUTPUTS = 52;
+using CharacterRecognition::initCublas;
+using CharacterRecognition::deleteCublas;
 
 std::vector<std::string> parseDirectory(const std::string path);
 void testMatrixMul();
+
 
 int main(int argc, char* argv[]) {
 	/****************************
 	* TODO: User Input for training/loading/saving
 	*/
-	const std::string IMAGE_PATH = "..\\data-set\\*";
-	std::vector<std::string> files = parseDirectory(IMAGE_PATH);
+	const std::string IMAGE_PATH = "..\\data-set\\";
+	const std::string IMAGE_SEARCH_PATH = IMAGE_PATH + "*";
+	std::vector<std::string> files = parseDirectory(IMAGE_SEARCH_PATH);
+	initCublas();
+
+	CharacterRecognition::testMatrixMul();
 
 	Perceptron p(PIXELS, OUTPUTS);
 
 	// Begin With Random Values
 	p.randomizeWeights();
-	for (auto &fname : files) {
-		ImageFile inputFile(fname);
-		Matrix inputData(PIXELS, 1);
-		inputFile.readImage(&inputData);
+	p.updateCpu();
 
-		p.loadTrainingDataSet(inputFile.getExpectedNumber(), &inputData);
-		p.train(100);
+	// Load files and train on those files
+	for (int i = 0; i < 10; i++) {
+		for (auto &fname : files) {
+			ImageFile inputFile(IMAGE_PATH + fname);
+
+			p.loadTrainingDataSet(&inputFile);
+			p.train();
+			p.updateBackprop();
+			p.updateCpu();
+		}
+		p.applyBackprop();
+		p.updateCpu();
 	}
+
+	p.updateCpu();
 
 	// Now Run against data set
 	std::vector<std::string> correct_guesses;
 	std::vector<std::string> wrong_guesses;
 	for (auto &fname : files) {
-		ImageFile inputFile(fname);
-		Matrix inputData(PIXELS, 1);
-		inputFile.readImage(&inputData);
+		ImageFile inputFile(IMAGE_PATH + fname);
 
-		p.loadDataSet(&inputData);
+		p.loadDataSet(&inputFile);
 		p.run();
 
 		if(inputFile.getExpectedNumber() == p.getLastResult()) {
@@ -70,6 +81,7 @@ int main(int argc, char* argv[]) {
 		std::cout << "\t" << f << std::endl;
 	}
 
+	deleteCublas();
 	return 0;
 }
 
@@ -95,26 +107,4 @@ std::vector<std::string> parseDirectory(const std::string path) {
 	FindClose(hFind);
 
 	return ret;
-}
-
-void testMatrixMul() {
-	Matrix m_a(10201, 1);     // Input Values
-	Matrix m_b(10201, 10201); // Weights
-	Matrix m_c(10201, 1);     // Output Values
-
-	// Init matrix
-	for (int i = 0; i < m_a.getLen(); i++) {
-		m_a.cpu_data[i] = i;
-	}
-	for (int i = 0; i < m_b.getLen(); i++) {
-		m_b.cpu_data[i] = m_b.getLen() - i;
-	}
-
-	// Populate Device
-	m_a.copyCpuToDev();
-	m_b.copyCpuToDev();
-
-	matrixMul(&m_a, &m_b, &m_c);
-
-	m_c.copyDevToCpu();
 }
