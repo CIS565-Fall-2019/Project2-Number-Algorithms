@@ -18,7 +18,7 @@ Instead of grading my project please enjoy these nice photos of me from the wedd
 
 
 
-* Me trying to hack my neural network ... (yes that is me ... don't lock your keys in your trunk when you are in the middle of no where Michigan )
+* Me trying to make my neural network in one day ... (yes that is me ... don't lock your keys in your trunk when you are in the middle of no where Michigan )
 
 ![](img/sawzall.gif)
 
