@@ -14,27 +14,25 @@ namespace StreamCompaction {
 			return timer;
 		}
 		__global__ void kernUpSweep(int n, int d, int *itemp) {
-			int k = (blockIdx.x*blockDim.x) + threadIdx.x;
-			if (k > (n-1)) {
+			int power = 1 << (d + 1);
+			int k = ((blockIdx.x*blockDim.x) + threadIdx.x)*power;
+			if (k >= n) {
 				return;
 			}
-			int power = 1 << (d + 1);
 			int power_2 = 1 << d;
-			if (k % power == 0 && k + power - 1 < n && k + power_2 - 1 < n)
-				itemp[k + power - 1] += itemp[k + power_2 - 1];
+			itemp[k + power - 1] += itemp[k + power_2 - 1];
 		}
 		__global__ void kernDownSweep(int n, int d, int *itemp) {
-			int k = (blockIdx.x*blockDim.x) + threadIdx.x;
-			if (k > (n - 1)) {
+			int power = 1 << (d + 1);
+			int k = ((blockIdx.x*blockDim.x) + threadIdx.x)*power;
+			if (k >= n) {
 				return;
 			}
-			int power = 1 << (d + 1);
+			
 			int power_2 = 1 << d;
-			if (k%power == 0 && k + power_2 - 1 < n && k + power - 1 < n) {
-				int temp = itemp[k + power_2 - 1];
-				itemp[k + power_2 - 1] = itemp[k + power - 1];
-				itemp[k + power - 1] += temp;
-			}
+			int temp = itemp[k + power_2 - 1];
+			itemp[k + power_2 - 1] = itemp[k + power - 1];
+			itemp[k + power - 1] += temp;
 		}
 		/**
 		 * Performs prefix-sum (aka scan) on idata, storing the result into odata.
