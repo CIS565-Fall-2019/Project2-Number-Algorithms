@@ -7,5 +7,8 @@ set(SOURCE_FILES
 
 cuda_add_library(character_recognition
     ${SOURCE_FILES}
-    OPTIONS -arch=sm_20
+    OPTIONS -arch=sm_61
     )
+
+target_link_libraries(character_recognition ${CUDA_LIBRARIES})
+target_link_libraries(character_recognition ${CUDA_CUBLAS_LIBRARIES})
