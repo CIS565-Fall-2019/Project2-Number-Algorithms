@@ -13,7 +13,7 @@
 #include <stream_compaction/thrust.h>
 #include "testing_helpers.hpp"
 
-const int SIZE = 1 << 20; // feel free to change the size of array
+const int SIZE = 1 << 25; // feel free to change the size of array
 const int NPOT = SIZE - 3; // Non-Power-Of-Two
 int *a = new int[SIZE];
 int *b = new int[SIZE];
@@ -55,10 +55,10 @@ int main(int argc, char* argv[]) {
     printCmpResult(SIZE, b, c);
 
 	//For bug-finding only: Array of 1s to help find bugs in stream compaction or scan
-	onesArray(SIZE, c);
-	printDesc("1s array for finding bugs");
-	StreamCompaction::Naive::scan(SIZE, c, c);
-	printArray(SIZE, c, true); 
+// 	onesArray(SIZE, c);
+// 	printDesc("1s array for finding bugs");
+// 	StreamCompaction::Naive::scan(SIZE, c, c);
+// 	printArray(SIZE, c, true); 
 
     zeroArray(SIZE, c);
     printDesc("naive scan, non-power-of-two");
@@ -67,13 +67,11 @@ int main(int argc, char* argv[]) {
     //printArray(SIZE, c, true);
     printCmpResult(NPOT, b, c);
 
-
-
 	//For bug-finding only: Array of 1s to help find bugs in stream compaction or scan
-	identityArray(SIZE, c);
-	printDesc("work-efficient scan, 1s array for finding bugs");
-	StreamCompaction::Efficient::scan(SIZE, c, c);
-	printArray(SIZE, c, true);
+// 	identityArray(SIZE, c);
+// 	printDesc("work-efficient scan, 1s array for finding bugs");
+// 	StreamCompaction::Efficient::scan(SIZE, c, c);
+// 	printArray(SIZE, c, true);
 
     zeroArray(SIZE, c);
     printDesc("work-efficient scan, power-of-two");

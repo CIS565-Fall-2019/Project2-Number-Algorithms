@@ -72,18 +72,15 @@ namespace StreamCompaction {
 			checkCUDAError("cudaMemcpy dev_buffer idata failed!");
 
 			// fill rest of device buffer with zero
-			// TODO: is this needed??
 			cudaMemset(dev_buffer + n, 0, (nPowerOfTwo - n) * sizeof(int));
 			checkCUDAError("cudaMemset dev_buffer failed!");
 
-			//timer().startGpuTimer();
-
-			// TODO: hmmmmm
-			dim3 fullBlocksPerGrid((n + blockSize - 1) / blockSize);
+			timer().startGpuTimer();
 
 			// upsweep
+			dim3 gridSize = dim3((nPowerOfTwo + blockSize - 1) / blockSize, 1, 1);
 			for (int d = 0; d < ilog2ceil(nPowerOfTwo); d++) {
-				kernScanUpsweep<<<fullBlocksPerGrid, blockSize>>>(nPowerOfTwo, d, dev_buffer);
+				kernScanUpsweep<<<gridSize, blockSize>>>(nPowerOfTwo, d, dev_buffer);
 				checkCUDAError("kernScanUpsweep failed!");
 			}
 
@@ -95,13 +92,12 @@ namespace StreamCompaction {
 
 			// downsweep
 			for (int d = ilog2ceil(nPowerOfTwo) - 1; d >= 0; d--) {
-				kernScanDownsweep<<<fullBlocksPerGrid, blockSize>>>(nPowerOfTwo, d, dev_buffer);
+				kernScanDownsweep<<<gridSize, blockSize>>>(nPowerOfTwo, d, dev_buffer);
 				checkCUDAError("kernScanDownsweep failed!");
 			}
 
 			cudaDeviceSynchronize();
-
-			//timer().endGpuTimer();
+			timer().endGpuTimer();
 
 			// copy output to host
 			cudaMemcpy(odata, dev_buffer, n * sizeof(int), cudaMemcpyDeviceToHost);
@@ -110,6 +106,55 @@ namespace StreamCompaction {
 			cudaFree(dev_buffer);
 			checkCUDAError("cudaFree failed!");
         }
+
+		/**
+		 * Performs prefix-sum (aka scan) on idata, storing the result into odata, NO TIMER
+		 */
+		void scanNoTimer(int n, int *odata, const int *idata) {
+			int nPowerOfTwo = nextPowerOfTwo(n);
+
+			int *dev_buffer;
+
+			// malloc device buffer
+			cudaMalloc((void**)&dev_buffer, nPowerOfTwo * sizeof(int));
+			checkCUDAError("cudaMalloc dev_buffer failed!");
+
+			// copy input to device buffer
+			cudaMemcpy(dev_buffer, idata, n * sizeof(int), cudaMemcpyHostToDevice);
+			checkCUDAError("cudaMemcpy dev_buffer idata failed!");
+
+			// fill rest of device buffer with zero
+			cudaMemset(dev_buffer + n, 0, (nPowerOfTwo - n) * sizeof(int));
+			checkCUDAError("cudaMemset dev_buffer failed!");
+
+			// upsweep
+			dim3 gridSize = dim3((n + blockSize - 1) / blockSize, 1, 1);
+			for (int d = 0; d < ilog2ceil(nPowerOfTwo); d++) {
+				kernScanUpsweep<<<gridSize, blockSize>>>(nPowerOfTwo, d, dev_buffer);
+				checkCUDAError("kernScanUpsweep failed!");
+			}
+
+			cudaDeviceSynchronize();
+
+			// set root to zero
+			cudaMemset(dev_buffer + nPowerOfTwo - 1, 0, 1 * sizeof(int));
+			checkCUDAError("cudaMemset dev_buffer failed!");
+
+			// downsweep
+			for (int d = ilog2ceil(nPowerOfTwo) - 1; d >= 0; d--) {
+				kernScanDownsweep<<<gridSize, blockSize>>>(nPowerOfTwo, d, dev_buffer);
+				checkCUDAError("kernScanDownsweep failed!");
+			}
+
+			cudaDeviceSynchronize();
+
+			// copy output to host
+			cudaMemcpy(odata, dev_buffer, n * sizeof(int), cudaMemcpyDeviceToHost);
+			checkCUDAError("cudaMemcpy odata dev_buffer failed!");
+
+			cudaFree(dev_buffer);
+			checkCUDAError("cudaFree failed!");
+		}
 
 
         /**
@@ -146,7 +191,7 @@ namespace StreamCompaction {
 			cudaMemcpy(dev_in, idata, n * sizeof(int), cudaMemcpyHostToDevice);
 			checkCUDAError("cudaMemcpy dev_in idata failed!");
 
-			//timer().startGpuTimer();
+			timer().startGpuTimer();
 
 			// compute bools buffer
 			Common::kernMapToBoolean<<<fullBlocksPerGrid , blockSize>>>(n, dev_bools, dev_in);
@@ -161,7 +206,7 @@ namespace StreamCompaction {
 
 			// run exclusive scan on bools
 			int *indices = new int[n];
-			scan(n, indices, bools);
+			scanNoTimer(n, indices, bools);
 			int outputSize = bools[n - 1] == 0 ? indices[n - 1] : indices[n - 1] + 1;
 
 			// copy indices to device
@@ -170,10 +215,9 @@ namespace StreamCompaction {
 
 			// scatter
 			Common::kernScatter<<<fullBlocksPerGrid, blockSize>>>(n, dev_out, dev_in, dev_bools, dev_indices);
-
 			cudaDeviceSynchronize();
 
-			//timer().endGpuTimer();
+			timer().endGpuTimer();
 
 			// copy output to host
 			cudaMemcpy(odata, dev_out, outputSize * sizeof(int), cudaMemcpyDeviceToHost);

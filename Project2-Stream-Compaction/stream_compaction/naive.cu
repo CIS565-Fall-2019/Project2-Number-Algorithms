@@ -55,15 +55,19 @@ namespace StreamCompaction {
 			// perform inclusive scan
 			timer().startGpuTimer();
 
-			dim3 fullBlocksPerGrid((n + blockSize - 1) / blockSize);
+			dim3 gridSize = dim3((n + blockSize - 1) / blockSize, 1, 1);
 			for (int d = 1; d <= ilog2ceil(n); d++) {
 				// run one iteration
-				kernInclusiveScanIteration<<<fullBlocksPerGrid, blockSize>>>(n, d, dev_out, dev_in);
+				kernInclusiveScanIteration<<<gridSize, blockSize>>>(n, d, dev_out, dev_in);
 				checkCUDAError("kernInclusiveScanIteration failed!");
+
+				// copy out to in
+				cudaMemcpy(dev_in, dev_out, n * sizeof(int), cudaMemcpyDeviceToDevice);
+				checkCUDAError("cudaMemcpy dev_in dev_out failed!");
 			}
 
 			// convert to exclusive scan
-			kernShiftRight<<<fullBlocksPerGrid, blockSize>>>(n, dev_out, dev_in);
+			kernShiftRight<<<gridSize, blockSize>>>(n, dev_out, dev_in);
 			checkCUDAError("kernShiftRight failed!");
 
 			timer().endGpuTimer();
