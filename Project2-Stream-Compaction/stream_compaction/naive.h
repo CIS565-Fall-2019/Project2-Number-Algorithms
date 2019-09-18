@@ -1,7 +1,6 @@
 #pragma once
 
 #include "common.h"
-
 namespace StreamCompaction {
     namespace Naive {
         StreamCompaction::Common::PerformanceTimer& timer();

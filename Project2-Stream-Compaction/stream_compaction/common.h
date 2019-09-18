@@ -9,7 +9,6 @@
 #include <algorithm>
 #include <chrono>
 #include <stdexcept>
-
 #define FILENAME (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
 #define checkCUDAError(msg) checkCUDAErrorFn(msg, FILENAME, __LINE__)
 
@@ -91,6 +90,8 @@ namespace StreamCompaction {
 		    {
 			    cudaEventRecord(event_end);
 			    cudaEventSynchronize(event_end);
+
+#include "common.h"
 
 			    if (!gpu_timer_started) { throw std::runtime_error("GPU timer not started"); }
 
