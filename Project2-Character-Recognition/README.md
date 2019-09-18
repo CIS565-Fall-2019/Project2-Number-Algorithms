@@ -5,7 +5,7 @@ CUDA Character Recognition
 
 The overview of the subproject is to create and train a Neural Network for Character Recognition. In more detail, given the image of the alphabet, the Neural Network can identify what character it is and perform the classification. For first testing our Neural network, we will create the network and train on the 2X2 XOR data and then extend it to the character recognition.
 
-### Neural Network
+## Neural Network
 
 Neural Network in the Multi-Layer Perceptron where the classifier is designing by combining many perceptrons at the same time. As peach perceptron is a linear classfier, it can't classify some of the complex datasets and model the high complexity, The Neural network have the non-linearity aspect as it is made up of several such single multi perceptrons. 
 
@@ -29,7 +29,7 @@ In my implemetation of Neural network, I'm training all the data points at the s
 
 I will be explaining my network taking reference of 1 data point, although I have trained for all the data points together. As we have 2 features in each data point, we have the number of units in our input layer. For the hidden layer, I have varies it and the number of units at 4 gives the good output. Finally, we have the number of units at the output layer as 2 as there are two classes we need to identify for, i.e., 0(low) and 1(high). This form of network can easily be then migrated to character recognition as it can be easily scaled and the number of classes at the output can be increased to the requirement. I'm not using biases to model my network. Here, I will have two weight arrays, namely, weightsA and weightsB. The weightsA is the matrix which tranforms the input layer to the hidden layer and has the dimensions of `2x4` in our case.  The weightsB is the matrix which tranforms the hiidden layer to the output layer and has the dimensions of `4x2` in our case. 
 
-### XOR Training Analysis
+## XOR Training Analysis
 
 Here is the loss vs Iterations Plot for the XOR training:
 
@@ -38,3 +38,17 @@ Here is the loss vs Iterations Plot for the XOR training:
 Here, we see that the loss of the network saturates and I'm putting the threshold at the total Error at 0.1. Hence, we have trained the network with the 4 datapoints of XOR. The accuracy of the network comes out to be 1 as it has predicted the outcomes correcty.
 
 The weights arrays weightsA and weightsB after the training are stored in the [weightsA_XOR.txt](https://github.com/somanshu25/Project2-Number-Algorithms/blob/master/Project2-Character-Recognition/weightsA_XOR.txt) and [weightsB_XOR.txt](https://github.com/somanshu25/Project2-Number-Algorithms/blob/master/Project2-Character-Recognition/weightsB_XOR.txt) files. The siftmax probabilites at the output layer is in [softmax_prob_XOR.txt](https://github.com/somanshu25/Project2-Number-Algorithms/blob/master/Project2-Character-Recognition/softmax_prob_XOR.txt).
+
+## Character Recognition
+
+After learning on the small dataset, we have extended the Neural network to learn the small and capital alphabets seperately. Hence, for this training, we have total 52 classes to train. Each image has 10201 pixels, hence, the number of features are 10201. There are 52 data points. For our network here, we train it with 10 hidden units in our hidden layer. 
+
+### Analysis
+
+The loss vs Iterations for Character Recognition is given below:
+
+<p align="center"><img src="https://github.com/somanshu25/Project2-Number-Algorithms/blob/master/Project2-Character-Recognition/img/LossVsIterations_Character.png" width="1000"/></p>
+
+The accuracy of the classifier is 1 as all the inputs are correctly classified into their classes.
+
+The wieghtsA array after the training are stores in [weightsA_characterRecognition.txt](https://github.com/somanshu25/Project2-Number-Algorithms/blob/master/Project2-Character-Recognition/weightsA_characterRecognition.txt), the weightsB are stores in [weightsB_characterRecognition.txt](https://github.com/somanshu25/Project2-Number-Algorithms/blob/master/Project2-Character-Recognition/weightsB_characterRecognition.txt), the softmax probabilties at the output are stored in [softMax_prob_characterRecognition.txt](https://github.com/somanshu25/Project2-Number-Algorithms/blob/master/Project2-Character-Recognition/softMax_prob_characterRecognition.txt) and the hidden layer units values are stored in [hidden_layer_characterRecognition.txt](https://github.com/somanshu25/Project2-Number-Algorithms/blob/master/Project2-Character-Recognition/hidden_layer_characterRecognition.txt).
