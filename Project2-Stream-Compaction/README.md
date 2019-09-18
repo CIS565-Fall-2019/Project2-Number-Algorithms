@@ -37,9 +37,11 @@ In the performance analysis, we are first checking the best blockSize value for 
 
 ![](img/Block_Size_vary.png) <!-- .element height="30%" width="30%" -->
 
-For the above, we see that the optimized implementations are when the Block size is 512 for both the algorithms. For checking how all of the versions of GPU compare with CPU version when varying the input size, I have broken the ployts into 2 plots as shown below. The first plot on the left side is from input size `2^10` to `2^18` while the second plot on the right side varies from `2^19` to `2^25` for better visualization of the plots.
+For the above, we see that the optimized implementations are when the Block size is 512 for both the algorithms. For checking how all of the versions of GPU compare with CPU version when varying the input size, I have broken the ployts into 2 plots as shown below. The first plot on the top is from input size `2^10` to `2^18` while the second plot on the bottom varies from `2^19` to `2^25` for better visualization of the plots.
 
-![alt-text-1](img/Plot_Scan_1.png "title-1") ![alt-text-2](img/Plot_Scan_2.png "title-2")
+<p align="center"><img src="https://github.com/somanshu25/Project2-Number-Algorithms/blob/master/Project2-Stream-Compaction/img/Plot_Scan_1.png" width="600"/></p>
+
+<p align="center"><img src="https://github.com/somanshu25/Project2-Number-Algorithms/blob/master/Project2-Stream-Compaction/img/Plot_Scan_2.png" width="600"/></p>
 
 ## 4. Questions and Inferences
 
