@@ -18,7 +18,6 @@ CIS 565: GPU Programming and Architecture**
 - [Training MLP to Predict a 2x2 XOR](https://github.com/chhavisharma/Project2-Number-Algorithms/blob/master/Project2-Character-Recognition/README.md#training-mlp-to-predict-a-2x2-xor)
 - [Training MLP for Character Recognition](https://github.com/chhavisharma/Project2-Number-Algorithms/blob/master/Project2-Character-Recognition/README.md#2-training-mlp-for-character-recognition)
 - [Observations and Comments](https://github.com/chhavisharma/Project2-Number-Algorithms/blob/master/Project2-Character-Recognition/README.md#observations-and-comments)
-- [Performance](https://github.com/chhavisharma/Project2-Number-Algorithms/blob/master/Project2-Character-Recognition)
 - [Extra Credit](https://github.com/chhavisharma/Project2-Number-Algorithms/blob/master/Project2-Character-Recognition/README.md#extra-credits)
 
 
@@ -105,16 +104,9 @@ We train an MLP to predict characters from images in this task. Given 52 images 
   The training is stable as the loss reduces consistanly at every uweight update.
   The learned weights have been added to the repo [here](/build).
 
-### Performance
-
-Inference Time v/s Hidden Nodes
-
-Inference Time v/s Data Size
-
-
 ### Observations and Comments
 - The MLP describled above is able to learn XOR, a non-linearly seperable function, only when a bias term is added to the input.
 - In case of character recognition, we only have one image sample per class of characters, therefore the networks learns to memorise the data mapping to the classes and would not generalise well. In order to build a robust character recongition network, an ideal dataset of charcters per class would need to have enough variation in font intentsity. 
 
 ### Extra Credit
-We implemented batch processing of data instead of running one exampe at a time. This required simplyfying gradinets at the matrix level. These have been laid out in detail in the code. 
+We implemented batch processing of data instead of running one exampe at a time. This required simplifying gradinets at the matrix level. These have been laid out in detail in the code. 
