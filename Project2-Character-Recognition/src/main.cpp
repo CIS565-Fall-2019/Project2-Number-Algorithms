@@ -10,143 +10,268 @@
 #include <character_recognition/mlp.h>
 #include <character_recognition/common.h>
 #include "testing_helpers.hpp"
+#include <vector>
+#include <iostream>
+#include <map>
+#include <time.h>
+#include <chrono>
+#include <string>
+#include <fstream>
+#include <sstream>
 
-const int SIZE = 1 << 8; // feel free to change the size of array
-const int NPOT = SIZE - 3; // Non-Power-Of-Two
-int *a = new int[SIZE];
-int *b = new int[SIZE];
-int *c = new int[SIZE];
+
+
+// Define run presets
+#define training 1 // If set to 1, indicates we are in training mode
+#define acceptedError 0.001
+#define numRandomWeightAttempts 10
+#define numConvergeIterations 1000
+#define useXor 1
+
 
 int main(int argc, char* argv[]) {
-    // Scan tests
+	// Setup input data depending on xor or character data
+	int inputSize = 10201;
+	int numInputs = 52;
+	if (useXor) {
+		inputSize = 2;
+		numInputs = 4;
+	}
 
-    printf("\n");
-    printf("****************\n");
-    printf("** SCAN TESTS **\n");
-    printf("****************\n");
+	// Fill in all data:
+	std::vector<float*> inputData = std::vector<float*>();
+	std::vector<float> expectedData = std::vector<float>();
 
-    genArray(SIZE - 1, a, 50);  // Leave a 0 at the end to test that edge case
-    a[SIZE - 1] = 0;
-    printArray(SIZE, a, true);
+	if (useXor) {
+		float *data1 = new float[2];
+		float *data2 = new float[2];
+		float *data3 = new float[2];
+		float *data4 = new float[2];
 
-    // initialize b using StreamCompaction::CPU::scan you implement
-    // We use b for further comparison. Make sure your StreamCompaction::CPU::scan is correct.
-    // At first all cases passed because b && c are all zeroes.
-    zeroArray(SIZE, b);
-    printDesc("cpu scan, power-of-two");
-    StreamCompaction::CPU::scan(SIZE, b, a);
-    printElapsedTime(StreamCompaction::CPU::timer().getCpuElapsedTimeForPreviousOperation(), "(std::chrono Measured)");
-    printArray(SIZE, b, true);
+		data1[0] = 0;
+		data1[1] = 0;
+		data2[0] = 0;
+		data3[1] = 0;
+		data2[1] = 1;
+		data3[0] = 1;
+		data4[0] = 1;
+		data4[1] = 1;
 
-    zeroArray(SIZE, c);
-    printDesc("cpu scan, non-power-of-two");
-    StreamCompaction::CPU::scan(NPOT, c, a);
-    printElapsedTime(StreamCompaction::CPU::timer().getCpuElapsedTimeForPreviousOperation(), "(std::chrono Measured)");
-    printArray(NPOT, b, true);
-    printCmpResult(NPOT, b, c);
+		inputData.push_back(data1);
+		inputData.push_back(data2);
+		inputData.push_back(data3);
+		inputData.push_back(data4);
+		expectedData.push_back(0);
+		expectedData.push_back(1);
+		expectedData.push_back(1);
+		expectedData.push_back(0);
+	}
 
-    zeroArray(SIZE, c);
-    printDesc("naive scan, power-of-two");
-    StreamCompaction::Naive::scan(SIZE, c, a);
-    printElapsedTime(StreamCompaction::Naive::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
-    //printArray(SIZE, c, true);
-    printCmpResult(SIZE, b, c);
+	else {
+		// Read in character training data:
+		for (int i = 1; i <= numInputs; ++i) {
+			std::string filename = std::to_string(i) + "info.txt";
+			if (i < 10) {
+				filename = "0" + filename;
+			}
+			filename = "../data-set/" + filename;
 
-	/* For bug-finding only: Array of 1s to help find bugs in stream compaction or scan
-	onesArray(SIZE, c);
-	printDesc("1s array for finding bugs");
-	StreamCompaction::Naive::scan(SIZE, c, a);
-	printArray(SIZE, c, true); */
+			std::ifstream inputFile;
+			inputFile.open(filename);
+			if (inputFile.is_open()) {
+				std::string firstLine;
+				getline(inputFile, firstLine);
+				int expectedVal = std::stoi(firstLine);
 
-    zeroArray(SIZE, c);
-    printDesc("naive scan, non-power-of-two");
-    StreamCompaction::Naive::scan(NPOT, c, a);
-    printElapsedTime(StreamCompaction::Naive::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
-    //printArray(SIZE, c, true);
-    printCmpResult(NPOT, b, c);
+				std::string secondLine;
+				getline(inputFile, secondLine);
+				int inputLength = std::stoi(secondLine);
 
-    zeroArray(SIZE, c);
-    printDesc("work-efficient scan, power-of-two");
-    StreamCompaction::Efficient::scan(SIZE, c, a);
-    printElapsedTime(StreamCompaction::Efficient::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
-    //printArray(SIZE, c, true);
-    printCmpResult(SIZE, b, c);
+				float *currData = new float[inputLength];
+				int counter = 0;
 
-    zeroArray(SIZE, c);
-    printDesc("work-efficient scan, non-power-of-two");
-    StreamCompaction::Efficient::scan(NPOT, c, a);
-    printElapsedTime(StreamCompaction::Efficient::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
-    //printArray(NPOT, c, true);
-    printCmpResult(NPOT, b, c);
+				std::string dataLine;
+				getline(inputFile, dataLine);
 
-    zeroArray(SIZE, c);
-    printDesc("thrust scan, power-of-two");
-    StreamCompaction::Thrust::scan(SIZE, c, a);
-    printElapsedTime(StreamCompaction::Thrust::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
-    //printArray(SIZE, c, true);
-    printCmpResult(SIZE, b, c);
+				std::stringstream stream(dataLine);
+				while (1) {
+					int n;
+					stream >> n;
+					if (!stream) {
+						break;
+					}
+					currData[counter] = n;
+					counter++;
+				}
+				inputData.push_back(currData);
+				expectedData.push_back(expectedVal);
+			}
+			inputFile.close();
+		}
+	}
 
-    zeroArray(SIZE, c);
-    printDesc("thrust scan, non-power-of-two");
-    StreamCompaction::Thrust::scan(NPOT, c, a);
-    printElapsedTime(StreamCompaction::Thrust::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
-    //printArray(NPOT, c, true);
-    printCmpResult(NPOT, b, c);
+	
+	if (training) {
+		// Setup weights arrays:
+		int numHiddenLayers = ceil((inputSize + 1) / 2.0);
 
-    printf("\n");
-    printf("*****************************\n");
-    printf("** STREAM COMPACTION TESTS **\n");
-    printf("*****************************\n");
+		int layer1_numWeights = inputSize * numHiddenLayers;
+		int layer2_numWeights = numHiddenLayers;
 
-    // Compaction tests
+		float *layer1_weights = new float[layer1_numWeights];
+		float *layer2_weights = new float[layer2_numWeights];
+		
 
-    genArray(SIZE - 1, a, 4);  // Leave a 0 at the end to test that edge case
-    a[SIZE - 1] = 0;
-    printArray(SIZE, a, true);
+		if (useXor) {
+			layer1_weights[0] = 10.1;
+			layer1_weights[1] = 0.9;
+			layer1_weights[2] = 20;
+			layer1_weights[3] = 0.87;
 
-    int count, expectedCount, expectedNPOT;
+			layer2_weights[0] = 41;
+			layer2_weights[1] = -54;
+		}
 
-    // initialize b using StreamCompaction::CPU::compactWithoutScan you implement
-    // We use b for further comparison. Make sure your StreamCompaction::CPU::compactWithoutScan is correct.
-    zeroArray(SIZE, b);
-    printDesc("cpu compact without scan, power-of-two");
-    count = StreamCompaction::CPU::compactWithoutScan(SIZE, b, a);
-    printElapsedTime(StreamCompaction::CPU::timer().getCpuElapsedTimeForPreviousOperation(), "(std::chrono Measured)");
-    expectedCount = count;
-    printArray(count, b, true);
-    printCmpLenResult(count, expectedCount, b, b);
+		std::vector<float*> partials1 = std::vector<float*>();
+		std::vector<float*> partials2 = std::vector<float*>();
 
-    zeroArray(SIZE, c);
-    printDesc("cpu compact without scan, non-power-of-two");
-    count = StreamCompaction::CPU::compactWithoutScan(NPOT, c, a);
-    printElapsedTime(StreamCompaction::CPU::timer().getCpuElapsedTimeForPreviousOperation(), "(std::chrono Measured)");
-    expectedNPOT = count;
-    printArray(count, c, true);
-    printCmpLenResult(count, expectedNPOT, b, c);
+		for (int i = 0; i < numInputs; ++i) {
+			partials1.push_back(new float[layer1_numWeights]);
+			partials2.push_back(new float[layer2_numWeights]);
+		}
 
-    zeroArray(SIZE, c);
-    printDesc("cpu compact with scan");
-    count = StreamCompaction::CPU::compactWithScan(SIZE, c, a);
-    printElapsedTime(StreamCompaction::CPU::timer().getCpuElapsedTimeForPreviousOperation(), "(std::chrono Measured)");
-    printArray(count, c, true);
-    printCmpLenResult(count, expectedCount, b, c);
+		// Begin loop iteration
+		auto start = std::chrono::steady_clock::now();
+		int numRandIters = 0;
+		float accumulatedError = 3.0; // Larger than accepted error
+		bool done = false;
+		int numRandAttempts = useXor ? 1 : numRandomWeightAttempts;
+		while (!done && numRandIters < numRandAttempts) {
+			// Fill new random weights (if xor, use preset weights)
+			if (!useXor) {
+				auto end1 = std::chrono::steady_clock::now();
+				CharacterRecognition::fillRandomWeights(layer1_numWeights, layer1_weights, std::chrono::duration_cast<std::chrono::nanoseconds>(end1 - start).count());
+				auto end2 = std::chrono::steady_clock::now();
+				CharacterRecognition::fillRandomWeights(layer2_numWeights, layer2_weights, std::chrono::duration_cast<std::chrono::nanoseconds>(end2 - start).count());
+				std::cout << "NEW WEIGHTS" << std::endl;
+			}
+			
+			int numInnerIters = 0.0;
+			// Try refining weights iteratively
+			while (!done && numInnerIters < numConvergeIterations) {
+				accumulatedError = 0.0;
+				bool resultAll1 = true;
 
-    zeroArray(SIZE, c);
-    printDesc("work-efficient compact, power-of-two");
-    count = StreamCompaction::Efficient::compact(SIZE, c, a);
-    printElapsedTime(StreamCompaction::Efficient::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
-    //printArray(count, c, true);
-    printCmpLenResult(count, expectedCount, b, c);
+				// Run each input through mlp, accumulating error
+				for (int k = 0; k < numInputs; ++k) {
+					float currExpected = expectedData.at(k);
+					float output = CharacterRecognition::mlp(inputSize, numHiddenLayers, currExpected, 
+						layer1_weights, layer2_weights, inputData.at(k), partials1.at(k), partials2.at(k));
+					if (output != 1) {
+						resultAll1 = false;
+					}
 
-    zeroArray(SIZE, c);
-    printDesc("work-efficient compact, non-power-of-two");
-    count = StreamCompaction::Efficient::compact(NPOT, c, a);
-    printElapsedTime(StreamCompaction::Efficient::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
-    //printArray(count, c, true);
-    printCmpLenResult(count, expectedNPOT, b, c);
+					float currError = (output - currExpected) * (output - currExpected);
+					std::cout << "expected output: " << currExpected << "  Result: " << output << std::endl;
+					accumulatedError += currError;
+				}
+				if (resultAll1) {
+					break;
+				}
+				accumulatedError /= 2.0;
+				std::cout << "Accumulated error: " << accumulatedError << std::endl;
+				if (accumulatedError < acceptedError) {
+					done = true;
+				}
+				// Adjust weights based on accumulated error
+				if (!done) {
+					for (int k = 0; k < numInputs; ++k) {
+						float* partialValues1 = partials1.at(k);
+						float* partialValues2 = partials2.at(k);
 
-    system("pause"); // stop Win32 console from closing on exit
-	delete[] a;
-	delete[] b;
-	delete[] c;
+						CharacterRecognition::updateWeights(layer1_numWeights,
+							accumulatedError, partialValues1, layer1_weights);
+
+						CharacterRecognition::updateWeights(layer2_numWeights,
+							accumulatedError, partialValues2, layer2_weights);
+					}
+				}
+				if (done) {
+					std::cout << "DONE" << std::endl;
+				}
+				numInnerIters++;
+			}
+			numRandIters++;
+		}
+		// Print out final weights and error after either converging to good weights or failing to converge
+		std::cout << "FINAL ERROR: " << accumulatedError << std::endl;
+		std::cout << "WEIGHTS:" << std::endl;
+		for (int i = 0; i < layer1_numWeights; ++i) {
+			std::cout << "layer 1 weight " << i << ": " << layer1_weights[i] << std::endl;
+		}
+		for (int i = 0; i < layer2_numWeights; ++i) {
+			std::cout << "layer 2 weight " << i << ": " << layer2_weights[i] << std::endl;
+		}
+
+		// Delete data arrays stored in map
+		for (float* i : inputData) {
+			delete[] i;
+		}
+		for (float* i : partials1) {
+			delete[] i;
+		}
+		for (float* i : partials2) {
+			delete[] i;
+		}
+		delete[] layer1_weights;
+		delete[] layer2_weights;
+	}
+	else {
+		// Setup weights arrays:
+		int numHiddenLayers = ceil((inputSize + 1) / 2.0);
+
+		int layer1_numWeights = inputSize * numHiddenLayers;
+		int layer2_numWeights = numHiddenLayers;
+
+		float *layer1_weights = new float[layer1_numWeights];
+		float *layer2_weights = new float[layer2_numWeights];
+
+
+		if (useXor) {
+			layer1_weights[0] = 10.1302;
+			layer1_weights[1] = 0.854664;
+			layer1_weights[2] = 20.0219;
+			layer1_weights[3] = 0.837066;
+
+			layer2_weights[0] = 41.009;
+			layer2_weights[1] = -53.9937;
+		}
+
+		auto start = std::chrono::steady_clock::now();
+		// if not xor, use random weights because never found good weights
+		if (!useXor) {
+			auto end1 = std::chrono::steady_clock::now();
+			CharacterRecognition::fillRandomWeights(layer1_numWeights, layer1_weights, std::chrono::duration_cast<std::chrono::nanoseconds>(end1 - start).count());
+			auto end2 = std::chrono::steady_clock::now();
+			CharacterRecognition::fillRandomWeights(layer2_numWeights, layer2_weights, std::chrono::duration_cast<std::chrono::nanoseconds>(end2 - start).count());
+			std::cout << "NEW WEIGHTS" << std::endl;
+		}
+
+		// Run input data through mlp to get output with given weights
+		for (int k = 0; k < numInputs; ++k) {
+			float currExpected = expectedData.at(k);
+			float output = CharacterRecognition::mlpNoError(inputSize, numHiddenLayers, currExpected,
+				layer1_weights, layer2_weights, inputData.at(k));
+			// Print out results, rounding output to integer to match input type
+			std::cout << "expected output: " << currExpected << "  Result: " << round(output) << std::endl;
+		}
+	
+		// Delete data arrays stored in map
+		for (float* i : inputData) {
+			delete[] i;
+		}
+		delete[] layer1_weights;
+		delete[] layer2_weights;
+	}
+	
 }
