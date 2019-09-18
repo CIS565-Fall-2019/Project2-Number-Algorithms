@@ -71,7 +71,7 @@ Stream compaction, also known as stream filtering or selection, usually produces
 #### 2: Naive GPU Scan
 We can naively parallelize the scan algorithm on the GPU to reduce the loop to ```log2(n)``` iterations. At the first iteraction, n-1 threads add a pair of values and store it in the next array, but as iteractions progress, the number of additions come down to 'O(1)'. Thus this scan has a runtime of 'log2(n)' where as the CPU sequential scan has the runtime of 'O(n)'. The number of additions in this scenario increase to ```O(n*log2(n))```.
 <p align="center">
-  <img src="img/NaiveScan.png">
+  <img src="Project2-Stream-Compaction/img/NaiveScan.PNG">
 </p>
 
 #### 3: Work-Efficient GPU Scan
@@ -79,13 +79,13 @@ We can naively parallelize the scan algorithm on the GPU to reduce the loop to `
 We can further parallelize the scan algorithm to bring down the number of addition operations to ```O(n)``` and make it *Work Efficient*. This is done by implementing the scan algorithm using a Balanced Binary Tree and perfroming the UpSweep and DownSweep algorithm. During Upsweep, we start from the tree's leaf nodes and compute partial sums upto the root. These operations are in place. 
 *UpSweep*
 <p align="center">
-  <img src="img/UpSweepScan.png">
+  <img src="Project2-Stream-Compaction/img/UpSweepScan.png">
 </p>
 
 Finally in the downsweep, starting from the Root node, we perfom the following steps to get the preorder sum.
 *DownSweep*
 <p align="center">
-  <img src="img/DownSweepScan.png">
+  <img src="Project2-Stream-Compaction/img/DownSweepScan.png">
 </p>
 
 ##### 4: Work-Efficient Stream Compaction
