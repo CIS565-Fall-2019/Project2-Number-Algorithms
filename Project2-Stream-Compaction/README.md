@@ -44,14 +44,89 @@ The following plot shows the performance of two GPU implementation with varying 
 **Analysis** - The impact of the block size on the stream compaction performance is same as that the one on scan. The performance increases on increasing the blocksize till 32 and stays almost constant after that.
 ## Output
 ### Scan
-Following is the screenshot of the main program for SCAN module showing the arrays and runtime of various algorthims (including power and two and not power of two variants) already given with an addition of optimized work efficient approach.
-
-<p align="center"><img src="https://github.com/DishaJindal/Project2-Number-Algorithms/blob/master/Project2-Stream-Compaction/img/Scan_Output.PNG" width="800"/></p>
+Following is the output of the main program for SCAN module showing the arrays and runtime of various algorthims (including power and two and not power of two variants) already given with an addition of optimized work efficient approach.
+```
+****************
+** SCAN TESTS **
+****************
+    [   2  20  35  39  13   6  16   0 ]
+==== cpu scan, power-of-two ====
+   elapsed time: 0.0005ms    (std::chrono Measured)
+    [   0   2  22  57  96 109 115 131 ]
+==== cpu scan, non-power-of-two ====
+   elapsed time: 0.0002ms    (std::chrono Measured)
+    [   0   2  22  57  96 ]
+    passed
+==== naive scan, power-of-two ====
+   elapsed time: 0.01856ms    (CUDA Measured)
+    [   0   2  22  57  96 109 115 131 ]
+    passed
+==== naive scan, non-power-of-two ====
+   elapsed time: 0.017408ms    (CUDA Measured)
+    [   0   2  22  57  96   0   0   0 ]
+    passed
+==== work-efficient scan, power-of-two ====
+   elapsed time: 0.072192ms    (CUDA Measured)
+    [   0   2  22  57  96 109 115 131 ]
+    passed
+==== work-efficient scan, non-power-of-two ====
+   elapsed time: 0.057344ms    (CUDA Measured)
+    [   0   2  22  57  96 ]
+    passed
+==== optimized work-efficient scan, power-of-two ====
+   elapsed time: 0.070112ms    (CUDA Measured)
+    [   0   2  22  57  96 109 115 131 ]
+    passed
+==== optimized work-efficient scan, non-power-of-two ====
+   elapsed time: 0.036864ms    (CUDA Measured)
+    [   0   2  22  57  96 ]
+    passed
+==== thrust scan, power-of-two ====
+   elapsed time: 5.54496ms    (CUDA Measured)
+    [   0   2  22  57  96 109 115 131 ]
+    passed
+==== thrust scan, non-power-of-two ====
+   elapsed time: 1.39277ms    (CUDA Measured)
+    [   0   2  22  57  96 ]
+    passed
+```
 
 ### Stream Compaction
-Following is the screenshot of the main program for Stream Compaction showing the arrays and runtime of various algorthims (including power and two and not power of two variants) already given with an addition of optimized work efficient approach.
-
-<p align="center"><img src="https://github.com/DishaJindal/Project2-Number-Algorithms/blob/master/Project2-Stream-Compaction/img/StreamCompaction_Output.PNG" width="800"/></p>
+Following is the output of the main program for Stream Compaction showing the arrays and runtime of various algorthims (including power and two and not power of two variants) already given with an addition of optimized work efficient approach.
+```
+*****************************
+** STREAM COMPACTION TESTS **
+*****************************
+    [   0   0   3   3   3   2   0   0 ]
+==== cpu compact without scan, power-of-two ====
+   elapsed time: 0.0005ms    (std::chrono Measured)
+    [   3   3   3   2 ]
+    passed
+==== cpu compact without scan, non-power-of-two ====
+   elapsed time: 0.0002ms    (std::chrono Measured)
+    [   3   3   3 ]
+    passed
+==== cpu compact with scan ====
+   elapsed time: 0.1199ms    (std::chrono Measured)
+    [   3   3   3   2 ]
+    passed
+==== work-efficient compact, power-of-two ====
+   elapsed time: 0.39424ms    (CUDA Measured)
+    [   3   3   3   2 ]
+    passed
+==== work-efficient compact, non-power-of-two ====
+   elapsed time: 0.270848ms    (CUDA Measured)
+    [   3   3   3 ]
+    passed
+==== work-efficient compact, power-of-two ====
+   elapsed time: 0.33216ms    (CUDA Measured)
+    [   3   3   3   2 ]
+    passed
+==== work-efficient compact, non-power-of-two ====
+   elapsed time: 0.282624ms    (CUDA Measured)
+    [   3   3   3 ]
+    passed
+```
 
 ## Extra Credits
 ### Optimized Work Efficient Approach
