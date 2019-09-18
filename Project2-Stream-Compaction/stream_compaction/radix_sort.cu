@@ -41,7 +41,15 @@ __global__ void Add(int *arr1, int *arr2, int idx, int *totalFalses) {
 
 namespace StreamCompaction {
 	namespace RadixSort {
+		using StreamCompaction::Common::PerformanceTimer;
+		StreamCompaction::Common::PerformanceTimer & timer()
+		{
+			static PerformanceTimer timer;
+			return timer;
+		}
+
 		void sort(int n, int *odata, const int *idata, int blockSize) {
+			timer().startGpuTimer();
 			int *i_array, *e_array, *f_array, *t_array, *d_array, *o_array, *totalFalses;
 			// Memory Allocation
 			cudaMalloc((void**)&i_array, n * sizeof(int));
@@ -86,6 +94,7 @@ namespace StreamCompaction {
 			cudaFree(t_array);
 			cudaFree(d_array);
 			cudaFree(o_array);
+			timer().endGpuTimer();
 		}
 
 	}

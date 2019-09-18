@@ -212,8 +212,10 @@ void radixSortTest() {
 	printArray(SIZE, a, true);
 	zeroArray(SIZE, b);
 	StreamCompaction::RadixSort::sort(SIZE, b, a, 128);
+	printElapsedTime(StreamCompaction::RadixSort::timer().getGpuElapsedTimeForPreviousOperation());
 	printArray(SIZE, b, true);
 	std::sort(a, a + SIZE);
+	//printElapsedTime(StreamCompaction::CPU::timer().getCpuElapsedTimeForPreviousOperation());
 	printCmpResult(SIZE, b, a);
 }
 
