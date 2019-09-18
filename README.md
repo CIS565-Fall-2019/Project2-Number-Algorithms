@@ -1,16 +1,16 @@
 CUDA Number Algorithms
 ======================
 
-**University of Pennsylvania, CIS 565: GPU Programming and Architecture, Project 2**
+* **University of Pennsylvania, CIS 565: GPU Programming and Architecture, Project 2**
+  * Name: Vaibhav Arcot
+    
+    *  [LinkedIn](https://www.linkedin.com/in/vaibhav-arcot-129829167/)
+    
+  * Tested on: Windows 10, i7-7700HQ @ 2.8GHz (3.8 Boost) 32GB, External GTX 1080Ti, 11G (My personal laptop)
+  
+### Stream compression and Charecter recognition
 
-* (TODO) YOUR NAME HERE
-  * (TODO) [LinkedIn](), [personal website](), [twitter](), etc.
-* Tested on: (TODO) Windows 22, i7-2222 @ 2.22GHz 22GB, GTX 222 222MB (Moore 2222 Lab)
+[Link](./Project2-Stream-Compaction/) to the stream compaction readme.
 
-### (TODO: Your README)
-
-Link to the readmes of the other two subprojects.
-
-Add anything else you think is relevant up to this point.
-(Remember, this is public, so don't put anything here that you don't want to share with the world.)
+[Link](./Project2-Character-Recognition/) to the charecter recognition readme
 

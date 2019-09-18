@@ -22,6 +22,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 endif()
 
 include_directories(.)
+link_directories(${CUDA_TOOLKIT_ROOT_DIR}/lib/x64)
 add_subdirectory(stream_compaction)
 
 cuda_add_executable(${CMAKE_PROJECT_NAME}
@@ -29,6 +30,17 @@ cuda_add_executable(${CMAKE_PROJECT_NAME}
     )
 
 target_link_libraries(${CMAKE_PROJECT_NAME}
+    stream_compaction
+    ${CORELIBS}
+    cublas
+    curand
+    )
+
+cuda_add_executable(${CMAKE_PROJECT_NAME}_datagen
+    "src/data_gen.cpp"
+    )
+
+target_link_libraries(${CMAKE_PROJECT_NAME}_datagen
     stream_compaction
     ${CORELIBS}
     )
