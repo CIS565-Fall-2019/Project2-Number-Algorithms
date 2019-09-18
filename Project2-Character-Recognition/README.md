@@ -84,7 +84,8 @@ We train an MLP to predict output of a two bit XOR gate. Given 4 2-bit inputs an
  
  ![](img/XorLoss.PNG)
  
- The learned weights have been added to the repo.
+ The learned weights have been added to the repo at Project2-Number-Algorithms/Project2-Character-Recognition/build/
+.
  
 ### Training MLP for Character Recognition
  
@@ -102,7 +103,8 @@ We train an MLP to predict characters from images in this task. Given 52 images 
  
  ![](img/CharRecLoss.PNG)
   The training is stable as the loss reduces consistanly at every uweight update.
-  The learned weights have been added to the repo.
+  The learned weights have been added to the repo Project2-Number-Algorithms/Project2-Character-Recognition/build/
+.
 
 ### Observations and Comments
 - The MLP describled above is able to learn XOR, a non-linearly seperable function, only when a bias term is added to the input.
