@@ -25,6 +25,35 @@ void GotoLine(std::ifstream& file, unsigned int num) {
 	return;
 }
 
+using time_point_t = std::chrono::high_resolution_clock::time_point;
+time_point_t time_start_cpu;
+time_point_t time_end_cpu;
+
+bool cpu_timer_started = false;
+
+float prev_elapsed_time_cpu_milliseconds = 0.f;
+
+void startCpuTimer()
+{
+	if (cpu_timer_started) { throw std::runtime_error("CPU timer already started"); }
+	cpu_timer_started = true;
+
+	time_start_cpu = std::chrono::high_resolution_clock::now();
+}
+
+void endCpuTimer()
+{
+	time_end_cpu = std::chrono::high_resolution_clock::now();
+
+	if (!cpu_timer_started) { throw std::runtime_error("CPU timer not started"); }
+
+	std::chrono::duration<double, std::milli> duro = time_end_cpu - time_start_cpu;
+	prev_elapsed_time_cpu_milliseconds =
+		static_cast<decltype(prev_elapsed_time_cpu_milliseconds)>(duro.count());
+
+	cpu_timer_started = false;
+}
+
 int main(int argc, char* argv[]) {
 	
 	float *data = new float[10201 * 52];
@@ -69,13 +98,11 @@ int main(int argc, char* argv[]) {
 		}
 	}
 	
-	int layerNum = 5;
+	int layerNum = 3;
 	int *layerSizes = new int[layerNum];
 	layerSizes[0] = 10201;
-	layerSizes[1] = 30;
-	layerSizes[2] = 10;
-	layerSizes[3] = 30;
-	layerSizes[4] = 52;
+	layerSizes[1] = 70;
+	layerSizes[2] = 52;
 
 	int totalWNum = 0;
 	for (int i = 1; i < layerNum; i++) {
@@ -86,12 +113,15 @@ int main(int argc, char* argv[]) {
 
 	CharacterRecognition::initializeW(weights, layerSizes, layerNum);
 
+	startCpuTimer();
 	float cost;
-	for (int i = 0; i < 100; i++) {
+	for (int i = 0; i < 10; i++) {
 		cost = CharacterRecognition::computeCostGrad(layerSizes, layerNum, batchSize, weights, grad, data, label);
 		CharacterRecognition::updateWeights(totalWNum, weights, grad, alpha);
 		printf("Epoch: %d Cost: %f \n", i, cost);
 	}
+	endCpuTimer();
+	printf("Time used : %f ms", prev_elapsed_time_cpu_milliseconds);
 
 	delete[] layerSizes;
 	delete[] data;
