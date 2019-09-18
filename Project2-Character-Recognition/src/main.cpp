@@ -7,146 +7,167 @@
  */
 
 #include <cstdio>
+#include <fstream>
+#include <sstream>
 #include <character_recognition/mlp.h>
 #include <character_recognition/common.h>
 #include "testing_helpers.hpp"
 
-const int SIZE = 1 << 8; // feel free to change the size of array
-const int NPOT = SIZE - 3; // Non-Power-Of-Two
-int *a = new int[SIZE];
-int *b = new int[SIZE];
-int *c = new int[SIZE];
+void readFromFile(int idx, float* inputArr)
+{
+    std::string fileName = std::to_string(idx) + "info.txt";
+    if (idx < 10) { fileName = std::to_string(0) + fileName; }
+    fileName = "../data-set/" + fileName;
+    
+    std::ifstream infile(fileName);
+
+    int n1, n2, count;
+    float x;
+    count = 0;
+
+    if (!(infile >> n1 >> n2)) { printf("Error reading first two lines of file %s\n", fileName); }
+
+    while (infile >> x && count < 10201)
+    {
+        inputArr[count] = x;
+        count++;
+    }
+}
 
 int main(int argc, char* argv[]) {
-    // Scan tests
+    // XOR TESTING
+    printf("XOR TESTING\n");
 
-    printf("\n");
-    printf("****************\n");
-    printf("** SCAN TESTS **\n");
-    printf("****************\n");
+    float *xorInput1 = new float[3];
+    xorInput1[0] = 0;
+    xorInput1[1] = 0;
+    xorInput1[2] = 1; //bias
 
-    genArray(SIZE - 1, a, 50);  // Leave a 0 at the end to test that edge case
-    a[SIZE - 1] = 0;
-    printArray(SIZE, a, true);
+    float *xorTarget1 = new float[1];
+    xorTarget1[0] = 0;
 
-    // initialize b using StreamCompaction::CPU::scan you implement
-    // We use b for further comparison. Make sure your StreamCompaction::CPU::scan is correct.
-    // At first all cases passed because b && c are all zeroes.
-    zeroArray(SIZE, b);
-    printDesc("cpu scan, power-of-two");
-    StreamCompaction::CPU::scan(SIZE, b, a);
-    printElapsedTime(StreamCompaction::CPU::timer().getCpuElapsedTimeForPreviousOperation(), "(std::chrono Measured)");
-    printArray(SIZE, b, true);
+    float *xorInput2 = new float[3];
+    xorInput2[0] = 0;
+    xorInput2[1] = 1;
+    xorInput2[2] = 1;
 
-    zeroArray(SIZE, c);
-    printDesc("cpu scan, non-power-of-two");
-    StreamCompaction::CPU::scan(NPOT, c, a);
-    printElapsedTime(StreamCompaction::CPU::timer().getCpuElapsedTimeForPreviousOperation(), "(std::chrono Measured)");
-    printArray(NPOT, b, true);
-    printCmpResult(NPOT, b, c);
+    float *xorTarget2 = new float[1];
+    xorTarget2[0] = 1;
 
-    zeroArray(SIZE, c);
-    printDesc("naive scan, power-of-two");
-    StreamCompaction::Naive::scan(SIZE, c, a);
-    printElapsedTime(StreamCompaction::Naive::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
-    //printArray(SIZE, c, true);
-    printCmpResult(SIZE, b, c);
+    float *xorInput3 = new float[3];
+    xorInput3[0] = 1;
+    xorInput3[1] = 0;
+    xorInput3[2] = 1;
 
-	/* For bug-finding only: Array of 1s to help find bugs in stream compaction or scan
-	onesArray(SIZE, c);
-	printDesc("1s array for finding bugs");
-	StreamCompaction::Naive::scan(SIZE, c, a);
-	printArray(SIZE, c, true); */
+    float *xorTarget3 = new float[1];
+    xorTarget3[0] = 1;
 
-    zeroArray(SIZE, c);
-    printDesc("naive scan, non-power-of-two");
-    StreamCompaction::Naive::scan(NPOT, c, a);
-    printElapsedTime(StreamCompaction::Naive::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
-    //printArray(SIZE, c, true);
-    printCmpResult(NPOT, b, c);
+    float *xorInput4 = new float[3];
+    xorInput4[0] = 1;
+    xorInput4[1] = 1;
+    xorInput4[2] = 1;
 
-    zeroArray(SIZE, c);
-    printDesc("work-efficient scan, power-of-two");
-    StreamCompaction::Efficient::scan(SIZE, c, a);
-    printElapsedTime(StreamCompaction::Efficient::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
-    //printArray(SIZE, c, true);
-    printCmpResult(SIZE, b, c);
+    float *xorTarget4 = new float[1];
+    xorTarget4[0] = 0;
 
-    zeroArray(SIZE, c);
-    printDesc("work-efficient scan, non-power-of-two");
-    StreamCompaction::Efficient::scan(NPOT, c, a);
-    printElapsedTime(StreamCompaction::Efficient::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
-    //printArray(NPOT, c, true);
-    printCmpResult(NPOT, b, c);
+    float *wkj = new float[9];
+    float *wji = new float[3];
+    CharacterRecognition::makeWeightMat(9, wkj);
+    CharacterRecognition::makeWeightMat(3, wji);
+    // testing values from spreadsheet, 
+    // make sure to change j and k to 2 to get rid of bias
+    /*wkj[0] = 10.1;
+    wkj[1] = 0.9;
+    wkj[2] = 20;
+    wkj[3] = 0.87;
+    wji[0] = 41;
+    wji[1] = -54;*/
 
-    zeroArray(SIZE, c);
-    printDesc("thrust scan, power-of-two");
-    StreamCompaction::Thrust::scan(SIZE, c, a);
-    printElapsedTime(StreamCompaction::Thrust::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
-    //printArray(SIZE, c, true);
-    printCmpResult(SIZE, b, c);
 
-    zeroArray(SIZE, c);
-    printDesc("thrust scan, non-power-of-two");
-    StreamCompaction::Thrust::scan(NPOT, c, a);
-    printElapsedTime(StreamCompaction::Thrust::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
-    //printArray(NPOT, c, true);
-    printCmpResult(NPOT, b, c);
+    float *xorOutput = new float[1];
 
-    printf("\n");
-    printf("*****************************\n");
-    printf("** STREAM COMPACTION TESTS **\n");
-    printf("*****************************\n");
+    int i = 1;
+    int j = 3;
+    int k = 3;
+    
+    //training
+    float tgtError = 0.01f;
+    float currError = 100000.0f;
+    int count = 0;
+    while (currError > tgtError && count < 15000)
+    {
+        currError = 0;
+        currError += CharacterRecognition::mlpTrain(i, j, k, xorOutput, xorInput1, wkj, wji, xorTarget1);
+        currError += CharacterRecognition::mlpTrain(i, j, k, xorOutput, xorInput2, wkj, wji, xorTarget2);
+        currError += CharacterRecognition::mlpTrain(i, j, k, xorOutput, xorInput3, wkj, wji, xorTarget3);
+        currError += CharacterRecognition::mlpTrain(i, j, k, xorOutput, xorInput4, wkj, wji, xorTarget4);
+        count++;
+    }
 
-    // Compaction tests
+    //test
+    printf("Ran %d iterations of training\n", count);
+    CharacterRecognition::mlpRun(i, j, k, xorOutput, xorInput1, wkj, wji);
+    printf("    (0, 0) expected: %f, result %f\n", xorTarget1[0], xorOutput[0]);
+    CharacterRecognition::mlpRun(i, j, k, xorOutput, xorInput2, wkj, wji);
+    printf("    (0, 1) expected: %f, result %f\n", xorTarget2[0], xorOutput[0]);
+    CharacterRecognition::mlpRun(i, j, k, xorOutput, xorInput3, wkj, wji);
+    printf("    (1, 0) expected: %f, result %f\n", xorTarget3[0], xorOutput[0]);
+    CharacterRecognition::mlpRun(i, j, k, xorOutput, xorInput4, wkj, wji);
+    printf("    (1, 1) expected: %f, result %f\n", xorTarget4[0], xorOutput[0]);
 
-    genArray(SIZE - 1, a, 4);  // Leave a 0 at the end to test that edge case
-    a[SIZE - 1] = 0;
-    printArray(SIZE, a, true);
 
-    int count, expectedCount, expectedNPOT;
+    // CHAR RECOG TESTING
+    printf("CHAR RECOG TESTING\n");
 
-    // initialize b using StreamCompaction::CPU::compactWithoutScan you implement
-    // We use b for further comparison. Make sure your StreamCompaction::CPU::compactWithoutScan is correct.
-    zeroArray(SIZE, b);
-    printDesc("cpu compact without scan, power-of-two");
-    count = StreamCompaction::CPU::compactWithoutScan(SIZE, b, a);
-    printElapsedTime(StreamCompaction::CPU::timer().getCpuElapsedTimeForPreviousOperation(), "(std::chrono Measured)");
-    expectedCount = count;
-    printArray(count, b, true);
-    printCmpLenResult(count, expectedCount, b, b);
+    i = 1; 
+    j = 10202; 
+    k = 10202; // +1 for bias
 
-    zeroArray(SIZE, c);
-    printDesc("cpu compact without scan, non-power-of-two");
-    count = StreamCompaction::CPU::compactWithoutScan(NPOT, c, a);
-    printElapsedTime(StreamCompaction::CPU::timer().getCpuElapsedTimeForPreviousOperation(), "(std::chrono Measured)");
-    expectedNPOT = count;
-    printArray(count, c, true);
-    printCmpLenResult(count, expectedNPOT, b, c);
+    float *CRwkj = new float[k*j];
+    float *CRwji = new float[j*i];
+    CharacterRecognition::makeWeightMat(k*j, wkj);
+    CharacterRecognition::makeWeightMat(j*i, wji);
 
-    zeroArray(SIZE, c);
-    printDesc("cpu compact with scan");
-    count = StreamCompaction::CPU::compactWithScan(SIZE, c, a);
-    printElapsedTime(StreamCompaction::CPU::timer().getCpuElapsedTimeForPreviousOperation(), "(std::chrono Measured)");
-    printArray(count, c, true);
-    printCmpLenResult(count, expectedCount, b, c);
+    float *CRoutput = new float[i];
 
-    zeroArray(SIZE, c);
-    printDesc("work-efficient compact, power-of-two");
-    count = StreamCompaction::Efficient::compact(SIZE, c, a);
-    printElapsedTime(StreamCompaction::Efficient::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
-    //printArray(count, c, true);
-    printCmpLenResult(count, expectedCount, b, c);
+    tgtError = 0.01f;
+    currError = 100000.0f;
+    count = 0;
+    while (currError > tgtError && count < 10)
+    {
+        currError = 0;
+        for (int f = 0; f < 52; f++)
+        {
+            float* tgt = new float[i];
+            tgt[0] = f + 1;
 
-    zeroArray(SIZE, c);
-    printDesc("work-efficient compact, non-power-of-two");
-    count = StreamCompaction::Efficient::compact(NPOT, c, a);
-    printElapsedTime(StreamCompaction::Efficient::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
-    //printArray(count, c, true);
-    printCmpLenResult(count, expectedNPOT, b, c);
+            float* input = new float[k];
+            readFromFile(f + 1, input);
+            input[k-1] = 1;
+
+            currError += CharacterRecognition::mlpTrain(i, j, k, CRoutput, input, CRwkj, CRwji, tgt);
+
+            delete[] input;
+            delete[] tgt;
+        }
+        printf("After %d iterations, error = %f\n", count, currError);
+        count++;
+    }
 
     system("pause"); // stop Win32 console from closing on exit
-	delete[] a;
-	delete[] b;
-	delete[] c;
+    delete[] xorInput1;
+    delete[] xorTarget1;
+    delete[] xorInput2;
+    delete[] xorTarget2;
+    delete[] xorInput3;
+    delete[] xorTarget3;
+    delete[] xorInput4;
+    delete[] xorTarget4;
+    delete[] xorOutput;
+    delete[] wkj;
+    delete[] wji;
+
+    delete[] CRoutput;
+    delete[] CRwkj;
+    delete[] CRwji;
 }
