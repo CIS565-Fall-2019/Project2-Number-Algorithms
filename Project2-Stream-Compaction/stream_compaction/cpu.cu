@@ -11,7 +11,21 @@ namespace StreamCompaction {
 	        static PerformanceTimer timer;
 	        return timer;
         }
-
+	
+	// since used in compact scan
+	static void __scan( int n, int* odata, const int *idata )
+	{
+		//from notes:
+		// in [3,1,4,7 ,0,4,1,6,3]
+		// out[0,3,4,8,15,15,19,20,26] 
+		// itr1 odata[1] = idata[0] + odata[0]; 3
+		// itr2 odata[2] = idata[1] + odata[1]
+		odata[0] = 0;
+		for(int i = 1; i < n; i++)
+		{
+			odata[i] = idata[i-1] + odata[i-1];
+		}
+	}
         /**
          * CPU scan (prefix sum).
          * For performance analysis, this is supposed to be a simple for loop.
@@ -19,7 +33,9 @@ namespace StreamCompaction {
          */
         void scan(int n, int *odata, const int *idata) {
 	        timer().startCpuTimer();
-            // TODO
+            	// TODO
+			__scan( n, odata, idata );
+
 	        timer().endCpuTimer();
         }
 
@@ -30,9 +46,22 @@ namespace StreamCompaction {
          */
         int compactWithoutScan(int n, int *odata, const int *idata) {
 	        timer().startCpuTimer();
-            // TODO
+            	// TODO
+		//from notes:
+		// in [3,0,4,0,0,4,0,6,0]
+		// out[3,4,4,6] or [3,7,11,17]?
+		odata[0] = 0;
+		int writer = 0;
+		for(int i = 0; i < n; i++)
+		{
+			if( idata[i] != 0 )
+			{
+				odata[writer] = idata[i];
+				writer++;
+			}
+		}
 	        timer().endCpuTimer();
-            return -1;
+           return writer;
         }
 
         /**
@@ -40,11 +69,63 @@ namespace StreamCompaction {
          *
          * @returns the number of elements remaining after compaction.
          */
+	// in [3,0,4,0,0,4,0,6,0]
+	// create [1,0,1,0,0,1,0,1,0] 
+	// after scan[1,1,2,2,2,3,3,4,4]  // 4 elements these are the indexes to where the data is
+	// scatter?
+	//Result of scan is index into final array
+	//Only write an element if temporary array has a 1
+	//Write index is given by scan
+	//scatter out [3,4,4,6] return 4
         int compactWithScan(int n, int *odata, const int *idata) {
 	        timer().startCpuTimer();
 	        // TODO
+		// create the 1,0 buffer
+		int* buff = new int[n];
+		int i = 0;
+		int rval = 0;
+		
+		// have [3,0,4,0,0,4,0,6,0]
+		// create [1,0,1,0,0,1,0,1,0] 
+		for(i = 0; i < n; i++)
+		{
+			if(idata[i] != 0)
+			{
+				buff[i] = 1;
+			}
+			else
+			{
+				buff[i] = 0;
+			}
+		}
+		// scan this buffer now to figure out the indexes
+		// have [1,0,1,0,0,1,0,1,0]
+		// create scan[1,1,2,2,2,3,3,4,4] 
+		int* scan_buff = new int[n];
+		__scan( n, scan_buff, buff ); // #el, out, in
+		
+		// have scan[1,1,2,2,2,3,3,4,4] index to where we should place output
+		// have input[3,0,4,0,0,4,0,6,0]
+		//create[3,4,4,6]
+		for(i = 0; i < n; i++)
+		{
+			//printf("buff[%d] = %d ", i, buff[i]);
+			//printf("scan_buff[%d] = %d ", i, scan_buff[i]);
+			//printf("in[%d] = %d\n", i, idata[i]);
+			if(buff[i] == 1) // marked as data
+			{
+				odata[scan_buff[i]] = idata[i]; 
+				rval = scan_buff[i]; // how many elements do we have
+			}
+		}
+
+
+		
 	        timer().endCpuTimer();
-            return -1;
+	    //
+	    delete [] scan_buff;
+	    delete [] buff;
+        return (rval +1);
         }
     }
 }

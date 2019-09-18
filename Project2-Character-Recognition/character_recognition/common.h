@@ -17,6 +17,7 @@
  * Check for CUDA errors; print and exit if there was a problem.
  */
 void checkCUDAErrorFn(const char *msg, const char *file = NULL, int line = -1);
+//void memory_debug_float(int elements, float* cuda_mem, float* cpu_mem);
 
 inline int ilog2(int x) {
     int lg = 0;

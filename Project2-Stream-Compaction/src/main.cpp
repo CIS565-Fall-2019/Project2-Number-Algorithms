@@ -13,16 +13,20 @@
 #include <stream_compaction/thrust.h>
 #include "testing_helpers.hpp"
 
-const int SIZE = 1 << 8; // feel free to change the size of array
+const int SIZE = 1 << 10; // feel free to change the size of array
 const int NPOT = SIZE - 3; // Non-Power-Of-Two
 int *a = new int[SIZE];
 int *b = new int[SIZE];
 int *c = new int[SIZE];
 
+int _a[8] = {0, 1, 2, 3, 4, 5, 6, 7};
+int *_b = new int[8];
+int *_c = new int[8];
+
 int main(int argc, char* argv[]) {
     // Scan tests
 
-    printf("\n");
+    printf("TEST SIZE %d NON POW TEST SIZE %d\n",SIZE,NPOT);
     printf("****************\n");
     printf("** SCAN TESTS **\n");
     printf("****************\n");
@@ -44,7 +48,7 @@ int main(int argc, char* argv[]) {
     printDesc("cpu scan, non-power-of-two");
     StreamCompaction::CPU::scan(NPOT, c, a);
     printElapsedTime(StreamCompaction::CPU::timer().getCpuElapsedTimeForPreviousOperation(), "(std::chrono Measured)");
-    printArray(NPOT, b, true);
+    //printArray(NPOT, b, true);
     printCmpResult(NPOT, b, c);
 
     zeroArray(SIZE, c);
@@ -115,7 +119,7 @@ int main(int argc, char* argv[]) {
     count = StreamCompaction::CPU::compactWithoutScan(SIZE, b, a);
     printElapsedTime(StreamCompaction::CPU::timer().getCpuElapsedTimeForPreviousOperation(), "(std::chrono Measured)");
     expectedCount = count;
-    printArray(count, b, true);
+    //printArray(count, b, true);
     printCmpLenResult(count, expectedCount, b, b);
 
     zeroArray(SIZE, c);
@@ -123,14 +127,14 @@ int main(int argc, char* argv[]) {
     count = StreamCompaction::CPU::compactWithoutScan(NPOT, c, a);
     printElapsedTime(StreamCompaction::CPU::timer().getCpuElapsedTimeForPreviousOperation(), "(std::chrono Measured)");
     expectedNPOT = count;
-    printArray(count, c, true);
+    //printArray(count, c, true);
     printCmpLenResult(count, expectedNPOT, b, c);
 
     zeroArray(SIZE, c);
     printDesc("cpu compact with scan");
     count = StreamCompaction::CPU::compactWithScan(SIZE, c, a);
     printElapsedTime(StreamCompaction::CPU::timer().getCpuElapsedTimeForPreviousOperation(), "(std::chrono Measured)");
-    printArray(count, c, true);
+   // printArray(count, c, true);
     printCmpLenResult(count, expectedCount, b, c);
 
     zeroArray(SIZE, c);
