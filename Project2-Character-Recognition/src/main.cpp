@@ -167,10 +167,10 @@ void feed_forward(int n, int hidden_num, int output_num, float* idata, float* od
             int idx = row * n + col;
             float w = input_weight_matrix[idx];
             float input = idata[col];
-            sum += w * input + hidden_bias_vec[row];
+            sum += w * input;
 
         }
-        temp_hidden[row] = sigmoid(sum);
+        temp_hidden[row] = sigmoid(sum + hidden_bias_vec[row]);
     }
 
     //from hidden to output
@@ -183,10 +183,10 @@ void feed_forward(int n, int hidden_num, int output_num, float* idata, float* od
             int idx = row * hidden_num + col;
             float w = hidden_weight_matrix[idx];
             float input = temp_hidden[col];
-            sum += w * input + output_bias_vec[row];
+            sum += w * input;
 
         }
-        odata[row] = sigmoid(sum);
+        odata[row] = sigmoid(sum + output_bias_vec[row]);
     }
 }
 
@@ -208,11 +208,11 @@ void back_prop(int hidden_num, float* input_data, float* target_output_data, flo
             int idx = row * INPUT_SIZE + col;
             float w = input_weight_matrix[idx];
             float input = input_data[col];
-            sum += w * input + hidden_bias_vec[row];
+            sum += w * input;
 
         }
-        hidden_weighted_input[row] = sum;
-        hidden_layer[row] = sigmoid(sum);
+        hidden_weighted_input[row] = sum + hidden_bias_vec[row];
+        hidden_layer[row] = sigmoid(sum + hidden_bias_vec[row]);
     }
 
     for (int row = 0; row < OUTPUT_SIZE; ++row)
@@ -223,12 +223,14 @@ void back_prop(int hidden_num, float* input_data, float* target_output_data, flo
             int idx = row * hidden_num + col;
             float w = hidden_weight_matrix[idx];
             float input = hidden_layer[col];
-            sum += w * input + output_bias_vec[row];
+            sum += w * input;
 
         }
-        output_weighted_input[row] = sum;
-        output_layer[row] = sigmoid(sum);
+        output_weighted_input[row] = sum + output_bias_vec[row];
+        output_layer[row] = sigmoid(sum + output_bias_vec[row]);
     }
+	
+    //output cost here
 
     //Get the cost derivative from the output layer result and target output data
     cost_derivative(OUTPUT_SIZE, target_output_data, output_layer, output_cost_error);
