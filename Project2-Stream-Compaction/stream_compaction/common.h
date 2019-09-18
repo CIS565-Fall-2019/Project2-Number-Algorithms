@@ -60,23 +60,42 @@ namespace StreamCompaction {
 
 		    void startCpuTimer()
 		    {
-			    if (cpu_timer_started) { throw std::runtime_error("CPU timer already started"); }
-			    cpu_timer_started = true;
-
-			    time_start_cpu = std::chrono::high_resolution_clock::now();
+				// Don't update timer if this was called recursevely.
+				if (timer_count == 0) {
+					timer_count++;
+					if (cpu_timer_started) { throw std::runtime_error("CPU timer not started"); }
+					cpu_timer_started = true;
+					time_start_cpu = std::chrono::high_resolution_clock::now();
+				}
+				else {
+					// Timer was called while already running, do nothing.
+					// Some implementations may prefer to reset the timer.
+				}
 		    }
 
 		    void endCpuTimer()
 		    {
-			    time_end_cpu = std::chrono::high_resolution_clock::now();
+				// This is the last endCall, safe.
+				if (timer_count == 1) {
+					timer_count--;
+					time_end_cpu = std::chrono::high_resolution_clock::now();
 
-			    if (!cpu_timer_started) { throw std::runtime_error("CPU timer not started"); }
+					if (!cpu_timer_started) { throw std::runtime_error("CPU timer not started"); }
 
-			    std::chrono::duration<double, std::milli> duro = time_end_cpu - time_start_cpu;
-			    prev_elapsed_time_cpu_milliseconds =
-				    static_cast<decltype(prev_elapsed_time_cpu_milliseconds)>(duro.count());
+					std::chrono::duration<double, std::milli> duro = time_end_cpu - time_start_cpu;
+					prev_elapsed_time_cpu_milliseconds =
+						static_cast<decltype(prev_elapsed_time_cpu_milliseconds)>(duro.count());
 
-			    cpu_timer_started = false;
+					cpu_timer_started = false;
+				}
+				// Decrement and do nothing.
+				else if (timer_count > 1) {
+					timer_count--;
+				}
+				// Timer is 0 or below, not cool.
+				else {
+					timer_count = 0;
+				}
 		    }
 
 		    void startGpuTimer()
@@ -127,6 +146,8 @@ namespace StreamCompaction {
 
 		    float prev_elapsed_time_cpu_milliseconds = 0.f;
 		    float prev_elapsed_time_gpu_milliseconds = 0.f;
+
+			int timer_count = 0;
 	    };
     }
 }
