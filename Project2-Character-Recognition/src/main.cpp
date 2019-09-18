@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file      main.cpp
  * @brief     Stream compaction test program
  * @authors   Kai Ninomiya
@@ -9,161 +9,128 @@
 #include <cstdio>
 #include <character_recognition/mlp.h>
 #include <character_recognition/common.h>
-//#include <../Project2-Stream-Compaction/stream_compaction/cpu.h>
-//#include <../Project2-Stream-Compaction/stream_compaction/naive.h>
-//#include <../Project2-Stream-Compaction/stream_compaction/efficient.h>
-//#include <../Project2-Stream-Compaction/stream_compaction/thrust.h>
 #include "testing_helpers.hpp"
+#include <fstream>
+#include <string>
+#include <vector>
+#include <sstream>
+#include <iomanip>
 
 const int SIZE = 1 << 8; // feel free to change the size of array
 const int NPOT = SIZE - 3; // Non-Power-Of-Two
-int *a = new int[SIZE];
-int *b = new int[SIZE];
-int *c = new int[SIZE];
+//int *a = new int[SIZE];
+//int *b = new int[SIZE];
+//int *c = new int[SIZE];
 
 //size of the three buffer
-const int SIZE_INPUT = 4;
-const int SIZE_HiD = 2;
-const int SIZE_OUTPUT = 1;
-const int SIZE_WEI = SIZE_INPUT * SIZE_HiD + SIZE_HiD * SIZE_OUTPUT;
+const int input_count = 2;
+const int size_INPUT = 4;
+const int size_HiD = 2;
+const int size_OUTPUT = 2;
+const int size_WEI1 = size_INPUT * size_HiD;
+const int size_WEI2 = size_HiD * size_OUTPUT;
 
 //create three buffers
-int *input = new int[SIZE_INPUT];
-int *hidden = new int[SIZE_HiD];
-int *output = new int[SIZE_OUTPUT];
+float *input_ = new float[input_count * size_INPUT];
+float *hidden_ = new float[size_HiD];
+float *output_ = new float[size_OUTPUT];
+float *real_ = new float[input_count * size_OUTPUT];
+
 //weights buffer
-float *weights = new float[SIZE_WEI];
+float *w1= new float[size_WEI1];
+float *w2 = new float[size_WEI2];
+
+///real number read
+const int character_num = 52;
+const int feature_num = 10201;
+const int class_num = 52;
+
 
 int main(int argc, char* argv[]) {
-    // Scan tests
-
     printf("\n");
     printf("****************\n");
-    printf("** SCAN TESTS **\n");
+    printf("** Recognize TESTS **\n");
     printf("****************\n");
+
+	/////////////////simple test///////////////////////////
+	//printDesc("input");
+    //genArrayf(size_INPUT * input_count, input_, 9);  // Leave a 0 at the end to test that edge case
+	zeroArrayf(size_INPUT * input_count, input_);
+	input_[0] = 6.0;
+	input_[1] = 1.0;
+	input_[2] = 2.0;
+	input_[3] = 5.0;
+	input_[4] = 4.0;
+	input_[5] = 0.0;
+	input_[6] = 3.0;
+	input_[7] = 0.0;
+	//printArrayf(size_INPUT * input_count, input_, true);
+	//printDesc("real");
+	zeroArrayf(input_count * size_OUTPUT, real_);
+	real_[1] = 1.0;
+	real_[3] = 1.0;
+	//printArrayf(input_count * size_OUTPUT, real_, true);
+
+    zeroArrayf(size_HiD, hidden_);
+	zeroArrayf(size_OUTPUT, output_);
+    //printDesc("initial hidden");
+	//printArrayf(size_HiD, hidden_, true);
+	//printDesc("initial output");
+	//printArrayf(size_OUTPUT, output_, true);
 	
-    genArray(SIZE_INPUT, input, 5);  // Leave a 0 at the end to test that edge case
-	printArray(SIZE_INPUT, input, true);
+	//CharacterRecognition::build_network(2, 4, 2, 2, 0.1, 0.5);
+	//CharacterRecognition::train(input_, real_, 10);
 
-    zeroArray(SIZE_HiD, hidden);
-	zeroArray(SIZE_OUTPUT, output);
-    printDesc("initial hidden");
-	printArray(SIZE_HiD, hidden, true);
-	printDesc("initial output");
-	printArray(SIZE_OUTPUT, output, true);
- //   StreamCompaction::CPU::scan(SIZE, b, a);
- //   printElapsedTime(StreamCompaction::CPU::timer().getCpuElapsedTimeForPreviousOperation(), "(std::chrono Measured)");
- //   printArray(SIZE, b, true);
+	/////////////////test with image///////////////////////////
+	//load the img data info
+	float *input = new float [character_num * feature_num];
+	float *real = new float[character_num * class_num]();
 
- //   zeroArray(SIZE, c);
- //   printDesc("cpu scan, non-power-of-two");
- //   StreamCompaction::CPU::scan(NPOT, c, a);
- //   printElapsedTime(StreamCompaction::CPU::timer().getCpuElapsedTimeForPreviousOperation(), "(std::chrono Measured)");
- //   printArray(NPOT, b, true);
- //   printCmpResult(NPOT, b, c);
+	std::string filename;
+	std::string pre;
+	std::string path = "D:\\study\\2019fall\\cis565\\Project2-Number-Algorithms\\Project2-Character-Recognition\\data-set\\";
+	//std::string p;
+	//read character_num times
+	int real_ind = 0;
+	int input_ind = 0;
+	for (int i = 1; i <= character_num; i++) {
+		//set the whole path name
+		if (i >= 10) {
+			pre = std::to_string(i);
+		} else {
+			pre = std::to_string(0) + std::to_string(i);
+		}
+		filename = pre + "info.txt";
+		std::ifstream f(path + filename, std::ios::in);
+		std::string line;
+		if (!f) {//false open
+			std::cout << "error opening source file." << std::endl;
+			return 0;
+		}
+		
+		//class index
+		std::getline(f, line);
+		int cl = std::stoi(line);
+		//std::cout << "class: " << cl << std::endl;
+		real[real_ind * class_num + cl - 1] = 1.0;
+		//std::cout << "ind: " << real_ind * class_num + cl - 1 << std::endl;
+		real_ind++;
 
- //   zeroArray(SIZE, c);
- //   printDesc("naive scan, power-of-two");
- //   StreamCompaction::Naive::scan(SIZE, c, a);
- //   printElapsedTime(StreamCompaction::Naive::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
- //   //printArray(SIZE, c, true);
- //   printCmpResult(SIZE, b, c);
+		//10201
+		std::getline(f, line);
 
-	///* For bug-finding only: Array of 1s to help find bugs in stream compaction or scan
-	//onesArray(SIZE, c);
-	//printDesc("1s array for finding bugs");
-	//StreamCompaction::Naive::scan(SIZE, c, a);
-	//printArray(SIZE, c, true); */
+		int index = 0;
+		while (index < feature_num) {
+			std::string x;
+			f >> x;
+			input[input_ind++] = std::stof(x);
+			index++;
+			//std::cout << "data: " << x << std::endl;
+		}
+		f.close();
+	}
 
- //   zeroArray(SIZE, c);
- //   printDesc("naive scan, non-power-of-two");
- //   StreamCompaction::Naive::scan(NPOT, c, a);
- //   printElapsedTime(StreamCompaction::Naive::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
- //   //printArray(SIZE, c, true);
- //   printCmpResult(NPOT, b, c);
-
- //   zeroArray(SIZE, c);
- //   printDesc("work-efficient scan, power-of-two");
- //   StreamCompaction::Efficient::scan(SIZE, c, a);
- //   printElapsedTime(StreamCompaction::Efficient::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
- //   //printArray(SIZE, c, true);
- //   printCmpResult(SIZE, b, c);
-
- //   zeroArray(SIZE, c);
- //   printDesc("work-efficient scan, non-power-of-two");
- //   StreamCompaction::Efficient::scan(NPOT, c, a);
- //   printElapsedTime(StreamCompaction::Efficient::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
- //   //printArray(NPOT, c, true);
- //   printCmpResult(NPOT, b, c);
-
- //   zeroArray(SIZE, c);
- //   printDesc("thrust scan, power-of-two");
- //   StreamCompaction::Thrust::scan(SIZE, c, a);
- //   printElapsedTime(StreamCompaction::Thrust::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
- //   //printArray(SIZE, c, true);
- //   printCmpResult(SIZE, b, c);
-
- //   zeroArray(SIZE, c);
- //   printDesc("thrust scan, non-power-of-two");
- //   StreamCompaction::Thrust::scan(NPOT, c, a);
- //   printElapsedTime(StreamCompaction::Thrust::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
- //   //printArray(NPOT, c, true);
- //   printCmpResult(NPOT, b, c);
-
- //   printf("\n");
- //   printf("*****************************\n");
- //   printf("** STREAM COMPACTION TESTS **\n");
- //   printf("*****************************\n");
-
- //   // Compaction tests
-
- //   genArray(SIZE - 1, a, 4);  // Leave a 0 at the end to test that edge case
- //   a[SIZE - 1] = 0;
- //   printArray(SIZE, a, true);
-
- //   int count, expectedCount, expectedNPOT;
-
- //   // initialize b using StreamCompaction::CPU::compactWithoutScan you implement
- //   // We use b for further comparison. Make sure your StreamCompaction::CPU::compactWithoutScan is correct.
- //   zeroArray(SIZE, b);
- //   printDesc("cpu compact without scan, power-of-two");
- //   count = StreamCompaction::CPU::compactWithoutScan(SIZE, b, a);
- //   printElapsedTime(StreamCompaction::CPU::timer().getCpuElapsedTimeForPreviousOperation(), "(std::chrono Measured)");
- //   expectedCount = count;
- //   printArray(count, b, true);
- //   printCmpLenResult(count, expectedCount, b, b);
-
- //   zeroArray(SIZE, c);
- //   printDesc("cpu compact without scan, non-power-of-two");
- //   count = StreamCompaction::CPU::compactWithoutScan(NPOT, c, a);
- //   printElapsedTime(StreamCompaction::CPU::timer().getCpuElapsedTimeForPreviousOperation(), "(std::chrono Measured)");
- //   expectedNPOT = count;
- //   printArray(count, c, true);
- //   printCmpLenResult(count, expectedNPOT, b, c);
-
- //   zeroArray(SIZE, c);
- //   printDesc("cpu compact with scan");
- //   count = StreamCompaction::CPU::compactWithScan(SIZE, c, a);
- //   printElapsedTime(StreamCompaction::CPU::timer().getCpuElapsedTimeForPreviousOperation(), "(std::chrono Measured)");
- //   printArray(count, c, true);
- //   printCmpLenResult(count, expectedCount, b, c);
-
- //   zeroArray(SIZE, c);
- //   printDesc("work-efficient compact, power-of-two");
- //   count = StreamCompaction::Efficient::compact(SIZE, c, a);
- //   printElapsedTime(StreamCompaction::Efficient::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
- //   //printArray(count, c, true);
- //   printCmpLenResult(count, expectedCount, b, c);
-
- //   zeroArray(SIZE, c);
- //   printDesc("work-efficient compact, non-power-of-two");
- //   count = StreamCompaction::Efficient::compact(NPOT, c, a);
- //   printElapsedTime(StreamCompaction::Efficient::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
- //   //printArray(count, c, true);
- //   printCmpLenResult(count, expectedNPOT, b, c);
-
- //   system("pause"); // stop Win32 console from closing on exit
-	//delete[] a;
-	//delete[] b;
-	//delete[] c;
+	CharacterRecognition::build_network(52, 10201, 52, 25, 0.1, 0.5);
+	CharacterRecognition::train(input, real, 40);
+	CharacterRecognition::test(input, 30, 2);
 }
