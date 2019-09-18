@@ -3,6 +3,7 @@
 #include "common.h"
 #include "mlp.h"
 
+
 namespace CharacterRecognition {
     using Common::PerformanceTimer;
     PerformanceTimer& timer()
