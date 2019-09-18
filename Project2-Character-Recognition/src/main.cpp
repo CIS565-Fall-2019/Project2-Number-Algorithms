@@ -29,6 +29,8 @@ const int HIDDEN_SIZE = 10;
 std::vector<float*> array_inputs;
 std::vector<float*> array_target_outputs;
 
+void Evaluate(int n, int hidden_num, int output_num, float* test_data, float* target_output, float* input_weight_matrix, float* hidden_weight_matrix, float* hidden_bias_vec, float* output_bias_vec);
+
 void read_in_inputs()
 {
     std::string input_file_postfix = "info.txt";
@@ -50,7 +52,7 @@ void read_in_inputs()
             system("pause");
             return;
         }
-        std::cout << input_file_prefix << "." << std::endl;
+        //std::cout << input_file_prefix << "." << std::endl;
         int count = 0;
         while (!myfile.eof())
         {
@@ -59,7 +61,7 @@ void read_in_inputs()
             std::getline(myfile, intermediate_array, '\n');
             if (count == 0)
             {
-                std::cout << intermediate_array << std::endl;
+                //std::cout << intermediate_array << std::endl;
                 int output_result = std::stoi(intermediate_array);
                 for (int i = 1; i <= OUTPUT_SIZE; ++i)
                 {
@@ -135,16 +137,24 @@ void argmax(int output_num, float* curr_output)
     float max = 0;
     for (int i = 0; i < output_num; ++i)
     {
-        if (curr_output[output_num] >= max)
+        if (curr_output[i] >= max)
         {
             max_idx = i;
-            max = curr_output[output_num];
+            max = curr_output[i];
         }
+    }
+
+    for (int i = 0; i < output_num; ++i)
+    {
+        if (i == max_idx) {
+            curr_output[i] = 1;
+        }
+        else curr_output[i] = 0;
     }
 }
 
 
-void feed_forward(int n, int hidden_num, int output_num, float* idata, float* odata, float* input_weight_matrix, float* hidden_weight_matrix, float* input_bias_vec, float* hidden_bias_vec)
+void feed_forward(int n, int hidden_num, int output_num, float* idata, float* odata, float* input_weight_matrix, float* hidden_weight_matrix, float* hidden_bias_vec, float* output_bias_vec)
 {
     float* temp_hidden = new float[hidden_num];
 
@@ -157,7 +167,7 @@ void feed_forward(int n, int hidden_num, int output_num, float* idata, float* od
             int idx = row * n + col;
             float w = input_weight_matrix[idx];
             float input = idata[col];
-            sum += w * input + input_bias_vec[col];
+            sum += w * input + hidden_bias_vec[row];
 
         }
         temp_hidden[row] = sigmoid(sum);
@@ -170,39 +180,116 @@ void feed_forward(int n, int hidden_num, int output_num, float* idata, float* od
         float sum = 0;
         for (int col = 0; col < hidden_num; ++col)
         {
-            int idx = row * n + col;
+            int idx = row * hidden_num + col;
             float w = hidden_weight_matrix[idx];
             float input = temp_hidden[col];
-            sum += w * input + hidden_bias_vec[col];
+            sum += w * input + output_bias_vec[row];
 
         }
         odata[row] = sigmoid(sum);
     }
 }
 
+void back_prop(int hidden_num, float* input_data, float* target_output_data, float* input_weight_matrix, float* hidden_weight_matrix, float* hidden_bias_vec, float* output_bias_vec, float* updated_input_weight, float* updated_hidden_weight, float* updated_hidden_bias, float* updated_output_bias)
+{
+    //generate intermediate hidden layer
+    float* hidden_layer = new float[hidden_num];
+    float* output_layer = new float[OUTPUT_SIZE];
+    float* hidden_weighted_input = new float[hidden_num];
+    float* output_weighted_input = new float[OUTPUT_SIZE];
+    float* output_cost_error = new float[OUTPUT_SIZE];
+    float* hidden_cost_error = new float[hidden_num];
+    //feedfoward
+    for (int row = 0; row < hidden_num; ++row)
+    {
+        float sum = 0;
+        for (int col = 0; col < INPUT_SIZE; ++col)
+        {
+            int idx = row * INPUT_SIZE + col;
+            float w = input_weight_matrix[idx];
+            float input = input_data[col];
+            sum += w * input + hidden_bias_vec[row];
+
+        }
+        hidden_weighted_input[row] = sum;
+        hidden_layer[row] = sigmoid(sum);
+    }
+
+    for (int row = 0; row < OUTPUT_SIZE; ++row)
+    {
+        float sum = 0;
+        for (int col = 0; col < hidden_num; ++col)
+        {
+            int idx = row * hidden_num + col;
+            float w = hidden_weight_matrix[idx];
+            float input = hidden_layer[col];
+            sum += w * input + output_bias_vec[row];
+
+        }
+        output_weighted_input[row] = sum;
+        output_layer[row] = sigmoid(sum);
+    }
+
+    //Get the cost derivative from the output layer result and target output data
+    cost_derivative(OUTPUT_SIZE, target_output_data, output_layer, output_cost_error);
+    //add the sigmoid prime to it
+    for (int row = 0; row < OUTPUT_SIZE; ++row)
+    {
+        output_cost_error[row] *= sigmoid_prime(output_weighted_input[row]);
+        //assign to updated weights and bias for output
+        updated_output_bias[row] = output_cost_error[row];
+        for (int col = 0; col < hidden_num; ++col)
+        {
+            int mat_idx = row * hidden_num + col;
+            updated_hidden_weight[mat_idx] = hidden_layer[col] * output_cost_error[row];
+        }
+    }
+
+    //compute the hidden_cost_error by output_cost_error
+    //use transpose index
+    for (int row = 0; row < hidden_num; ++row)
+    {
+        for (int col = 0; col < OUTPUT_SIZE; ++col)
+        {
+            int mat_idx = row * OUTPUT_SIZE + col;
+            hidden_cost_error[row] += hidden_weight_matrix[mat_idx] * output_cost_error[col];
+        }
+
+        //apply sigmoid prime after we compute the derivative
+        hidden_cost_error[row] *= sigmoid_prime(hidden_weighted_input[row]);
+        //assign to updated matrix and vec
+        updated_hidden_bias[row] = hidden_cost_error[row];
+        for (int mat_col = 0; mat_col < INPUT_SIZE; ++mat_col)
+        {
+            int mat_idx = row * INPUT_SIZE + mat_col;
+            updated_input_weight[mat_idx] = input_data[mat_col] * hidden_cost_error[row];
+        }
+    }
+}
+
 //SGD
 //we use training data as array_input and array_target_output, same as test data -- probably all size information should be inputs
-void SGD(int training_round, int hidden_size, float eta, float* input_weight_matrix, float* hidden_weight_matrix, float* input_bias_vec, float* hidden_bias_vec)
+void SGD(int training_round, int hidden_size, float eta, float* input_weight_matrix, float* hidden_weight_matrix, float* hidden_bias_vec, float* output_bias_vec)
 {
     //init necessary buffers
     float* updated_input_weight = new float[INPUT_SIZE * hidden_size];
     float* updated_hidden_weight = new float[OUTPUT_SIZE * hidden_size];
-    float* updated_input_bias = new float[INPUT_SIZE];
     float* updated_hidden_bias = new float[hidden_size];
+    float* updated_output_bias = new float[OUTPUT_SIZE];
 
     for (int round = 0; round < training_round; ++round)
     {
         //zero out all components for new round of change
         std::fill(updated_input_weight, updated_input_weight + INPUT_SIZE * hidden_size, 0);
         std::fill(updated_hidden_weight, updated_hidden_weight + OUTPUT_SIZE * hidden_size, 0);
-        std::fill(updated_input_bias, updated_input_bias + INPUT_SIZE, 0);
         std::fill(updated_hidden_bias, updated_hidden_bias + hidden_size, 0);
+        std::fill(updated_output_bias, updated_output_bias + OUTPUT_SIZE, 0);
         //memcpy(updated_hidden_bias, hidden_bias_vec, HIDDEN_SIZE * sizeof(float));
 
         for (int input_index = 0; input_index < OUTPUT_SIZE; ++input_index)
         {
             //update each element in the buffer arrays directly in back_prop
-            back_prop(array_inputs[input_index], array_target_outputs[input_index], updated_input_weight, updated_hidden_weight, updated_input_bias, updated_hidden_bias, hidden_size);
+            back_prop(hidden_size, array_inputs[input_index], array_target_outputs[input_index], input_weight_matrix, hidden_weight_matrix, hidden_bias_vec, output_bias_vec, updated_input_weight, updated_hidden_weight, updated_hidden_bias, updated_output_bias);
         }
 
         //update the weights and bias after each round
@@ -216,30 +303,28 @@ void SGD(int training_round, int hidden_size, float eta, float* input_weight_mat
             hidden_weight_matrix[hidden_weight_index] -= (eta / OUTPUT_SIZE) * updated_hidden_weight[hidden_weight_index];
         }
 
-        for (int input_bias_index = 0; input_bias_index < INPUT_SIZE; ++input_bias_index)
-        {
-            input_bias_vec[input_bias_index] -= (eta / OUTPUT_SIZE) * updated_input_bias[input_bias_index];
-        }
-
         for (int hidden_bias_index = 0; hidden_bias_index < hidden_size; ++hidden_bias_index)
         {
             hidden_bias_vec[hidden_bias_index] -= (eta / OUTPUT_SIZE) * updated_hidden_bias[hidden_bias_index];
         }
+
+        for (int output_bias_index = 0; output_bias_index < OUTPUT_SIZE; ++output_bias_index)
+        {
+            output_bias_vec[output_bias_index] -= (eta / OUTPUT_SIZE) * updated_output_bias[output_bias_index];
+        }
     }
 
-    free(updated_input_weight);
-    free(updated_hidden_weight);
-    free(updated_input_bias);
-    free(updated_hidden_bias);
+    std::cout << "we train " << training_round << " rounds" << std::endl;
+    Evaluate(INPUT_SIZE, HIDDEN_SIZE, OUTPUT_SIZE, nullptr, nullptr, input_weight_matrix, hidden_weight_matrix, hidden_bias_vec, output_bias_vec);
+
+    delete[] updated_input_weight;
+    delete[] updated_hidden_weight;
+    delete[] updated_hidden_bias;
+    delete[] updated_output_bias;
 }
 
-void back_prop(float* input_data, float* target_output_data, float* updated_input_weight, float* updated_hidden_weight, float* updated_input_bias, float* updated_hidden_bias, int hidden_size)
-{
 
-}
-
-
-void Evaluate(int n, int hidden_num, int output_num, float* test_data, float* target_output, float* input_weight_matrix, float* hidden_weight_matrix, float* input_bias_vec, float* hidden_bias_vec)
+void Evaluate(int n, int hidden_num, int output_num, float* test_data, float* target_output, float* input_weight_matrix, float* hidden_weight_matrix, float* hidden_bias_vec, float* output_bias_vec)
 {
     int sum = 0;
     float* curr_output = new float[output_num];
@@ -248,15 +333,26 @@ void Evaluate(int n, int hidden_num, int output_num, float* test_data, float* ta
     {
         //zero out output
         std::fill(curr_output, curr_output + output_num, 0);
-        feed_forward(n, hidden_num, output_num, array_inputs[i], curr_output, input_weight_matrix, hidden_weight_matrix, input_bias_vec, hidden_bias_vec);
+        feed_forward(n, hidden_num, output_num, array_inputs[i], curr_output, input_weight_matrix, hidden_weight_matrix, hidden_bias_vec, output_bias_vec);
 
-        argmax(curr_output);
+        argmax(output_num, curr_output);
         if (curr_output[i] == array_target_outputs[i][i])
         {
             //hack, we know that that element in target_output should be 1, so if both are one, it is correct
             sum++;
         }
+
+        if (curr_output[i] == 1)
+        {
+            std::cout << "curr_output[" << i << "] is 1" << std::endl;
+        }
+
     }
+
+
+    std::cout << "Result: " << sum << " / " << output_num << std::endl;
+
+    delete[] curr_output;
 }
 
 
@@ -269,12 +365,12 @@ int main(int argc, char* argv[]) {
     //init input_weights and hidden weights
     float *input_weight_matrix = new float[INPUT_SIZE * HIDDEN_SIZE];
     float *hidden_weight_matrix = new float[OUTPUT_SIZE * HIDDEN_SIZE];
-    init_weight_matrix(INPUT_SIZE, HIDDEN_SIZE, input_weight_matrix);  // Leave a 0 at the end to test that edge case
-    init_weight_matrix(OUTPUT_SIZE, HIDDEN_SIZE, hidden_weight_matrix);
-    float *input_bias_vec = new float[INPUT_SIZE];
+    init_weight_matrix(INPUT_SIZE, HIDDEN_SIZE, input_weight_matrix, 0 , 0.1f);  // Leave a 0 at the end to test that edge case
+    init_weight_matrix(OUTPUT_SIZE, HIDDEN_SIZE, hidden_weight_matrix, 0, 0.1f);
     float *hidden_bias_vec = new float[HIDDEN_SIZE];
-    std::fill(input_bias_vec, input_bias_vec + INPUT_SIZE, 0);
+    float *output_bias_vec = new float[OUTPUT_SIZE];
     std::fill(hidden_bias_vec, hidden_bias_vec + HIDDEN_SIZE, 0);
+    std::fill(output_bias_vec, output_bias_vec + OUTPUT_SIZE, 0);
 
     float target_error = 0.0003;
     float total_error = 0.2; //will be modified
@@ -287,8 +383,13 @@ int main(int argc, char* argv[]) {
         printFloatArray(OUTPUT_SIZE, array_target_outputs[i], true);
         std::cout << std::endl;
     }
-    //printFloatArray(INPUT_SIZE * HIDDEN_SIZE, weight_matrix, false);
+    
+    //printFloatArray(INPUT_SIZE * HIDDEN_SIZE, input_weight_matrix, true);
+    printFloatArray(OUTPUT_SIZE * HIDDEN_SIZE, hidden_weight_matrix, false);
 
+    SGD(100, HIDDEN_SIZE, 3.0f, input_weight_matrix, hidden_weight_matrix, hidden_bias_vec, output_bias_vec);
+
+    printFloatArray(OUTPUT_SIZE * HIDDEN_SIZE, hidden_weight_matrix, false);
     //get input from files?
     //CharacterRecognition::MLP_calculation(INPUT_SIZE, OUTPUT_SIZE, input, weight_matrix, output);
     //printElapsedTime(CharacterRecognition::timer().getCpuElapsedTimeForPreviousOperation(), "(std::chrono Measured)");
@@ -300,7 +401,10 @@ int main(int argc, char* argv[]) {
 
     //understand bp algorithm
     //how to make it keep running? -- while loop within a certain threshold
-    delete[] weight_matrix;
+    delete[] input_weight_matrix;
+    delete[] hidden_weight_matrix;
+    delete[] hidden_bias_vec;
+    delete[] output_bias_vec;
  //   // Scan tests
 
  //   printf("\n");
