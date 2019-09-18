@@ -24,6 +24,16 @@ namespace StreamCompaction {
 				data[index + offset] += data[index + offset2];
 			}
 		}
+		//only get the work index and do 
+		__global__ void kernUpSweep2(int n, int time, int* data) {
+			int index = threadIdx.x + (blockIdx.x * blockDim.x);
+			if (index >= n) {
+				return;
+			}
+			int i = (index + 1) * time - 1;
+			int j = i - time / 2;
+			data[i] += data[j];
+		}
 
 		__global__ void kernDownSweep(int n, int d, int *data) {
 			int index = threadIdx.x + (blockIdx.x * blockDim.x);
@@ -39,6 +49,19 @@ namespace StreamCompaction {
 				data[index + offset] += t;
 			}
 		}
+
+		__global__ void kernDownSweep2(int n, int time, int* data) {
+			int index = threadIdx.x + (blockIdx.x * blockDim.x);
+			if (index >= n) {
+				return;
+			}
+			int i = (index + 1) * time - 1;
+			int j = i - time / 2;
+			int t = data[i - time / 2];
+			data[j] = data[i];
+			data[i] += t;
+		}
+
 
 		//judge is pow of 2? 
 		//https://stackoverflow.com/questions/600293/how-to-check-if-a-number-is-a-power-of-2
@@ -116,18 +139,20 @@ namespace StreamCompaction {
 			//before change each block has 128,1,1 threads (128)
 			//each grid has (pow2n + blockSize - 1) / blockSize block (2)
 			for (int i = 0; i <= d; i++) {
-				//int new_block = static_cast<int>(powf(2.0f, 1.0 * (ilog2ceil(n) - i - 1)));
-				//dim3 new_blockpergrid(new_block);
-				kernUpSweep << <fullBlocksPerGrid, blockSize >> > (pow2n, i, dev_data);
-				//kernUpSweep << <new_blockpergrid, blockSize >> > (new_block, i, dev_data);
+				int new_block = static_cast<int>(powf(2.0f, 1.0 * (ilog2ceil(n) - i - 1)));
+				dim3 new_blockpergrid((new_block + blockSize - 1) / blockSize);
+				//kernUpSweep << <fullBlocksPerGrid, blockSize >> > (pow2n, i, dev_data);
+				int off = powf(2.0, i + 1);
+				kernUpSweep2 << <new_blockpergrid, blockSize >> > (new_block, off, dev_data);
 			}
 			reviseElemnt << <dim3(1), dim3(1) >> > (pow2n - 1, dev_data, 0);
 			//down
 			for (int i = d; i >= 0; i--) {
-				//int new_block = static_cast<int>(powf(2.0f, 1.0 * (ilog2ceil(n) - i - 1)));
-				//dim3 new_blockpergrid(new_block);
-				kernDownSweep << <fullBlocksPerGrid, blockSize >> > (pow2n, i, dev_data);
-				//kernDownSweep << <new_blockpergrid, blockSize >> > (new_block, i, dev_data);
+				int new_block = static_cast<int>(powf(2.0f, 1.0 * (ilog2ceil(n) - i - 1)));
+				dim3 new_blockpergrid((new_block + blockSize - 1) / blockSize);
+				int off = powf(2.0, i + 1);
+				//kernDownSweep << <fullBlocksPerGrid, blockSize >> > (pow2n, i, dev_data);
+				kernDownSweep2 << <new_blockpergrid, blockSize >> > (new_block, off, dev_data);
 			}
 
 			if (time) {

@@ -3,14 +3,46 @@ CUDA Number Algorithms
 
 **University of Pennsylvania, CIS 565: GPU Programming and Architecture, Project 2**
 
-* (TODO) YOUR NAME HERE
-  * (TODO) [LinkedIn](), [personal website](), [twitter](), etc.
-* Tested on: (TODO) Windows 22, i7-2222 @ 2.22GHz 22GB, GTX 222 222MB (Moore 2222 Lab)
+* Yan Dong
+  - [LinkedIn](https://www.linkedin.com/in/yan-dong-572b1113b/)
+  - [personal website](coffeier.com)
+  - [github](https://github.com/coffeiersama)
+* Tested on: Windows 10, i7-8750 @ 2.22GHz  (12CPUs)  16GB, GTX 1060 14202MB (OMEN 15-dc0xxx)
 
-### (TODO: Your README)
+
+
+### Homework2
 
 Link to the readmes of the other two subprojects.
 
-Add anything else you think is relevant up to this point.
-(Remember, this is public, so don't put anything here that you don't want to share with the world.)
+[stream compaction](https://github.com/coffeiersama/Project2-Number-Algorithms/tree/master/Project2-Stream-Compaction)
 
+[character recognization](https://github.com/coffeiersama/Project2-Number-Algorithms/tree/master/Project2-Character-Recognition)
+
+
+
+### Some useful knowledge review
+
+##### shared_memory
+
+on-board memory(global memory, high latency)
+
+on-chip memory(shared memory, low latency)
+
+shared memory is faster than global memory about 20-30 times
+
+one block has a part of shared memory.
+
+###### Definition:
+
+extern "___shared___" int tile[];//do not know the shared memory size
+
+[Reference](https://www.cnblogs.com/1024incn/p/4605502.html)
+
+
+
+##### resolve the external symbol problem:
+
+the program can find the h file, but can not find the dll file.
+
+so use link!
