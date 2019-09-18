@@ -40,13 +40,14 @@ The following graph shows how the performance varies with increasing block size 
 
 ![](img/scan_blocksize_20.PNG)
 
-It can be seen that the performance more or less remains constant with block size. For all the implementations, block size of 128 is optimal.
+It can be seen that the performance more or less remains constant with block size for block size more than 32. The performance can be seen to be worse from smaller blocksizes (16 and 32) For all the implementations, block size of 128 is optimal.
 
 I also tested the performance for the work-efficient implementation (optimized and unoptimized) for array sizes set to 2^10 and 2^20. The plots were as follows,
 
 ![](img/scan_blocksize_both.PNG)
 
-A significant drop can be seen in the runtime when the array size is reduced. But, no specific trend is observer between array size and block size. This is probably because we are not using the shared memory.
+A significant drop can be seen in the runtime when the array size is reduced. But, no specific trend is observed between array size and block size. This is probably because we are not using the shared memory.
+The optimized algorithm seems to show constant performance with block size while the unoptimized is affected for smaller blocks.
 
 Hence, for testing against array size, block size is set to 128 wherever applicable.
 
@@ -57,6 +58,8 @@ Performance of the CPU implementation with all the GPU implementations can be fo
 ![](img/array_size_cpu_all.PNG)
 
 As expected, the performance decreases with increasing array size. The naive GPU and work efficient GPU impelemntation can be found to perform worse than the CPU implementation for smaller array sizes. This is primarily because of the extra overhead in managing the threads on the GPU which overpowers the effect of parallelization.
+
+However for larger arrays, the GPU implementations are better. Thrust performs the best for array sizes greater the 2^18. Naive and work-efficient seem to show similar trends.
 
 The following graph shows a comparison between the optimized work efficient implementation with the regular implementation.
 
