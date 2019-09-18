@@ -28,6 +28,29 @@ I initially trained and tested my data on a small XOR example, then moved onto t
 
 ## Output
 
+The weights produced by training for both the XOR and character recognition examples can be found in text files in this repository. After training, I tested the network on each possible input. Here is the result for XOR:
+
+```
+*********************************
+*********** XOR TESTS ***********
+*********************************
+Expected output: 0.000000
+Actual output:   0.001515
+
+Expected output: 1.000000
+Actual output:   0.977023
+
+Expected output: 1.000000
+Actual output:   0.976850
+
+Expected output: 0.000000
+Actual output:   0.019346
+
+Total error:   0.000720
+```
+
+There seems to be an issue with my character recognition test, as the actual output for each tested character is 0.
+
 ## Challenges
 
 This project was my first foray into machine learning, and only my second project using CUDA/GPU programming, so this project was a bit of a challenge. I struggled a bit with choosing how to represent and pass around data, particularly when it came to error calculation and back-propogation. For example, when it came to calculating the partial error derivatives for each weight and summing them to get a delta w for each weight, I intially made one large float * buffer that held all the partial derivatives for all weights and for all inputs, and worked with this using various indexing schemes. This worked fine for the very small XOR example, but when it came to the actual character recognition example, which had over 50 million weights, I had trouble fitting everything one buffer. I had to think of a way of dividing the data into pieces while also allowing me to run various calculations on it in parallel, and I still don't think what I did was the best choice.
