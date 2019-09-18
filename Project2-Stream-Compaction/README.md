@@ -72,7 +72,7 @@ Stream compaction, also known as stream filtering or selection, usually produces
 We can naively parallelize the scan algorithm on the GPU to reduce the loop to ```log2(n)``` iterations. At the first iteraction, n-1 threads add a pair of values and store it in the next array, but as iteractions progress, the number of additions come down to 'O(1)'. Thus this scan has a runtime of 'log2(n)' where as the CPU sequential scan has the runtime of 'O(n)'. The number of additions in this scenario increase to ```O(n*log2(n))```.
 
  <p align="center">
-  <img src="Project2-Stream-Compaction/img/NaiveScan.png">
+  <img src="/img/NaiveScan.png">
 </p>
 
 
