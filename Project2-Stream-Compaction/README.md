@@ -108,7 +108,7 @@ For each of the algorithms, I ran them with a block size of 128.  In order for t
 #### Naive thread count
 In the naive algorithm, within the parallel portion of the algorithm, there is a check to see if the index is at least a certain value:
 
-# INSERT IMAGE OF PSEUDOCODE
+![](img/NaiveScanPseudoCode.PNG)
 
 I realized that for all threads where the index was too small, the thread was simply returning without doing any work. To optimize this, I calculated exactly how many threads would actually end up doing work:
 ```
