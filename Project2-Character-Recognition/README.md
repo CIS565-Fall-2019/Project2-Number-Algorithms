@@ -17,7 +17,7 @@ CIS 565: GPU Programming and Architecture**
 - [Implementation Details](https://github.com/chhavisharma/Project2-Number-Algorithms/blob/master/Project2-Character-Recognition/README.md#implementation-details)
 - [Training MLP to Predict a 2x2 XOR](https://github.com/chhavisharma/Project2-Number-Algorithms/blob/master/Project2-Character-Recognition/README.md#training-mlp-to-predict-a-2x2-xor)
 - [Training MLP for Character Recognition](https://github.com/chhavisharma/Project2-Number-Algorithms/blob/master/Project2-Character-Recognition/README.md#2-training-mlp-for-character-recognition)
-- [Observations and Comments](https://github.com/chhavisharma/Project2-Number-Algorithms/blob/master/Project2-Character-Recognition/README.md#training-mlp-to-predict-a-2x2-xor)
+- [Observations and Comments](https://github.com/chhavisharma/Project2-Number-Algorithms/blob/master/Project2-Character-Recognition/README.md#observations-and-comments)
 - [Performance](https://github.com/chhavisharma/Project2-Number-Algorithms/blob/master/Project2-Character-Recognition)
 - [Extra Credit](https://github.com/chhavisharma/Project2-Number-Algorithms/blob/master/Project2-Character-Recognition/README.md#extra-credits)
 
@@ -69,19 +69,14 @@ w2 = w2 - LearningRate*dw2;
 </p>
  
 We train an MLP to predict output of a two bit XOR gate. Given 4 2-bit inputs and ground truth labels, we train the network as follows:
-
+ ```
  Epochs: 1000
- 
  Learning Rate: 0.1
- 
  N = 4               //Number of examples per batch
- 
  D = 2 + 1(bias)     //Feature Dimension
- 
  H = 2               //Hidden Layer Nodes
- 
  C = 2               //Number of classes
- 
+ ```
  
  The network learns to classify XOR inputs over a 100 epochs correctly.
  The loss per epoch reduces consistanctly
@@ -95,19 +90,14 @@ We train an MLP to predict output of a two bit XOR gate. Given 4 2-bit inputs an
 ### Training MLP for Character Recognition
  
 We train an MLP to predict characters from images in this task. Given 52 images of characters ground truth labels, we train the network as follows:
- 
- Epochs: 5000
- 
- Learning Rate: 0.1
- 
- N = 52               //Number of examples per batch
- 
- D = 10201            //Feature Dimension (101 x 101)
- 
- H = 10               //Hidden Layer Nodes
- 
- C = 52               //Number of classes
- 
+   ```
+   Epochs: 5000
+   Learning Rate: 0.1
+   N = 52               //Number of examples per batch
+   D = 10201            //Feature Dimension (101 x 101)
+   H = 10               //Hidden Layer Nodes
+   C = 52               //Number of classes
+  ```
  
  ![](img/CharRecStats.PNG)
  
