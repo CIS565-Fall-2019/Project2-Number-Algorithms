@@ -127,7 +127,7 @@ namespace CharacterRecognition {
 		);
 
 		cudaDeviceSynchronize();
-		checkCUDAError("Failed matrixMul");
+		checkCUDAError("Failed matrixSub");
 	}
 
 	void matrixAdd(cublasHandle_t ch, const Matrix* A, const Matrix* B, Matrix* C) {
@@ -157,7 +157,7 @@ namespace CharacterRecognition {
 		);
 
 		cudaDeviceSynchronize();
-		checkCUDAError("Failed matrixMul");
+		checkCUDAError("Failed matrixAdd");
 	}
 
 	Matrix::Matrix(int colcnt, int rowcnt) : colcnt(colcnt), rowcnt(rowcnt)
@@ -373,6 +373,8 @@ namespace CharacterRecognition {
 			jiTheta.copyMatrix(&outputLayer); // Step 3.1) Save off output layer before sigmoids for backprop
 		}
 
+		outputLayer.copyDevToCpu();
+
 		softmaxActivate(&outputLayer); // Step 4) Apply activation to output layers
 
 		// Setp 5) Store the result, ie the brightest node in the output layer
@@ -421,6 +423,8 @@ namespace CharacterRecognition {
 		calcOmega(&jiPsi, &jiWeights, &kjOmega); // This omega is done with a special function, unlike subtraction from last layer
 		calcPsi(&kjOmega, &kjTheta, &kjPsi);
 		calcDeltaChange(0.01f, &inputLayer, &kjPsi, &kjWeightsDelta);
+
+		// Old way did not work, lets try from scratch...
 	}
 
 	void Perceptron::applyBackprop()
@@ -429,23 +433,8 @@ namespace CharacterRecognition {
 		float t = 1.0f / this->tr_runs;
 		this->tr_runs = 0.0f; // Reset
 
-		// Scaler multiplication functions
-		cublasSscal(ch, kjWeightsDelta.getLen(), &t, kjWeightsDelta.dev_data, 1);
-		cudaDeviceSynchronize();
-		checkCUDAError("Failed cublasSscal1");
-
-		cublasSscal(ch, jiWeightsDelta.getLen(), &t, jiWeightsDelta.dev_data, 1);
-		cudaDeviceSynchronize();
-		checkCUDAError("Failed cublasSscal3");
-
-		// Applying backprop just means adding the deltas to the og matricies
-		matrixAdd(ch, &kjWeights, &kjWeightsDelta, &kjWeights);
-		cudaDeviceSynchronize();
-		checkCUDAError("Failed matrixAdd1");
-
-		matrixAdd(ch, &jiWeights, &jiWeightsDelta, &jiWeights);
-		cudaDeviceSynchronize();
-		checkCUDAError("Failed matrixAdd2");
+		cublasSaxpy(ch, kjWeights.getLen(), &t, kjWeightsDelta.dev_data, 1, kjWeights.dev_data, 1);
+		cublasSaxpy(ch, jiWeights.getLen(), &t, jiWeightsDelta.dev_data, 1, jiWeights.dev_data, 1);
 	}
 
 	__global__ void kernCalcPsi(int n, float * omega, float * theta, float * psi) {

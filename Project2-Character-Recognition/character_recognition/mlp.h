@@ -117,12 +117,11 @@ namespace CharacterRecognition {
 	void reluActivate(Matrix* m);
 	void softmaxActivate(Matrix* m);
 
-	__global__ void kernSigmoid(int n, float* data);
-	void activation(Matrix* m);
-	__global__ void kernActivation(int n, float* data);
 	__device__ float devSigmoid(float n);
 	__device__ float devInverseSigmoid(float n);
 	__device__ int getGlobalIdx_3D_3D();
+	__global__ void kernReluActivate(int n, float* in, float* out);
+	__global__ void kernExponentiate(int n, float* in, float* out);
 
 	void testMatrixMul();
 
