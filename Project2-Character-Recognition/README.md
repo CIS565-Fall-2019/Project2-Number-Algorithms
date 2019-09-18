@@ -24,6 +24,6 @@ Instead of grading my project please enjoy these nice photos of me from the wedd
 
 ![](img/IMG_3920.jpg)
 
-* Me pointing at my working neural network like ...
+* Me pointing at my working neural network like ... 
 
 ![](img/IMG_3924.jpg)
