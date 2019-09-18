@@ -181,7 +181,8 @@ namespace CharacterRecognition {
 		dim3 grid((hidden_matrix_size.WC*hidden_matrix_size.HC + blockSize - 1) / blockSize);
 
 		matrixMultiply(&handle, hidden_matrix_size, dev_wI, dev_X, dev_h1);
-		cudaMemcpy(h1, dev_h1, mem_size_pred, cudaMemcpyDeviceToHost);
+
+		cudaMemcpy(h1, dev_h1, mem_size_h1, cudaMemcpyDeviceToHost);
 		checkCUDAError("cudaMemcpy pred");
 		printf("Matriz h1: \n");
 		printMat(h1, hidden_matrix_size.WC, hidden_matrix_size.HC);
