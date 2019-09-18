@@ -72,19 +72,19 @@ Stream compaction, also known as stream filtering or selection, usually produces
 We can naively parallelize the scan algorithm on the GPU to reduce the loop to ```log2(n)``` iterations. At the first iteraction, n-1 threads add a pair of values and store it in the next array, but as iteractions progress, the number of additions come down to 'O(1)'. Thus this scan has a runtime of 'log2(n)' where as the CPU sequential scan has the runtime of 'O(n)'. The number of additions in this scenario increase to ```O(n*log2(n))```.
 
 Naive Parallel Scan
-<p align="center"><img src="Project2-Stream-Compaction/img/NaiveScan.png"></p>
+![](Project2-Stream-Compaction/img/NaiveScan.png)
 
 #### 3: Work-Efficient GPU Scan
 
 We can further parallelize the scan algorithm to bring down the number of addition operations to ```O(n)``` and make it *Work Efficient*. This is done by implementing the scan algorithm using a Balanced Binary Tree and perfroming the UpSweep and DownSweep algorithm. During Upsweep, we start from the tree's leaf nodes and compute partial sums upto the root. These operations are in place. 
 
 UpSweep
- <p align="center"><img src="Project2-Stream-Compaction/img/UpSweepScan.png"></p>
+![](Project2-Stream-Compaction/img/UpSweepScan.png)
 
 Finally in the downsweep, starting from the Root node, we perfom the following steps to get the preorder sum.
 
 DownSweep
-<p align="center"><img src="Project2-Stream-Compaction/img/DownSweepScan.png"></p>
+![](Project2-Stream-Compaction/img/DownSweepScan.png)
 
 ##### 4: Work-Efficient Stream Compaction
 Work efficient stram compaction is nothing but the stream compaction algorithm explained above that uses the work-efficient scan. 
@@ -130,8 +130,8 @@ We also experiemented with CUDA's `thrust::exclusive_scan(first, last, result)` 
   - The CPU implementation of Scan is realtively faster than all the GPU implementations when the data size is small. This is becuase the compute time is not able to hide the other kernel overheads such as allocating threads and multiple kernel launches. 
   - As the data size grows, serial compute scan on the CPU grows in time. The naive GPU scan and Work efficint scan are faster. 
   - For really large data sizes, CPU scan runs faster than Naive GPU scan, which could be becuause the 'n* log2(n)' additional compute in the naive GPU scan overpowers the parallelization. 
-  - Work efficient scan perfroms the best on large data sizs, as comapred to Naive nad CPU scan, becuase of compute 'log(n)' and time 'log(n)' optimization. 
-  - Thrust scan perfroms far better than any other implementation for large data sizes. Thrust maybe optimizing the memory I/O further as comapred to our implementation of Work-efficient scan. 
+  - Work efficient scan perfroms the best on large data sizes, as comapred to Naive nad CPU scan, becuase of compute 'log(n)' and time 'log(n)' optimization. 
+  - Thrust scan perfroms far better than any other implementation for large data sizes. Thrust maybe optimizing the memory I/O and kernel launching overheads further as comapred to our implementation of Work-efficient scan where we launch a kernel every time in a for loop for upstream and downstream. 
     
     
   **Compaction Comparasion**
@@ -141,8 +141,7 @@ We also experiemented with CUDA's `thrust::exclusive_scan(first, last, result)` 
   ![](img/SC2.png) 
 
   Varying the data from '2^10' to '2^28', we observe the following:-
-  - The CPU implementation of Compaction with scan is much slower than than the GPU implementations when the data size is large. This is becuase work efficient compaction utilises the work effificnet scan which we showed has lesser time and compute complexities ass comapred to all other scans. 
-  - As the data size grows, serial compute scan on the CPU grows in time. The naive GPU scan and Work efficint scan are faster. 
+  - Internstingly, stream compction without scan on the cpu outperforms stream compaction with scan in terms of computation time. The drawback of stream compaction without scan is that it is not in place and uses double the memory of input size. 
   
 
   * **Paste the output of the test program into a triple-backtick block in your
