@@ -15,7 +15,8 @@
 #include<random>
 using namespace std;
 
-#define mnist 1
+#define mnist 0
+
 std::vector<std::string> read_directory(const std::string& name)
 {
 	std::vector<std::string> v;
@@ -167,6 +168,7 @@ int main(int argc, char* argv[]) {
 
 
 	}
+
 	else {
 		classes = 52;
 		input_dim = 14*14;
@@ -195,15 +197,20 @@ int main(int argc, char* argv[]) {
 	vector<double>losses;
 	vector<double>accuracy;
 	CharacterRecognition::NeuralNet nn(input_dim, classes, layers);
-
+	double loss_epoch = 0;
+	int cnt = 0;
 	for (int i = 0; i < 120000; i++) {
 		int j = rand() % images.size();
 
 		double *output = nn.forward(images[j]);
-		double loss_epoch = nn.calculateLoss(output, labels[j], classes);
-		losses.push_back(loss_epoch);
-		//cout<<loss_epoch << endl;
-		csv_write(loss_epoch, i+1, R"(..\output_mnist_loss.csv)");
+		loss_epoch += nn.calculateLoss(output, labels[j], classes);
+		if (i%500 == 0)
+		{
+			losses.push_back(loss_epoch/images.size());
+			cnt++;
+			//csv_write(loss_epoch, cnt , R"(..\output_mnist_loss_500.csv)");
+			loss_epoch = 0.0;
+		}
 		nn.backward(labels[j]);
 	}
 	double train_correct = 0;
