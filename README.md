@@ -9,11 +9,11 @@ Davis Polito
 #Optimizing Block Size Per Algorithm
 
 First we must optimize block size per algorithm
-![block optimization graph](/Project2-Stream-Compaction/img/blocksizeopt.png)
+![block optimization graph](/Project2-Stream-Compaction/img/blocksizeopt.PNG)
 After creating this graph I chose blocksize to be 128 and 512 for naive and work efficient scan
 
 #Scan comparison
-![size vs. time graph](/Project2-Stream-Compaction/img/sizevstime.png)
+![size vs. time graph](/Project2-Stream-Compaction/img/sizevstime.PNG)
 
 
 ##Questions
@@ -23,7 +23,7 @@ After creating this graph I chose blocksize to be 128 and 512 for naive and work
 ######naivei this method has O(nlogn) runtime
 ######work-efficient This has a possible runtime of O(n) but do to memory access and non ideal uses of threads and warps (i.e. warp branching) We see a slower runtime than cpu
 #####thrust 
-![Console Output From Steam compaction](/Project2-Stream-Compaction/img/blocksizeopt.png)
+![Console Output From Steam compaction](/Project2-Stream-Compaction/img/blocksizeopt.PNG)
 
 
 
