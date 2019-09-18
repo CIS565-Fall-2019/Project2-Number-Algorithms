@@ -63,7 +63,17 @@ void init_weight_matrix(int n, int hidden_num,  float* weight_matrix, float rang
     srand(time(nullptr));
     for (int i = 0; i < n * hidden_num; ++i)
     {
-        weight_matrix[i] = range_min + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (range_max - range_min)));
+        weight_matrix[i] = range_min + (static_cast <float> (rand()) / (static_cast <float> (RAND_MAX))) * (range_max - range_min);
+        if (weight_matrix[i] > range_max)
+        {
+            std::cout << "weight matrix index " << i << " has problem, its value is " << weight_matrix[i] << std::endl;
+            weight_matrix[i] = range_max;
+        }
+        else if (weight_matrix[i] < range_min)
+        {
+            std::cout << "weight matrix index " << i << " has problem, its value is " << weight_matrix[i] << std::endl;
+            weight_matrix[i] = range_min;
+        }
     }
 }
 
