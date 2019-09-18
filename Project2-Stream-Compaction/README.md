@@ -38,4 +38,4 @@ I assume thrust works so well because it does pay attention to slower threads, e
 
 I ran my program on power-of-two array sizes (from 2^8 to 2^18), and recorded and plotted the results. The time cost, again is the y-axis, and the x-axis represents array size. Methods with the label "2^n" were recorded at the listed array sizes, and methods with the label "non-2^n" were recorded at the listed array size, minus 3. These tests were done using an optimized block size of 128 for all methods.
 
-Similarly to the Scan analyses above, the CPU implementations are faster than the GPU. As before, the non-power-of-two-sized arrays are slightly faster than their counterparts, and the CPU-with-scan algorithm is the slowest of the three CPU algorithm. This makes sense as we are performing more operations.
+Similarly to the Scan analyses above, the CPU implementations are faster than the GPU. As before, the non-power-of-two-sized arrays are slightly faster than their counterparts, and the CPU-with-scan algorithm is the slowest of the three CPU algorithm. This makes sense as we are performing more operations in With-Scan.

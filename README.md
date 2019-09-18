@@ -3,14 +3,15 @@ CUDA Number Algorithms
 
 **University of Pennsylvania, CIS 565: GPU Programming and Architecture, Project 2**
 
-* (TODO) YOUR NAME HERE
-  * (TODO) [LinkedIn](), [personal website](), [twitter](), etc.
-* Tested on: (TODO) Windows 22, i7-2222 @ 2.22GHz 22GB, GTX 222 222MB (Moore 2222 Lab)
+* Alexis Ward
+  * [LinkedIn](https://www.linkedin.com/in/alexis-ward47/), [personal website](https://www.alexis-ward.tech/)
+* Tested on: Windows 10, i7-8750H CPU @ 2.20GHz 16GB, GTX 1050 Ti 
 
-### (TODO: Your README)
+# README - Stream Compaction and Neural Networks
 
-Link to the readmes of the other two subprojects.
+Links to the readmes of the two subprojects:
 
-Add anything else you think is relevant up to this point.
-(Remember, this is public, so don't put anything here that you don't want to share with the world.)
+[Part 1: Stream Compaction](Project2-Stream-Compaction/README.md)
+
+[Part 2: Character Recognition](Project2-Character-Recognition/README.md)
 
