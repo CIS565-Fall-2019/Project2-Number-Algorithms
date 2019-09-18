@@ -4,7 +4,7 @@
 #include "efficient.h"
 
 #define checkCUDAErrorWithLine(msg) checkCUDAError(msg, __LINE__)
-#define blockSize 64
+#define blockSize 512
 
 namespace StreamCompaction {
     namespace Efficient {
