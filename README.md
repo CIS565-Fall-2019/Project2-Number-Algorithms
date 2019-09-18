@@ -3,14 +3,14 @@ CUDA Number Algorithms
 
 **University of Pennsylvania, CIS 565: GPU Programming and Architecture, Project 2**
 
-* (TODO) YOUR NAME HERE
-  * (TODO) [LinkedIn](), [personal website](), [twitter](), etc.
-* Tested on: (TODO) Windows 22, i7-2222 @ 2.22GHz 22GB, GTX 222 222MB (Moore 2222 Lab)
+* Tabatha Hickman
+  * LinkedIn:https://www.linkedin.com/in/tabatha-hickman-335987140/
+* Tested on: Windows 10 Pro, i7-5600U CPU @ 2.60GHz 16GB, GeForce 840M (personal computer)
 
-### (TODO: Your README)
+See these readmes for more information on the two subprojects:
 
-Link to the readmes of the other two subprojects.
+* [Stream Compaction](./Project2-Stream-Compaction/README.md)
+* [Character Recognition](./Project2-Character-Recognition/README.md) 
 
-Add anything else you think is relevant up to this point.
-(Remember, this is public, so don't put anything here that you don't want to share with the world.)
+Note: changed the sm value in CMakeLists of both stream_compaction and character_recognition to higher value so the project would build.
 
