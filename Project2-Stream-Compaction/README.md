@@ -1,4 +1,4 @@
-## Project 2 Part 1 - CUDA Character Recognition
+## Project 2 Part 1 - CUDA Stream Compaction
 **University of Pennsylvania
 CIS 565: GPU Programming and Architecture**
 
