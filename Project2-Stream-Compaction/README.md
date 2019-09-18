@@ -122,6 +122,8 @@ The following graph shows a comparison between the optimized work efficient impl
 
 There is a significant improvement in performance with the optimized version of the work efficient scan for stream compaction. The regular implementation is most of the times worse than the CPU implementation.
 
+In general, the CPU without scan seems to perform the best among all implementations. It is quite interesting to note this. However, one disadvantage of this approach is that the CPU implementation makes use of double the memory while the GPU implementation does it in-place. So, the GPU implementation is memory efficient if not time efficient.
+
 ### RADIX SORT
 
 The radix sort algorithm is implementd in a separate file named ```radix.cu```.
