@@ -55,7 +55,7 @@ From the above analysis, we observe that the performance of all the versions var
 
 #### Can you find the performance bottlenecks? Is it memory I/O? Computation? Is it different for each implementation?
 
-Here, we can observe that the bottleneck for Work-efficient GPU stream compaction is the number of cuda Malloc we need to do when we are calling the Work-efficient scan. That is one of the unnecessary memory copy in and out which is the reason for initial bottleneck in the algoirthm with respect to the CPU non-scan version one. For the case of naive, the performance is more due to the umber of threads being called and the increase in the number of additions which is of order `O(nlog(n))`.
+Here, we can observe that the bottleneck for Work-efficient GPU stream compaction is the number of cuda Malloc we need to do when we are calling the Work-efficient scan. That is one of the unnecessary memory copy in and out which is the reason for initial bottleneck in the algoirthm with respect to the CPU non-scan version one. For the case of naive, the performance is more due to the umber of threads being called and the increase in the number of additions which is of order `O(nlog(n))`. It was also observed that when input array is greater than 2^17, then the GPU-work efficient compaction becomes better than the CPU with scan compaction.  
 
 #### Paste the output of the test program into a triple-backtick block in your README.
 
