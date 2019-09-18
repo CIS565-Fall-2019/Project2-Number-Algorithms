@@ -104,6 +104,38 @@ thrust::exclusive_scan(dev_thrust_inputArray, dev_thrust_inputArray + bufferLeng
 ## Performance Analysis and Questions
 For each of the algorithms, I ran them with a block size of 128.  In order for the block size to be optimal, it must be a power of two.  Most of the thread counts that we are sending are multiples or powers of two, so having a block size that is a power of two helps ensure that the blocks are filled to their capacity, making it most efficient.
 
+I did perfomance analyes comparing the different implementations of scan and stream compaction on both arrays of size power of 2, and arrays of size non power of 2.  The following charts show this analysis:
+
+### Scan
+#### Power of 2 size
+##### Full data
+![](img/ScanPerformanceChart.PNG)
+##### Close up on smaller sizes
+![](img/ScanPerformanceChartSmallSizes.PNG)
+#### Non-power of 2 size
+##### Full data
+![](img/ScanPerformanceChartNonPower2.PNG)
+##### Close up on smaller sizes
+![](img/ScanPerformanceChartNonPower2SmallSizes.PNG)
+
+### Stream Compaction
+#### Power of 2 size
+##### Full data
+![](img/StreamCompactionPerformanceChart.PNG)
+##### Close up on smaller sizes
+![](img/StreamCompactionPerformanceChartSmallSizes.PNG)
+#### Non-power of 2 size
+##### Full data
+![](img/StreamCompactionPerformanceChartNonPower2.PNG)
+##### Close up on smaller sizes
+![](img/StreamCompactionPerformanceChartNonPower2SmallSizes.PNG)
+
+The results of the performance data indicates that at smaller values, the CPU implementations run faster than either of the GPU implementations.  For scan, the work efficient version is consistently faster than the naive version, even at smaller array sizes.  However, once the array size reaches a large enough value, start at size roughly 2^20, the GPU versions begin to outpace the CPU versions, and the work efficient implementation more dramatically beats the naive implementation. 
+
+The reason for the above phenomenon may be because the GPU implementations, while we did not count the buffer setup and final copying time in the performance analysis, still involves more overhead than the CPU implementation.  Only once the array becomes large enough do the performance benefits outweigh the GPU overhead.  This indicates that the performance bottleneck of the GPU is memory i/o, as this would be where the overhead is coming from.  Because eventually the GPU beats the CPU implementations, we know that the overhead of the memory i/o is not increasing as quickly as the computation time of the CPU loops as the array becomes longer.
+
+Additionally, most of the implementations do not drastically differ between the power of 2 length array and the non power of 2 length array, except for the thrust implementation, which becomes less efficient when the array is not a power of 2.
+
 ### Optimizations (extra credit)
 #### Naive thread count
 In the naive algorithm, within the parallel portion of the algorithm, there is a check to see if the index is at least a certain value:
