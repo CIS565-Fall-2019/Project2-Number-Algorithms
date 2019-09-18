@@ -27,55 +27,57 @@ It is interesting to note that the efficient implementation is consistently slow
 Predictably, the serial CPU version increases in runtime proportionally to the increase in array size.
 
 The program output reads:
-```'cis565_stream_compaction_test.exe' (Win32): Loaded 'C:\Users\Josh\Documents\School\UPenn\2019-2020\CIS 565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\Release\cis565_stream_compaction_test.exe'. Module was built without symbols.
-'cis565_stream_compaction_test.exe' (Win32): Loaded 'C:\Windows\System32\ntdll.dll'. Cannot find or open the PDB file.
-'cis565_stream_compaction_test.exe' (Win32): Loaded 'C:\Windows\System32\kernel32.dll'. Cannot find or open the PDB file.
-'cis565_stream_compaction_test.exe' (Win32): Loaded 'C:\Windows\System32\KernelBase.dll'. Symbols loaded.
-'cis565_stream_compaction_test.exe' (Win32): Loaded 'C:\Windows\System32\ucrtbase.dll'. Cannot find or open the PDB file.
-'cis565_stream_compaction_test.exe' (Win32): Loaded 'C:\Windows\System32\msvcp140.dll'. Cannot find or open the PDB file.
-'cis565_stream_compaction_test.exe' (Win32): Loaded 'C:\Windows\System32\vcruntime140.dll'. Symbols loaded.
-The thread 0x4ab4 has exited with code 0 (0x0).
-'cis565_stream_compaction_test.exe' (Win32): Loaded 'C:\Windows\System32\advapi32.dll'. Cannot find or open the PDB file.
-'cis565_stream_compaction_test.exe' (Win32): Loaded 'C:\Windows\System32\msvcrt.dll'. Cannot find or open the PDB file.
-'cis565_stream_compaction_test.exe' (Win32): Loaded 'C:\Windows\System32\sechost.dll'. Cannot find or open the PDB file.
-'cis565_stream_compaction_test.exe' (Win32): Loaded 'C:\Windows\System32\rpcrt4.dll'. Cannot find or open the PDB file.
-'cis565_stream_compaction_test.exe' (Win32): Loaded 'C:\Windows\System32\gdi32.dll'. Cannot find or open the PDB file.
-'cis565_stream_compaction_test.exe' (Win32): Loaded 'C:\Windows\System32\gdi32full.dll'. Cannot find or open the PDB file.
-'cis565_stream_compaction_test.exe' (Win32): Loaded 'C:\Windows\System32\msvcp_win.dll'. Cannot find or open the PDB file.
-'cis565_stream_compaction_test.exe' (Win32): Loaded 'C:\Windows\System32\user32.dll'. Cannot find or open the PDB file.
-'cis565_stream_compaction_test.exe' (Win32): Loaded 'C:\Windows\System32\win32u.dll'. Cannot find or open the PDB file.
-'cis565_stream_compaction_test.exe' (Win32): Loaded 'C:\Windows\System32\imm32.dll'. Cannot find or open the PDB file.
-'cis565_stream_compaction_test.exe' (Win32): Loaded 'C:\Windows\System32\setupapi.dll'. Cannot find or open the PDB file.
-'cis565_stream_compaction_test.exe' (Win32): Loaded 'C:\Windows\System32\cfgmgr32.dll'. Cannot find or open the PDB file.
-'cis565_stream_compaction_test.exe' (Win32): Loaded 'C:\Windows\System32\bcrypt.dll'. Cannot find or open the PDB file.
-'cis565_stream_compaction_test.exe' (Win32): Loaded 'C:\Windows\System32\devobj.dll'. Cannot find or open the PDB file.
-'cis565_stream_compaction_test.exe' (Win32): Loaded 'C:\Windows\System32\wintrust.dll'. Cannot find or open the PDB file.
-'cis565_stream_compaction_test.exe' (Win32): Loaded 'C:\Windows\System32\msasn1.dll'. Cannot find or open the PDB file.
-'cis565_stream_compaction_test.exe' (Win32): Loaded 'C:\Windows\System32\crypt32.dll'. Cannot find or open the PDB file.
-'cis565_stream_compaction_test.exe' (Win32): Loaded 'C:\Windows\System32\shell32.dll'. Cannot find or open the PDB file.
-'cis565_stream_compaction_test.exe' (Win32): Loaded 'C:\Windows\System32\SHCore.dll'. Cannot find or open the PDB file.
-'cis565_stream_compaction_test.exe' (Win32): Loaded 'C:\Windows\System32\combase.dll'. Cannot find or open the PDB file.
-'cis565_stream_compaction_test.exe' (Win32): Loaded 'C:\Windows\System32\bcryptprimitives.dll'. Cannot find or open the PDB file.
-'cis565_stream_compaction_test.exe' (Win32): Loaded 'C:\Windows\System32\windows.storage.dll'. Cannot find or open the PDB file.
-'cis565_stream_compaction_test.exe' (Win32): Loaded 'C:\Windows\System32\profapi.dll'. Cannot find or open the PDB file.
-'cis565_stream_compaction_test.exe' (Win32): Loaded 'C:\Windows\System32\powrprof.dll'. Cannot find or open the PDB file.
-'cis565_stream_compaction_test.exe' (Win32): Loaded 'C:\Windows\System32\shlwapi.dll'. Cannot find or open the PDB file.
-'cis565_stream_compaction_test.exe' (Win32): Loaded 'C:\Windows\System32\kernel.appcore.dll'. Cannot find or open the PDB file.
-'cis565_stream_compaction_test.exe' (Win32): Loaded 'C:\Windows\System32\cryptsp.dll'. Cannot find or open the PDB file.
-'cis565_stream_compaction_test.exe' (Win32): Loaded 'C:\Windows\System32\nvcuda.dll'. Cannot find or open the PDB file.
-'cis565_stream_compaction_test.exe' (Win32): Loaded 'C:\Windows\System32\version.dll'. Cannot find or open the PDB file.
-'cis565_stream_compaction_test.exe' (Win32): Loaded 'C:\Windows\System32\nvfatbinaryLoader.dll'. Cannot find or open the PDB file.
-'cis565_stream_compaction_test.exe' (Win32): Loaded 'C:\Windows\System32\ws2_32.dll'. Cannot find or open the PDB file.
-'cis565_stream_compaction_test.exe' (Win32): Loaded 'C:\Windows\System32\dwmapi.dll'. Cannot find or open the PDB file.
-'cis565_stream_compaction_test.exe' (Win32): Loaded 'C:\Windows\System32\uxtheme.dll'. Cannot find or open the PDB file.
-'cis565_stream_compaction_test.exe' (Win32): Unloaded 'C:\Windows\System32\dwmapi.dll'
-'cis565_stream_compaction_test.exe' (Win32): Loaded 'C:\Windows\System32\nvapi64.dll'. Cannot find or open the PDB file.
-'cis565_stream_compaction_test.exe' (Win32): Loaded 'C:\Windows\System32\ole32.dll'. Cannot find or open the PDB file.
-'cis565_stream_compaction_test.exe' (Win32): Loaded 'C:\Windows\System32\dxgi.dll'. Cannot find or open the PDB file.
-The thread 0x61a0 has exited with code 0 (0x0).
-The thread 0x3554 has exited with code 0 (0x0).
-The thread 0x3f60 has exited with code 0 (0x0).
-The thread 0x3ef0 has exited with code 0 (0x0).
-The thread 0x19f4 has exited with code 0 (0x0).
-The thread 0x4948 has exited with code 0 (0x0).
-The program '[11188] cis565_stream_compaction_test.exe' has exited with code 0 (0x0).```
+```
+****************
+** SCAN TESTS **
+****************
+    [  25  18  37  41  29   8  10  48  21  22  19  18   6 ...  39   0 ]
+==== cpu scan, power-of-two ====
+   elapsed time: 0.0588ms    (std::chrono Measured)
+    [   0  25  43  80 121 150 158 168 216 237 259 278 296 ... 25536 25575 ]
+==== cpu scan, non-power-of-two ====
+   elapsed time: 0.0569ms    (std::chrono Measured)
+    [   0  25  43  80 121 150 158 168 216 237 259 278 296 ... 25478 25497 ]
+    passed
+==== naive scan, power-of-two ====
+   elapsed time: 0.10656ms    (CUDA Measured)
+    passed
+==== naive scan, non-power-of-two ====
+   elapsed time: 0.105216ms    (CUDA Measured)
+    passed
+==== work-efficient scan, power-of-two ====
+   elapsed time: 0.116672ms    (CUDA Measured)
+    passed
+==== work-efficient scan, non-power-of-two ====
+   elapsed time: 0.13984ms    (CUDA Measured)
+    passed
+==== thrust scan, power-of-two ====
+   elapsed time: 0.119264ms    (CUDA Measured)
+    passed
+==== thrust scan, non-power-of-two ====
+   elapsed time: 0.071648ms    (CUDA Measured)
+    passed
+
+*****************************
+** STREAM COMPACTION TESTS **
+*****************************
+    [   2   2   1   0   2   1   1   0   1   0   1   0   1 ...   1   0 ]
+==== cpu compact without scan, power-of-two ====
+   elapsed time: 0.0038ms    (std::chrono Measured)
+    [   2   2   1   2   1   1   1   1   1   3   2   1   2 ...   2   1 ]
+    passed
+==== cpu compact without scan, non-power-of-two ====
+   elapsed time: 0.0032ms    (std::chrono Measured)
+    [   2   2   1   2   1   1   1   1   1   3   2   1   2 ...   1   1 ]
+    passed
+==== cpu compact with scan ====
+   elapsed time: 0.069ms    (std::chrono Measured)
+    [   2   2   1   2   1   1   1   1   1   3   2   1   2 ...   2   1 ]
+    passed
+==== work-efficient compact, power-of-two ====
+   elapsed time: 0.199904ms    (CUDA Measured)
+    passed
+==== work-efficient compact, non-power-of-two ====
+   elapsed time: 0.1856ms    (CUDA Measured)
+    passed
+Press any key to continue . . .```

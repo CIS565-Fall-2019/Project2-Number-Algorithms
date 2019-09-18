@@ -5,5 +5,8 @@
 namespace CharacterRecognition {
     Common::PerformanceTimer& timer();
 
-    // TODO: implement required elements for MLP sections 1 and 2 here
+	void init();
+	void train();
+	void evaluate(float *input);
+	void end();
 }
