@@ -238,13 +238,13 @@ int main(int argc, char* argv[]) {
 
 
 		if (useXor) {
-			layer1_weights[0] = 10.1;
-			layer1_weights[1] = 0.9;
-			layer1_weights[2] = 20;
-			layer1_weights[3] = 0.87;
+			layer1_weights[0] = 10.1302;
+			layer1_weights[1] = 0.854664;
+			layer1_weights[2] = 20.0219;
+			layer1_weights[3] = 0.837066;
 
-			layer2_weights[0] = 41;
-			layer2_weights[1] = -54;
+			layer2_weights[0] = 41.009;
+			layer2_weights[1] = -53.9937;
 		}
 
 		auto start = std::chrono::steady_clock::now();
