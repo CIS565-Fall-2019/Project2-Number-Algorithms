@@ -5,7 +5,7 @@ CUDA Stream Compaction
 
 * Author : Kushagra
   - [LinkedIn](https://www.linkedin.com/in/kushagragoel/)
-* Tested on : Windows 10, i7-9750H CPU @ 2.60GHz 16GB, GTX 1650 4GB (Personal Computer)
+* Tested on:  Windows 10 Education, Intel(R) Core(TM) i7-6700 CPU @ 3.40GHz 16GB, NVIDIA Quadro P1000 @ 4GB (Moore 100B Lab)
 
 ____________________________________________________________________________________
 
