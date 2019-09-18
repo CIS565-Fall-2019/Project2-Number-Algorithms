@@ -11,7 +11,7 @@ Later on, we are using the above scan function to perform the stream compaction 
 
 ## 2. GPU Versions
 
-For GPU versions, we implemented three different versions which are mentioned above. The implementation details for each of them is below:
+For GPU versions, we implemented three different versions which are mentioned above. The brief implementation details for each of them is below:
 
 ### 2 a) Naive Implementation 
 
@@ -33,12 +33,12 @@ For comparing our alogirhtms with the exclusive scna implementation thrust libra
 
 ## 3. Performance Analysis
 
-In the performance analysis, we are first checking the best blockSize value for Naive and Work-Efficient algorithms. The plot for the analysis of the time elapsed vs Block size for both these implementations are given below:
+In the performance analysis, we are first checking the best blockSize value for Naive and Work-Efficient algorithms. The plot for the analysis of the time elapsed vs Block size for both these implementations are given below for the data size at `2^20`:
 
 <p align="center"><img src="https://github.com/somanshu25/Project2-Number-Algorithms/blob/master/Project2-Stream-Compaction/img/Block_Size_vary.png" width="800"/></p>
 
 
-For the above, we see that the optimized implementations are when the Block size is 512 for both the algorithms. For checking how all of the versions of GPU compare with CPU version when varying the input size, I have broken the ployts into 2 plots as shown below. The first plot on the top is from input size `2^10` to `2^18` while the second plot on the bottom varies from `2^19` to `2^25` for better visualization of the plots.
+For the above, we see that the optimized implementations are when the Block size is 512 for both the algorithms. For checking how all of the versions of GPU compare with CPU version when varying the input size, I have broken the ployts into 2 plots as shown below. The first plot on the top is from input size `2^10` to `2^18` while the second plot on the bottom varies from `2^19` to `2^25` for better visualization of the plots and see how the algorithms are working for larger range of the input array.
 
 <p align="center"><img src="https://github.com/somanshu25/Project2-Number-Algorithms/blob/master/Project2-Stream-Compaction/img/Plot_Scan_1.png" width="800"/></p>
 
@@ -51,7 +51,7 @@ For the above, we see that the optimized implementations are when the Block size
 From the above analysis, we observe that the performance of all the versions vary with the array input size. Initially, with the less input size array, we see CPU scan implementation being faster than the rest and for some of very small input sizes, Thrust implementation also takes more time. As the array size incrases, we see the curver getting changed and word-efficeint GPU version becoming better as compared to CPU, which we observe in the second plot where the curves start diverging with GPU-naive taking the most time following Serial-CPU, GPU-Work Efficient and Thrust Implementation is taking the minimum time as its the most optimized one. The reason for these graphs is as follows
   
   * As input size increases, GPU-Naive is doing more additions (which are doubling), hence, the performance is taking the hit.
-  * As input size increases, GPU-Work Efficient time less complexity and less additions take the precedence over Serial-CPU and Vaive-       GPU and starts performing better.
+  * As input size increases, GPU-Work Efficient time less complexity and less additions take the precedence over Serial-CPU and Naive-       GPU and starts performing better.
 
 #### Can you find the performance bottlenecks? Is it memory I/O? Computation? Is it different for each implementation?
 
@@ -59,7 +59,7 @@ Here, we can observe that the bottleneck for Work-efficient GPU stream compactio
 
 #### Paste the output of the test program into a triple-backtick block in your README.
 
-The output of the time elapsed for input size `2^20` data is below:
+The output of the time elapsed for input size `2^20` data and blockSize of 512 for both the implementations of GPU-Naive and GPU-Work Efficient is below:
 ```
 ****************
 ** SCAN TESTS **
