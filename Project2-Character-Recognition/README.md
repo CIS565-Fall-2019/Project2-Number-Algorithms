@@ -59,11 +59,11 @@ As we observe the screenshot of the training output at the top of README, we can
 
 The wieghtsA array after the training are stores in [weightsA_characterRecognition.txt](https://github.com/somanshu25/Project2-Number-Algorithms/blob/master/Project2-Character-Recognition/weightsA_characterRecognition.txt), the weightsB are stores in [weightsB_characterRecognition.txt](https://github.com/somanshu25/Project2-Number-Algorithms/blob/master/Project2-Character-Recognition/weightsB_characterRecognition.txt), the softmax probabilties at the output are stored in [softMax_prob_characterRecognition.txt](https://github.com/somanshu25/Project2-Number-Algorithms/blob/master/Project2-Character-Recognition/softMax_prob_characterRecognition.txt) and the hidden layer units values are stored in [hidden_layer_characterRecognition.txt](https://github.com/somanshu25/Project2-Number-Algorithms/blob/master/Project2-Character-Recognition/hidden_layer_characterRecognition.txt).
 
-### Inferences on Chnaging the hidden units in hidden layer
+### Inferences on Chnaging the hidden units in hidden layer or increasing number of hidden layers
 
 Here are some of the inferences we can make out of the subproject:
 
-1. For training XOR, the number of hidden units in hidden layer as 2 does not completely classify all the 4 points, but it classifies only 2 points as the XOR model is tough to learn with very small non-linearity. To increase the non-linearlity, we need to either add some bias parameters int the network or incrase the numbe rof hidden units in the hidden layer. By both means, we are increasing the pararmenters which could hold more informations about the model to be learnt.
+1. For training XOR, the number of hidden units in hidden layer as 2 does not completely classify all the 4 points, but it classifies only 2 points as the XOR model is tough to learn with very small non-linearity. To increase the non-linearlity, we need to either add some bias parameters int the network or incrase the numbe of hidden units in the hidden layer. By both means, we are increasing the parameters which could hold more informations about the model to be learnt.
 
 2. On the other hand increasing too many parameters by increasing too many hidden units would result in unnecessary computations which owuld not be required to fit the training data. Hence, we need to have the good balance between the number of hidden units.
 
