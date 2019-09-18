@@ -50,8 +50,6 @@ From the above analysis, we observe that the performance of all the versions var
   * As input size increases, GPU-Naive is doing more additions (which are doubling), hence, the performance is taking the hit.
   * As input size increases, GPU-Work Efficient time less complexity and less additions take the precedence over Serial-CPU and Vaive-       GPU and starts performing better.
 
-To understand better of Thurst implemetation, here is the Nsight analysis of the Thrust implementation:
-
 
 #### Paste the output of the test program into a triple-backtick block in your README.
 
