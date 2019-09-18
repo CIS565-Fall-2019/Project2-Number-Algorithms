@@ -89,6 +89,32 @@ These 5 phases are repeated for all the bits in the numbers to result in a sorte
 
 For results, a LOT (32K) datapoints were collected for the various combinations. Due to time limitations, not all the data could be plotted (pretty), but all the data has been included in the repo. The results shown below were obtained using a linear interpolation on the data (ideally I would plot a curve with variance bands).
 
+#### Scan Algorithms
+
+![Powers of 2](.\img\scan_pow2.png)
+
+The above figure is the time vs array size plots for the scan algorithms running powers of 2 while the picture below is the scan algorithm running for non powers of 2.
+
+![](.\img\scan_nonpow2.png)
+
+#### Stream compaction
+
+![](.\img\sc_pow2.png)
+
+The above figure is the time vs array size plots for the stream compaction algorithms running powers of 2 while the picture below is the stream compaction algorithm running for non powers of 2.
+
+![](.\img\sc_nonpow2.png)
+
+#### RADIX Sorting
+
+![](.\img\sort_pow2.png)
+
+
+
+The above figure is the time vs array size plots for the the sorting algorithm running powers of 2 while the picture below is the stream compaction algorithm running for non powers of 2.
+
+![sort_pow2](.\img\sort_nonpow2.png)
+
 ### Observations & Optimizations
 
 #### Launching variable number of threads in the work efficient method
@@ -96,7 +122,9 @@ For results, a LOT (32K) datapoints were collected for the various combinations.
 I decided to launch the correct number of threads per level in the work efficient implementation. This meant the level loop came into the CPU code and for each iteration the CPU would compute the correct number of threads to spawn. For the shared memory, the loop had to be on the GPU because of the shared memory aspect. Though I don't have concrete results, it seemed like having the loop on the CPU side and spawning the ideal number of threads was more efficient.
 
 #### Data collection scripts
-To allow for the large amount of data to be collected, a data collection sctipt was written. It automated the array generation and timed the various coponents of the code and write the resuts (per iteration to make it more robust) to a csv. This helped immensly in collecting the large amount of data I was able to generate. 
+To allow for the large amount of data to be collected, a data collection script was written. It automated the array generation and timed the various components of the code and write the results (per iteration to make it more robust) to a csv. This helped immensely in collecting the large amount of data I was able to generate. A sample screenshot of the output is shown below
+
+![](.\img\data_gen.PNG)
 
 #### 1 less loop for the work efficient scan
 
@@ -111,8 +139,14 @@ While pushing my code to the limits, I came across an issue where I would oversh
 The scan and stream compaction code were able to go to 2^28 (2^31 with the overflow bug). This seems to be a limit a hw limit of using large arrays to store the data. 
 
 #### Beating CPU performance
-To beat the CPU (part of the extra credit), I was able to do it only if we don't consider the copying time to the GPU. If we do this, it is only fair to not include the malloc time for the CPU's buffers. If we do this then the GPU code outperforms the CPU code (plot shown below):
+To beat the CPU (part of the extra credit), I was able to do it if I don't consider the copying time to the GPU. If I do this, it is only fair to not include the malloc time for the CPU's buffers. If I do this then the GPU code outperforms the CPU code (plot shown below):
+
+![](.\img\scan_pow2_faster.png)
+
+![](.\img\scan_nonpow2_faster.png)
+
+It is clear that the code is faster (by a huge margin) if we remove the time to allocate large array sizes.
 
 
 #### Thrust speed
-From my experiments, thrust seems to perform comparable to my implementations of the algorithms (such as sorting or scanning). The difference is small but my code outperformed thrust for high values (could be statistically insignificant).
+From my experiments, thrust seems to perform comparable to my implementations of the algorithms (such as scans or scanning, not sorting). The difference is small but my code outperformed thrust for high values (could be statistically insignificant).
