@@ -1,4 +1,5 @@
 #include <cstdio>
+#include<iostream>
 #include "cpu.h"
 
 #include "common.h"
@@ -18,9 +19,20 @@ namespace StreamCompaction {
          * (Optional) For better understanding before starting moving to GPU, you can simulate your GPU scan in this function first.
          */
         void scan(int n, int *odata, const int *idata) {
-	        timer().startCpuTimer();
-            // TODO
-	        timer().endCpuTimer();
+			int timer_flag = 0;
+			try {
+				timer().startCpuTimer();
+			}
+			catch (...) {
+				timer_flag = 1;
+			}
+			std::cout << "Timer had already started" << std::endl;
+			odata[0] = 0;
+			for (int i = 1; i < n; i++) {
+				odata[i] = odata[i - 1] + idata[i - 1];
+			}
+			if(timer_flag == 0)
+				timer().endCpuTimer();
         }
 
         /**
@@ -30,9 +42,13 @@ namespace StreamCompaction {
          */
         int compactWithoutScan(int n, int *odata, const int *idata) {
 	        timer().startCpuTimer();
-            // TODO
+			int index_out = 0;
+			for (int i = 0; i < n; i++) {
+				if (idata[i] != 0)
+					odata[index_out++] = idata[i];
+			}
 	        timer().endCpuTimer();
-            return -1;
+            return index_out;
         }
 
         /**
@@ -42,9 +58,26 @@ namespace StreamCompaction {
          */
         int compactWithScan(int n, int *odata, const int *idata) {
 	        timer().startCpuTimer();
-	        // TODO
-	        timer().endCpuTimer();
-            return -1;
+			int *mask = new int[n];
+			int *mask_scan = new int[n];
+			memset(mask, 0, sizeof(mask));
+			memset(mask_scan, 0, sizeof(mask_scan));
+			for (int i = 0; i < n; i++) {
+				if (idata[i] == 0)
+					mask[i] = 0;
+				else
+					mask[i] = 1;
+			}
+			scan(n, mask_scan, mask);
+			int max_index = 0;
+			for (int i = 0; i < n; i++) {
+				if (mask[i] == 1) {
+					odata[mask_scan[i]] = idata[i];
+					max_index = mask_scan[i];
+				}
+			}
+			timer().endCpuTimer();
+            return max_index+1;
         }
     }
 }

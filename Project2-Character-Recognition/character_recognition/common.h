@@ -89,16 +89,16 @@ namespace Common {
 
 		    if (!gpu_timer_started) { throw std::runtime_error("GPU timer not started"); }
 
-		    cudaEventElapsedTime(&prev_elapsed_time_gpu_milliseconds, event_start, event_end);
+		    cudaEventElapsedTime((float*)&prev_elapsed_time_gpu_milliseconds, event_start, event_end);
 		    gpu_timer_started = false;
 	    }
 
-	    float getCpuElapsedTimeForPreviousOperation() //noexcept //(damn I need VS 2015
+	    double getCpuElapsedTimeForPreviousOperation() //noexcept //(damn I need VS 2015
 	    {
 		    return prev_elapsed_time_cpu_milliseconds;
 	    }
 
-	    float getGpuElapsedTimeForPreviousOperation() //noexcept
+	    double getGpuElapsedTimeForPreviousOperation() //noexcept
 	    {
 		    return prev_elapsed_time_gpu_milliseconds;
 	    }
@@ -120,7 +120,7 @@ namespace Common {
 	    bool cpu_timer_started = false;
 	    bool gpu_timer_started = false;
 
-	    float prev_elapsed_time_cpu_milliseconds = 0.f;
-	    float prev_elapsed_time_gpu_milliseconds = 0.f;
+	    double prev_elapsed_time_cpu_milliseconds = 0.f;
+	    double prev_elapsed_time_gpu_milliseconds = 0.f;
     };
 }
