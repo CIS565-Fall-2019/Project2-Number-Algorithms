@@ -37,34 +37,56 @@ void printCmpLenResult(int n, int expN, T *a, T *b) {
             cmpArrays(n, a, b) ? "FAIL VALUE" : "passed");
 }
 
-void zeroArray(int n, int *a) {
+void zeroArray(int n, float *a) {
     for (int i = 0; i < n; i++) {
-        a[i] = 0;
+        a[i] = 0.0;
     }
 }
 
-void onesArray(int n, int *a) {
+void onesArray(int n, float *a) {
 	for (int i = 0; i < n; i++) {
 		a[i] = 1;
 	}
 }
 
-void genArray(int n, int *a, int maxval) {
-    srand(time(nullptr));
+void genArrayA(int n, float *a, int val) {
+    //srand(time(nullptr));
+	srand(0);
 
     for (int i = 0; i < n; i++) {
-        a[i] = rand() % maxval;
+        a[i] = -1.0 + (static_cast <float> (rand()) / static_cast <float> (RAND_MAX))*2;
     }
 }
 
-void printArray(int n, int *a, bool abridged = false) {
+void genArrayB(int n, float *a, int val) {
+	//srand(time(nullptr));
+	srand(1);
+
+	for (int i = 0; i < n; i++) {
+		a[i] = -1.0 + (static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) * 2;
+	}
+}
+
+void printIntArray(int n, int *a, bool abridged = false) {
+	printf("    [ ");
+	for (int i = 0; i < n; i++) {
+		if (abridged && i + 2 == 15 && n > 16) {
+			i = n - 2;
+			printf("... ");
+		}
+		printf("%d ", a[i]);
+	}
+	printf("]\n");
+}
+
+void printArray(int n,float *a, bool abridged = false) {
     printf("    [ ");
     for (int i = 0; i < n; i++) {
         if (abridged && i + 2 == 15 && n > 16) {
             i = n - 2;
             printf("... ");
         }
-        printf("%3d ", a[i]);
+        printf("%0.4f ", a[i]);
     }
     printf("]\n");
 }
