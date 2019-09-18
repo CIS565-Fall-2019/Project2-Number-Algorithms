@@ -7,12 +7,14 @@
 #include "common.h"
 #include "mlp.h"
 #include <vector>
+#include <thrust/scan.h>
 
 /*! Block size used for CUDA kernel launch. */
 #define blockSize 32
 #define index(i,j,ld) (((j)*(ld))+(i))
+#define GPULOSS 0
 
-float *dev_X, *dev_wI, *dev_wO, *dev_h1, *dev_pred;
+float *dev_X, *dev_wI, *dev_wO, *dev_h1, *dev_pred, *dev_loss, *dev_y;
 
 namespace CharacterRecognition {
     using Common::PerformanceTimer;
@@ -131,6 +133,8 @@ namespace CharacterRecognition {
 			cudaFree(dev_wO);
 			cudaFree(dev_h1);
 			cudaFree(dev_pred);
+			cudaFree(dev_y);
+			cudaFree(dev_loss);
 		}
 	}
 
@@ -138,8 +142,7 @@ namespace CharacterRecognition {
 	void matrixMultiply(cublasHandle_t* handle, sMatrixSize &matrix_size, float *d_A, float *d_B, float *d_C){
 			const float alpha = 1.0f;
 			const float beta = 0.0f;
-			//cublasSgemm(*handle, CUBLAS_OP_N, CUBLAS_OP_N, matrix_size.HA, matrix_size.HB, matrix_size.WA, &alpha, d_A, matrix_size.HA, d_B, matrix_size.HB, &beta, d_C, matrix_size.HC);
-			cublasSgemm(*handle, CUBLAS_OP_N, CUBLAS_OP_N, matrix_size.WA, matrix_size.WB, matrix_size.HA, &alpha, d_A, matrix_size.HA, d_B, matrix_size.HB, &beta, d_C, matrix_size.HC);
+			cublasSgemm(*handle, CUBLAS_OP_T, CUBLAS_OP_N, matrix_size.WA, matrix_size.WB, matrix_size.HA, &alpha, d_A, matrix_size.HA, d_B, matrix_size.HB, &beta, d_C, matrix_size.HC);
 			checkCUDAError("matrix multiply");
 	}
 
@@ -150,56 +153,86 @@ namespace CharacterRecognition {
 		}
 		input[index] = 1.0f / (1 + exp(-input[index]));
 	}
+
+	__global__ void kernMSE(int n, float *pred, float *yi, float *loss) {
+		int index = threadIdx.x + (blockIdx.x * blockDim.x);
+		if (index >= n) {
+			return;
+		}
+		loss[index] = powf(pred[index] - yi[index], 2);
+	}
 	
 
-	float calculateLoss(float *pred, float *yi) {
-		printf("Calculate least square error loss \n");
-		return -1.0;
+	float MSE(float *pred, float *yi, sMatrixSize &output_matrix_size) {
+#if GPULOSS
+		float *loss;
+		unsigned int size_pred = output_matrix_size.WC * output_matrix_size.HC;
+		unsigned int mem_size_pred = sizeof(float) * size_pred;
+
+		cudaMalloc((void **)&dev_loss, mem_size_pred);
+		checkCUDAError("cudaMalloc dev_pred");
+		cudaMalloc((void **)&dev_y, mem_size_pred);
+		checkCUDAError("cudaMalloc dev_pred");
+		cudaMalloc((void **)&dev_pred, mem_size_pred);
+		checkCUDAError("cudaMalloc dev_pred");
+
+		cudaMemcpy(dev_y, yi, mem_size_pred, cudaMemcpyHostToDevice);
+		checkCUDAError("cudaMemcpy dev_y");
+		cudaMemcpy(dev_pred, pred, mem_size_pred, cudaMemcpyHostToDevice);
+		checkCUDAError("cudaMemcpy dev_pred");
+
+		dim3 threads(blockSize);
+		dim3 grid((output_matrix_size.HC + blockSize - 1) / blockSize);
+
+		kernMSE << <grid, threads >> > (output_matrix_size.HC, dev_pred, dev_y, dev_loss);
+
+		thrust::inclusive_scan(dev_loss, dev_loss + output_matrix_size.HC, dev_loss);
+
+		cudaMemcpy(loss, dev_loss + mem_size_pred - 1, sizeof(float), cudaMemcpyDeviceToHost);
+		checkCUDAError("cudaMemcpy dev_loss");
+
+		cudaFree(dev_loss);
+		cudaFree(dev_y);
+		cudaFree(dev_pred);
+		return *loss;
+#else
+		float loss = 0;
+		for (int j = 0; j < output_matrix_size.HC; j++) {
+			printf("prediction: %f \n", pred[j]);
+			loss += pow(pred[0] - yi[0], 2);
+		}
+		return loss;
+#endif // GPULOSS	
 	}
 
 
-	void backward(float loss, float *wI, float *wO){
+	void backward(float lr, float loss, float *wI, float *wO){
 		printf("Backward propagate the error to the weights \n");
+		// wI += gradient*lr;
+		// wO += gradient*lr;
 	}
 
 
 	void forward(float *pred, float *Xi, float *wI, float *wO, sMatrixSize &hidden_matrix_size, sMatrixSize &output_matrix_size) {
 		// allocate device memory
 		deviceMemory(Xi, wI, wO, hidden_matrix_size, output_matrix_size, true);
-
-		int size_h1 = hidden_matrix_size.WC * hidden_matrix_size.HC;
-		int mem_size_h1 = sizeof(float) * size_h1;
-		int size_pred = output_matrix_size.WC * output_matrix_size.HC;
-		int mem_size_pred = sizeof(float) * size_pred;
-		float *h1 = (float *)malloc(mem_size_h1);
+		int mem_size_pred = sizeof(float) * output_matrix_size.WC * output_matrix_size.HC;
 
 		cublasHandle_t handle;
 		cublasCreate(&handle);
+		dim3 threads(blockSize);
 
 		//hidden layer
-		dim3 threads(blockSize);
 		dim3 grid((hidden_matrix_size.WC*hidden_matrix_size.HC + blockSize - 1) / blockSize);
 
 		matrixMultiply(&handle, hidden_matrix_size, dev_wI, dev_X, dev_h1);
-
-		cudaMemcpy(h1, dev_h1, mem_size_h1, cudaMemcpyDeviceToHost);
-		checkCUDAError("cudaMemcpy pred");
-		printf("Matriz h1: \n");
-		printMat(h1, hidden_matrix_size.WC, hidden_matrix_size.HC);
-
 		kernSigmoid <<<grid, threads>> > (hidden_matrix_size.HC*hidden_matrix_size.WC, dev_h1);
 		checkCUDAError("kernSigmoid");
 
-
-		//dim3 grid1(output_matrix_size.WC / threads.x, output_matrix_size.HC / threads.y);
-		dim3 grid1((output_matrix_size.WC*output_matrix_size.HC + blockSize - 1) / blockSize);
 		//output layer
-		matrixMultiply(&handle, output_matrix_size, dev_wO, dev_h1, dev_pred);
-		cudaMemcpy(pred, dev_pred, mem_size_pred, cudaMemcpyDeviceToHost);
-		checkCUDAError("cudaMemcpy pred");
-		printf("Matriz pred: \n");
-		printMat(pred, output_matrix_size.WC, output_matrix_size.HC);
+		dim3 grid1((output_matrix_size.WC*output_matrix_size.HC + blockSize - 1) / blockSize);
 
+		matrixMultiply(&handle, output_matrix_size, dev_wO, dev_h1, dev_pred);
  		kernSigmoid << <grid1, threads >> > (output_matrix_size.HC*output_matrix_size.WC, dev_pred);
 		checkCUDAError("kernSigmoid");
 
@@ -212,7 +245,7 @@ namespace CharacterRecognition {
 		deviceMemory(Xi, wI, wO, hidden_matrix_size, output_matrix_size);
 	}
 
-	void train(float *X, float *y, int iterations, int sizeData, const int hiddenNodes, const int numLabels, const int numData) {
+	void train(float *X, float *y, const int iterations, const float lr, const int sizeData, const int hiddenNodes, const int numLabels, const int numData) {
 		sMatrixSize hidden_matrix_size = {hiddenNodes, sizeData, 1, sizeData, 1, hiddenNodes };
 		sMatrixSize output_matrix_size = {numLabels, hiddenNodes, 1, hiddenNodes, 1, numLabels };
 
@@ -224,10 +257,8 @@ namespace CharacterRecognition {
 		unsigned int mem_size_wO = sizeof(float) * size_wO;
 		float *wO = (float *)malloc(mem_size_wO);
 
-		//randomInit(wI, size_wI);
-		//randomInit(wO, size_wO);
-		fixedInit(wI, size_wI);
-		fixedInit(wO, size_wO);
+		randomInit(wI, size_wI);
+		randomInit(wO, size_wO);
 
 		float *permuteData = (float *)malloc(sizeof(float)*numData);
 		float *Xi = (float *)malloc(sizeof(float)*sizeData);
@@ -253,9 +284,10 @@ namespace CharacterRecognition {
 					printf("prediction: %f \n\n", pred[j]);
 				}
 
-				float loss = calculateLoss(pred, yi);
+				float loss = MSE(pred, yi, output_matrix_size);
+				printf("Least square error loss: %f \n \n", loss);
 				avgLoss += loss;
-				backward(loss, wI, wO);
+				backward(lr, loss, wI, wO);
 			}
 		}
 		printf("training done \n");
@@ -266,7 +298,7 @@ namespace CharacterRecognition {
 		free(wI); free(wO); free(Xi); free(yi); free(permuteData); free(pred);
 	}
 
-	void test(float *X, float *y, float *wI, float *wO, int sizeData, const int hiddenNodes, const int numLabels, const int numData){
+	void test(float *X, float *y, float *wI, float *wO, const int sizeData, const int hiddenNodes, const int numLabels, const int numData){
 		sMatrixSize hidden_matrix_size = { hiddenNodes, sizeData, 1, sizeData, 1, hiddenNodes };
 		sMatrixSize output_matrix_size = { numLabels, hiddenNodes, 1, hiddenNodes, 1, numLabels };
 
@@ -282,14 +314,12 @@ namespace CharacterRecognition {
 			memcpy(Xi, (void **)&X[sizeData*i], sizeData * sizeof(float));
 			memcpy(yi, (void **)&y[numLabels*i], numLabels * sizeof(float));
 
-			printf("index: %i data: %f %f label: %f \n", i, Xi[0], Xi[1], yi[0]);
+			printf("data: %f %f label: %f \n", i, Xi[0], Xi[1], yi[0]);
 
 			forward(pred, Xi, wI, wO, hidden_matrix_size, output_matrix_size);
-			for (int j = 0; j < numLabels; j++) {
-				printf("prediction: %f \n\n", pred[j]);
-			}
 
-			float loss = calculateLoss(pred, yi);
+			float loss = MSE(pred, yi, output_matrix_size);
+			printf("Least square error loss: %f \n \n", loss);
 			avgLoss += loss;
 		}
 		printf("testing done \n");

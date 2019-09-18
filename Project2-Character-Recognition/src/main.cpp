@@ -77,8 +77,8 @@ void readImageWeights(float *wI, float *wO) {
 void fixedInit(float *data, int size) {
 	if (size == 4) {
 		data[0] = 10.1f;
-		data[1] = 0.9f;
-		data[2] = 20.0f;
+		data[2] = 0.9f;
+		data[1] = 20.0f;
 		data[3] = 0.87f;
 	}
 	else if (size == 2) {
@@ -113,6 +113,8 @@ int main(int argc, char* argv[]) {
 	std::string train = "y";
 	std::string test = "y";
 	std::string input;
+	float lr = 0.1;
+	int nodes = 10;
 	int iterations;
 
 	printf("Would you like to train or test? (q) ");
@@ -123,8 +125,12 @@ int main(int argc, char* argv[]) {
 			while (train == "y" | train == "Y" | train == "yes" | train == "Yes") {
 				printf("How many iterations would you like to do? ");
 				std::cin >> iterations;
+				printf("What should the learning rate be? ");
+				std::cin >> lr;
+				printf("How many hidden nodes? ");
+				std::cin >> nodes;
 				printDesc("training");
-				CharacterRecognition::train(X, y, iterations, sizeData, hiddenNodes, numLabels, numData);
+				CharacterRecognition::train(X, y, iterations, lr, sizeData, nodes, numLabels, numData);
 				printf("Would you like to continue training? (y, n, q) ");
 				std::cin >> train;
 			}
