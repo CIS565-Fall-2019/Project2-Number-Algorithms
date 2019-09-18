@@ -3,16 +3,16 @@
 #include "common.h"
 #include "efficient.h"
 
-# define blockSize 128
+# define blockSize 512
 
 namespace StreamCompaction {
-    namespace Efficient {
-        using StreamCompaction::Common::PerformanceTimer;
-        PerformanceTimer& timer()
-        {
-            static PerformanceTimer timer;
-            return timer;
-        }
+	namespace Efficient {
+		using StreamCompaction::Common::PerformanceTimer;
+		PerformanceTimer& timer()
+		{
+			static PerformanceTimer timer;
+			return timer;
+		}
 
 		int *dev_arr1;
 		int *dev_arr2;
@@ -49,16 +49,16 @@ namespace StreamCompaction {
 			if (index >= n)
 				return;
 
-			if ((index % (2*valPower2D)== 0) && (index + (2 * valPower2D) - 1 < n) && (index + valPower2D - 1 < n)) {
+			if ((index % (2 * valPower2D) == 0) && (index + (2 * valPower2D) - 1 < n) && (index + valPower2D - 1 < n)) {
 				int temp = data[index + valPower2D - 1];
 				data[index + valPower2D - 1] = data[index + (2 * valPower2D) - 1];
 				data[index + (2 * valPower2D) - 1] += temp;
 			}
 		}
-        /**
-         * Performs prefix-sum (aka scan) on idata, storing the result into odata.
-         */
-        void scan(int n, int *odata, const int *idata) {
+		/**
+		 * Performs prefix-sum (aka scan) on idata, storing the result into odata.
+		 */
+		void scan(int n, int *odata, const int *idata) {
 
 			int diff = (1 << ilog2ceil(n)) - n;
 			int N = n + diff;
@@ -68,7 +68,7 @@ namespace StreamCompaction {
 
 			cudaMemcpy(dev_arr1, idata, sizeof(int) * n, cudaMemcpyHostToDevice);
 			checkCUDAErrorFn("Copying idata to arr1 failed");
-			
+
 			dim3 fullBlocksPerGrid((N + blockSize - 1) / blockSize);
 
 			bool stopTimer = false;
@@ -81,12 +81,12 @@ namespace StreamCompaction {
 
 
 			if (diff) {
-				kernZeroPadding << <fullBlocksPerGrid, blockSize >>> (n,N,dev_arr1);
+				kernZeroPadding << <fullBlocksPerGrid, blockSize >> > (n, N, dev_arr1);
 			}
 
 			for (int d = 0; d <= ilog2ceil(n) - 1; d++) {
 				int valPower2D = 1 << d;
-				kernUpSweep << <fullBlocksPerGrid, blockSize >> > (N,valPower2D,dev_arr1);
+				kernUpSweep << <fullBlocksPerGrid, blockSize >> > (N, valPower2D, dev_arr1);
 				checkCUDAErrorFn("Kernel Up Sweep Failed");
 			}
 
@@ -104,23 +104,22 @@ namespace StreamCompaction {
 
 			cudaMemcpy(odata, dev_arr1, sizeof(int) * n, cudaMemcpyDeviceToHost);
 			checkCUDAErrorFn("Copying back to Host failed");
-	
+
 			cudaFree(dev_arr1);
 
 
-        }
+		}
 
-        /**
-         * Performs stream compaction on idata, storing the result into odata.
-         * All zeroes are discarded.
-         *
-         * @param n      The number of elements in idata.
-         * @param odata  The array into which to store elements.
-         * @param idata  The array of elements to compact.
-         * @returns      The number of elements remaining after compaction.
-         */
-        int compact(int n, int *odata, const int *idata) {
-            timer().startGpuTimer();
+		/**
+		 * Performs stream compaction on idata, storing the result into odata.
+		 * All zeroes are discarded.
+		 *
+		 * @param n      The number of elements in idata.
+		 * @param odata  The array into which to store elements.
+		 * @param idata  The array of elements to compact.
+		 * @returns      The number of elements remaining after compaction.
+		 */
+		int compact(int n, int *odata, const int *idata) {
 
 			dim3 fullBlocksPerGrid((n + blockSize - 1) / blockSize);
 
@@ -139,7 +138,9 @@ namespace StreamCompaction {
 			cudaMemcpy(dev_arr2, idata, sizeof(int) * n, cudaMemcpyHostToDevice);
 			checkCUDAErrorFn("Copying idata to arr2 failed");
 
-			Common::kernMapToBoolean << <fullBlocksPerGrid, blockSize >> > (n,dev_bools,dev_arr2);
+			timer().startGpuTimer();
+
+			Common::kernMapToBoolean << <fullBlocksPerGrid, blockSize >> > (n, dev_bools, dev_arr2);
 			checkCUDAErrorFn("Kernel Map indicator failed");
 
 			int *indices = new int[n];
@@ -147,13 +148,13 @@ namespace StreamCompaction {
 
 			cudaMemcpy(bools, dev_bools, sizeof(int) * n, cudaMemcpyDeviceToHost);
 			checkCUDAErrorFn("Copying bools to host failed");
-		
+
 			scan(n, indices, bools);
 
 			cudaMemcpy(dev_indices, indices, sizeof(int) * n, cudaMemcpyHostToDevice);
 			checkCUDAErrorFn("Copying indices to device failed");
 
-			Common::kernScatter << <fullBlocksPerGrid, blockSize >> > (n,dev_odata,dev_arr2,dev_bools,dev_indices);
+			Common::kernScatter << <fullBlocksPerGrid, blockSize >> > (n, dev_odata, dev_arr2, dev_bools, dev_indices);
 			checkCUDAErrorFn("Kernel Scatter failed");
 
 			timer().endGpuTimer();
@@ -171,7 +172,7 @@ namespace StreamCompaction {
 			cudaFree(dev_bools);
 			cudaFree(dev_indices);
 			cudaFree(dev_odata);
-            return length;
-        }
-    }
+			return length;
+		}
+	}
 }
