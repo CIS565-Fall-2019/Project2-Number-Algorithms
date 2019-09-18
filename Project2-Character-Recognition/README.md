@@ -25,6 +25,8 @@ Here are the three main components of the Neural Network:
 
 But we will vary the number of hidden units in the hidden layer. Note that the above figure is for the single datapoint. We see the for each hidden unit is calculated as the weighted sum of each of features present in the data. Later on, to bring non-linearity, activation function such as Signmoid, ReLu are used. After hidden units are computed, we can calculate the value of the units as the same as that of the hidden layer and then add on the classifier which increases the confidence of the classification by increasing and decreasing the probabilites to the extremes. 
 
+For updating the weights so that we find the global minima, we use gradient descent optimization. We calculate the gradients using the chain rule for both the weight vectors and then update the weights using the learning rate and these gradients. We continue doing the procedue for some epochs. 
+
 ### My Neural Network Implementation
 
 In my implemetation of Neural network, I'm training all the data points at the same time, hence, we have the input data as the array of `DATA_POINTS * NUMBER_OF_FEATURES` as we finally have to train our network for all the data points. Training all the data points once will result in Matrix Multplication for Feed forward and Backpropagation stages of training, which could be easy to model given that we have fixed our parameters shuch as the number of hidden layers and number of hidden units in each layer. 
