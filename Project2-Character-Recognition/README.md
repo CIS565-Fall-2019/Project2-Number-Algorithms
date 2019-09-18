@@ -9,6 +9,8 @@ CIS 565: GPU Programming and Architecture**
  <p align="center">
   <img src="img/title.png">
 </p>
+
+
 ### Index
 
 - [Introduction](/README.md#introduciton )
