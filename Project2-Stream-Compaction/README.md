@@ -28,6 +28,6 @@ I ran my program on power-of-two array sizes (from 2^8 to 2^20), and recorded an
 
 ### Stream Compaction Implementations
 
-![](img/scan.png)
+![](img/compact.png)
 
 I ran my program on power-of-two array sizes (from 2^8 to 2^18), and recorded and plotted the results.
