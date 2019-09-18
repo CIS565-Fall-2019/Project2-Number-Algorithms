@@ -195,11 +195,11 @@ namespace CharacterRecognition {
 
 	void genArray(int n, float *a) {
 		//11, 15
-		srand(11);
-		//srand(time(NULL));
+		//srand(11);
+		srand(time(NULL));
 
 		for (int i = 0; i < n; i++) {
-			a[i] = ((2 *((rand() * 1.0 )/ RAND_MAX)) - 1) * 0.02;
+			a[i] = ((2 *((rand() * 1.0 )/ RAND_MAX)) - 1) * 0.0002;
 		}
 	}
 
@@ -228,7 +228,7 @@ namespace CharacterRecognition {
 		int gridRows = (batchDim*outputDim + blockSize - 1) / blockSize;
 
 		kernMultiplyMatrices<<<gridRows, blockSize >>>(inputArg, weight, outputArg, batchDim, inputDim, outputDim);
-		checkCUDAError("kernMultiplyMatricesFailed");
+		checkCUDAError("kernMultiplyMatrices");
 
 		dim3 fullBlocksPerGrid((outputDim*batchDim + blockSize - 1) / blockSize);
 		if (!lastLayer) {
@@ -252,15 +252,13 @@ namespace CharacterRecognition {
 			checkCUDAError("kernActivateSoftmax");
 
 			delete(output);
+
+			cudaFree(devSoftmaxDenominator);
+			checkCUDAError("cudaFree");
 		}
 	}
 
 	void FullyConnectedLayer::backward(float learningRate, float *incomingGradient, float *outgoingGradient) {
-
-
-		float *delLByDelX;
-		cudaMalloc((void**)&delLByDelX, inputDim * sizeof(float));
-		checkCUDAError("cudaMalloc");
 
 		float *weightTranspose;
 		cudaMalloc((void**)&weightTranspose, inputDim * outputDim * sizeof(float));
@@ -279,6 +277,9 @@ namespace CharacterRecognition {
 		kernMultiplyMatrices << <gridRows, blockSize >> > (incomingGradient, weightTranspose, outgoingGradientLocal, batchDim, outputDim, inputDim);
 		checkCUDAError("kernMultiplyMatrices");
 
+		cudaFree(weightTranspose);
+		checkCUDAError("cudaFree");
+
 		float *inputDerivatived;
 		cudaMalloc((void**)&inputDerivatived, batchDim * inputDim * sizeof(float));
 		dim3 fullBlocksPerGrid((inputDim * batchDim + blockSize - 1) / blockSize);
@@ -289,6 +290,9 @@ namespace CharacterRecognition {
 		gridRows = (inputDim*batchDim + blockSize - 1) / blockSize;
 		kernMultMatricesHammard << <gridRows, blockSize >> > (outgoingGradientLocal, inputDerivatived, outgoingGradient, batchDim, inputDim);
 		checkCUDAError("kernMultMatricesHammard");
+		
+		cudaFree(inputDerivatived);
+		checkCUDAError("cudaFree");
 
 
 		float *inputTranspose;
@@ -303,6 +307,9 @@ namespace CharacterRecognition {
 		gridRows = (inputDim*outputDim + blockSize - 1) / blockSize;
 		kernMultiplyMatrices << <gridRows, blockSize >> > (inputTranspose, incomingGradient, gradient, inputDim, batchDim, outputDim);
 		checkCUDAError("kernMultiplyMatrices");
+		
+		cudaFree(inputTranspose);
+		checkCUDAError("cudaFree");
 
 
 		kernMultMatricesWithScalar << <gridRows, blockSize >> > (gradient, gradient, inputDim, outputDim, learningRate);
@@ -311,6 +318,10 @@ namespace CharacterRecognition {
 
 		kernSubtractMatrices << <gridRows, blockSize >> > (weight, gradient, weight, inputDim, outputDim);
 		checkCUDAError("kernSubtractMatrices");
+
+		cudaFree(gradient);
+		checkCUDAError("cudaFree");
+
 	}
 
 
@@ -452,9 +463,15 @@ namespace CharacterRecognition {
 		cudaMalloc((void**)&incomingGradient, batchDim*layers[layers.size() - 1]->getOutputDim() * sizeof(float));
 		checkCUDAError("cudaMalloc");
 
+
 		int gridRows = ((batchDim * layers[layers.size() - 1]->getOutputDim()) + blockSize - 1) / blockSize;
 		kernSubtractMatrices << <gridRows, blockSize >> > (devPredicted, devLabel, incomingGradient, batchDim, layers[layers.size() - 1]->getOutputDim());
 		checkCUDAError("kernSubtractMatrices");
+
+		cudaFree(devLabel);
+		checkCUDAError("cudaFree");
+		cudaFree(devPredicted);
+		checkCUDAError("cudaFree");
 
 
 		checkCUDAError("cudaMemcpy");
@@ -462,8 +479,9 @@ namespace CharacterRecognition {
 		for (int i = layers.size() - 1; i >= 0; i--) {
 			cudaMalloc((void**)&outgoingGradient, batchDim*layers[i]->getInputDim() * sizeof(float));
 			checkCUDAError("cudaMalloc");
-			layers[i]->backward(learningRate, incomingGradient, outgoingGradient); 
+			layers[i]->backward(learningRate, incomingGradient, outgoingGradient);
 			cudaFree(incomingGradient);
+			checkCUDAError("cudaFree");
 			cudaMalloc((void**)&incomingGradient, batchDim*layers[i]->getInputDim() * sizeof(float));
 			checkCUDAError("cudaMalloc");
 			cudaMemcpy(incomingGradient, outgoingGradient, batchDim*layers[i]->getInputDim() * sizeof(float), cudaMemcpyDeviceToDevice);

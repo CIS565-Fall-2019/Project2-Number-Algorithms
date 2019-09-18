@@ -100,14 +100,6 @@ namespace StreamCompaction {
          * @returns      The number of elements remaining after compaction.
          */
         int compact(int n, int *odata, const int *idata) {
-			bool exception = true;
-			try {
-				timer().startGpuTimer();
-				exception = false;
-			}
-			catch (const std::exception& e) {
-				exception = true;
-			}
             // TODO
 
 
@@ -131,6 +123,14 @@ namespace StreamCompaction {
 			StreamCompaction::Common::kernMapToBoolean << <fullBlocksPerGrid, blockSize >> > (n, devIdataEfficientBinaryMap, devIdataEfficientCompact);
 			cudaMemcpy(binaryMap, devIdataEfficientBinaryMap, n * sizeof(int), cudaMemcpyDeviceToHost);
 
+			bool exception = true;
+			try {
+				timer().startGpuTimer();
+				exception = false;
+			}
+			catch (const std::exception& e) {
+				exception = true;
+			}
 			scan(n, newIndices, binaryMap);
 			cudaMemcpy(devIdataEfficientNewIndices, newIndices, n * sizeof(int), cudaMemcpyHostToDevice);
 
@@ -140,14 +140,6 @@ namespace StreamCompaction {
 
 
 			StreamCompaction::Common::kernScatter << <fullBlocksPerGrid, blockSize >> > (n, devIdataEfficient, devIdataEfficientCompact, devIdataEfficientBinaryMap, devIdataEfficientNewIndices);
-			cudaMemcpy(odata, devIdataEfficient, newSize * sizeof(int), cudaMemcpyDeviceToHost);
-
-			cudaFree(devIdataEfficient);
-			cudaFree(devIdataEfficientBinaryMap);
-			cudaFree(devIdataEfficientCompact);
-			cudaFree(devIdataEfficientNewIndices);
-
-
 
 			try {
 				if (exception == false) {
@@ -157,6 +149,14 @@ namespace StreamCompaction {
 			catch (const std::exception& e) {
 
 			}
+			cudaMemcpy(odata, devIdataEfficient, newSize * sizeof(int), cudaMemcpyDeviceToHost);
+
+			cudaFree(devIdataEfficient);
+			cudaFree(devIdataEfficientBinaryMap);
+			cudaFree(devIdataEfficientCompact);
+			cudaFree(devIdataEfficientNewIndices);
+
+
             return newSize;
         }
     }
