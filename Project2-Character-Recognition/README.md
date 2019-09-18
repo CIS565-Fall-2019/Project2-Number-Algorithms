@@ -22,7 +22,7 @@ Instead of grading my project please enjoy these nice photos of me from the wedd
 
 * Them feels when you think you know what back propagation is but then you don't ....
 
-![](img/IMG_3920.jpg)
+![](img/n1.jpg)
 
 * Me pointing at my working neural network like ... 
 
