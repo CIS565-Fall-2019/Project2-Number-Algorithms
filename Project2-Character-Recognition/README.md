@@ -55,7 +55,16 @@ The loss vs Iterations for Character Recognition is given below:
 
 <p align="center"><img src="https://github.com/somanshu25/Project2-Number-Algorithms/blob/master/Project2-Character-Recognition/img/LossVsIterations_Character.png" width="1000"/></p>
 
-The accuracy of the classifier is 1 as all the inputs are correctly classified into their classes.
+As we observe the screenshot of the training output at the top of README, we can see that the accuracy of the classifier is 1 as all the inputs are correctly classified into their classes and the average training error on the last epoch was 0.15, which is acceptable for our purposes. We don't want to have the loss very close to zero as there would be high possibility for the model to overfit the training data and high chance of performing poorly on the test data.  
 
 The wieghtsA array after the training are stores in [weightsA_characterRecognition.txt](https://github.com/somanshu25/Project2-Number-Algorithms/blob/master/Project2-Character-Recognition/weightsA_characterRecognition.txt), the weightsB are stores in [weightsB_characterRecognition.txt](https://github.com/somanshu25/Project2-Number-Algorithms/blob/master/Project2-Character-Recognition/weightsB_characterRecognition.txt), the softmax probabilties at the output are stored in [softMax_prob_characterRecognition.txt](https://github.com/somanshu25/Project2-Number-Algorithms/blob/master/Project2-Character-Recognition/softMax_prob_characterRecognition.txt) and the hidden layer units values are stored in [hidden_layer_characterRecognition.txt](https://github.com/somanshu25/Project2-Number-Algorithms/blob/master/Project2-Character-Recognition/hidden_layer_characterRecognition.txt).
 
+### Inferences on Chnaging the hidden units in hidden layer
+
+Here are some of the inferences we can make out of the subproject:
+
+1. For training XOR, the number of hidden units in hidden layer as 2 does not completely classify all the 4 points, but it classifies only 2 points as the XOR model is tough to learn with very small non-linearity. To increase the non-linearlity, we need to either add some bias parameters int the network or incrase the numbe rof hidden units in the hidden layer. By both means, we are increasing the pararmenters which could hold more informations about the model to be learnt.
+
+2. On the other hand increasing too many parameters by increasing too many hidden units would result in unnecessary computations which owuld not be required to fit the training data. Hence, we need to have the good balance between the number of hidden units.
+
+3. The same effect goes with the number of hidden layers. Increasing too many parameters would give the result but it's not worth doing it. 
