@@ -45,7 +45,9 @@ The weights arrays weightsA and weightsB after the training are stored in the [w
 
 ## Character Recognition
 
-After learning on the small dataset, we have extended the Neural network to learn the small and capital alphabets seperately. Hence, for this training, we have total 52 classes to train. Each image has 10201 pixels, hence, the number of features are 10201. There are 52 data points. For our network here, we train it with 10 hidden units in our hidden layer. 
+After learning on the small dataset, we have extended the Neural network to learn the small and capital alphabets seperately. Hence, for this training, we have total 52 classes to train. Each image has 10201 pixels, hence, the number of features are 10201. There are 52 data points. For our network here, we train it with 10 hidden units in our hidden layer. At the output, we have units equal to the number of classes, which are 52.
+
+We are given the bitmap converted txt files for each image in the scale of 0-255. For simplicity after reading the images, we are scaling these grayscale values to 0-1 range as it can be processed more easily in the neural networks to converge. Since here also we are feeding all the data points at once, we have the input matrix of dimension `52 x 10201`. The weightsA and weightB have the dimesions `10201 x 10` and `10 x 52`. The output layer finally we are getting will be `52 x 52` and the dimesion fo the hidden layer matrix will be `52 x 10`. Here, we have put the learning rate as 0.1 for the training here.
 
 ### Analysis
 
@@ -56,3 +58,4 @@ The loss vs Iterations for Character Recognition is given below:
 The accuracy of the classifier is 1 as all the inputs are correctly classified into their classes.
 
 The wieghtsA array after the training are stores in [weightsA_characterRecognition.txt](https://github.com/somanshu25/Project2-Number-Algorithms/blob/master/Project2-Character-Recognition/weightsA_characterRecognition.txt), the weightsB are stores in [weightsB_characterRecognition.txt](https://github.com/somanshu25/Project2-Number-Algorithms/blob/master/Project2-Character-Recognition/weightsB_characterRecognition.txt), the softmax probabilties at the output are stored in [softMax_prob_characterRecognition.txt](https://github.com/somanshu25/Project2-Number-Algorithms/blob/master/Project2-Character-Recognition/softMax_prob_characterRecognition.txt) and the hidden layer units values are stored in [hidden_layer_characterRecognition.txt](https://github.com/somanshu25/Project2-Number-Algorithms/blob/master/Project2-Character-Recognition/hidden_layer_characterRecognition.txt).
+
