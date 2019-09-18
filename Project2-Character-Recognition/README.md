@@ -1,6 +1,8 @@
 CUDA Character Recognition
 ======================
 
+![](img/Output_Character_Recognition.PNG)
+
 ### Overview
 
 The overview of the subproject is to create and train a Neural Network for Character Recognition. In more detail, given the image of the alphabet, the Neural Network can identify what character it is and perform the classification. For first testing our Neural network, we will create the network and train on the 2X2 XOR data and then extend it to the character recognition.
