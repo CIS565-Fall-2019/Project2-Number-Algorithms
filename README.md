@@ -3,14 +3,11 @@ CUDA Number Algorithms
 
 **University of Pennsylvania, CIS 565: GPU Programming and Architecture, Project 2**
 
-* (TODO) YOUR NAME HERE
-  * (TODO) [LinkedIn](), [personal website](), [twitter](), etc.
-* Tested on: (TODO) Windows 22, i7-2222 @ 2.22GHz 22GB, GTX 222 222MB (Moore 2222 Lab)
+* Disha Jindal: [Linkedin](https://www.linkedin.com/in/disha-jindal/)
+* Tested on: Windows 10 Education, Intel(R) Core(TM) i7-6700 CPU @ 3.40GHz 16GB, GTX 222 222MB (Moore 100B Lab)
 
-### (TODO: Your README)
+Following are the links to the subprojects.
 
-Link to the readmes of the other two subprojects.
+[CUDA Stream Compaction](https://github.com/DishaJindal/Project2-Number-Algorithms/blob/master/Project2-Stream-Compaction/README.md)
 
-Add anything else you think is relevant up to this point.
-(Remember, this is public, so don't put anything here that you don't want to share with the world.)
-
+[CUDA Character Recognition](https://github.com/DishaJindal/Project2-Number-Algorithms/blob/master/Project2-Character-Recognition/README.md)
