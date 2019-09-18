@@ -16,10 +16,15 @@ namespace CharacterRecognition {
       // destructor
       ~MLP3();
 
+      // accessor
+      float total_error() const {
+        return total_error_;
+      }
+      
       void init_weights(float *wkj, float *wji);
       void init_weights();
-      void predict(float *x_input, float *y_pred);
-      void train(float *x_train, float *y_train, int n_data, int n_epoch);
+      void predict(float *x_input, float *y_pred, int n_data);
+      void train(float *x_train, float *y_train, int n_data, int n_epoch, bool verbose);
 
     private:
       void forward();

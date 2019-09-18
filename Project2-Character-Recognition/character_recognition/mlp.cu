@@ -142,7 +142,7 @@ namespace CharacterRecognition {
     kernRandomNumber<<<gridSize1, blockSize>>>(n_w2, 1, wkj_);
   }
 
-  void MLP3::train(float *x_train, float *y_train, int n_data, int n_epoch) {
+  void MLP3::train(float *x_train, float *y_train, int n_data, int n_epoch, bool verbose) {
     n_data_ = n_data;
     cudaMalloc((void**)&dev_input_, n_data * input_size_ * sizeof(float));
     cudaMalloc((void**)&dev_target_, n_data * output_size_ * sizeof(float));
@@ -159,8 +159,37 @@ namespace CharacterRecognition {
       back_propagation();
       calculate_loss();
       update_weights();
-      std::cout << "epoch: " << epoch + 1 << ", total error: " << total_error_ << std::endl;
+      if (verbose && ((epoch == n_epoch - 1) || (epoch + 1) % 5 == 0)) {
+        std::cout << "epoch: " << epoch + 1 << ", cost: " << total_error_ << std::endl;
+      }
     }
+
+    cudaFree(dev_input_);
+    cudaFree(dev_target_);
+    cudaFree(dev_hidden_);
+    cudaFree(dev_hidden_sigmoid_);
+    cudaFree(dev_output_);
+    cudaFree(dev_output_sigmoid_);
+  }
+
+  void MLP3::predict(float *x_input, float *y_pred, int n_data) {
+    n_data_ = n_data;
+    cudaMalloc((void**)&dev_input_, n_data * input_size_ * sizeof(float));
+    cudaMemcpy(dev_input_, x_input, n_data * input_size_ * sizeof(float), cudaMemcpyHostToDevice);
+    
+    cudaMalloc((void**)&dev_hidden_, n_data * hidden_size_ * sizeof(float));
+    cudaMalloc((void**)&dev_hidden_sigmoid_, n_data * hidden_size_ * sizeof(float));
+    cudaMalloc((void**)&dev_output_, n_data * output_size_ * sizeof(float));
+    cudaMalloc((void**)&dev_output_sigmoid_, n_data * output_size_ * sizeof(float));
+
+    forward();
+    cudaMemcpy(y_pred, dev_output_sigmoid_, n_data * output_size_ * sizeof(float), cudaMemcpyDeviceToHost);
+    
+    cudaFree(dev_input_);
+    cudaFree(dev_hidden_);
+    cudaFree(dev_hidden_sigmoid_);
+    cudaFree(dev_output_);
+    cudaFree(dev_output_sigmoid_);
   }
 
   void MLP3::forward() {
