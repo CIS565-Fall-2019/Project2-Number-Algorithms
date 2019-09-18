@@ -21,23 +21,29 @@
 
 
 
- // Define mode to training or running
- // Define acceptedError 0.0001
-#define training 1 // If set to 1, indicates we are in training mode
-#define acceptedError 0.01
-#define inputSize 10201
-#define numInputs 2
+// Define run presets
+#define training 0 // If set to 1, indicates we are in training mode
+#define acceptedError 0.001
+#define numRandomWeightAttempts 10
+#define numConvergeIterations 1000
+#define useXor 1
 
 
 int main(int argc, char* argv[]) {
-	
-	if (training) {
-		// Fill in all data:
-		//std::vector<int*> inputArrays = std::vector<int*>();
-		//std::map<float*, float> inputOutputMap = std::map<float*, float>();
-		std::vector<float*> inputData = std::vector<float*>();
-		std::vector<float> expectedData = std::vector<float>();
-		/*float *data1 = new float[2];
+	// Setup input data depending on xor or character data
+	int inputSize = 10201;
+	int numInputs = 52;
+	if (useXor) {
+		inputSize = 2;
+		numInputs = 4;
+	}
+
+	// Fill in all data:
+	std::vector<float*> inputData = std::vector<float*>();
+	std::vector<float> expectedData = std::vector<float>();
+
+	if (useXor) {
+		float *data1 = new float[2];
 		float *data2 = new float[2];
 		float *data3 = new float[2];
 		float *data4 = new float[2];
@@ -58,11 +64,11 @@ int main(int argc, char* argv[]) {
 		expectedData.push_back(0);
 		expectedData.push_back(1);
 		expectedData.push_back(1);
-		expectedData.push_back(0);*/
+		expectedData.push_back(0);
+	}
 
-		
-
-		// Read in training data:
+	else {
+		// Read in character training data:
 		for (int i = 1; i <= numInputs; ++i) {
 			std::string filename = std::to_string(i) + "info.txt";
 			if (i < 10) {
@@ -102,14 +108,10 @@ int main(int argc, char* argv[]) {
 			}
 			inputFile.close();
 		}
+	}
+
 	
-
-
-		/*for (std::pair<float*, float> i : inputOutputMap) {
-			std::cout << "(" << i.first[4] << ", " << i.first[5] << "): " << i.second << std::endl;
-		}*/
-
-
+	if (training) {
 		// Setup weights arrays:
 		int numHiddenLayers = ceil((inputSize + 1) / 2.0);
 
@@ -118,18 +120,17 @@ int main(int argc, char* argv[]) {
 
 		float *layer1_weights = new float[layer1_numWeights];
 		float *layer2_weights = new float[layer2_numWeights];
-
-		/*float *layer1_adjustedWeights = new float[layer1_numWeights];
-		float *layer2_adjustedWeights = new float[layer2_numWeights];*/
-
 		
-		/*layer1_weights[0] = 10.1;
-		layer1_weights[1] = 0.9;
-		layer1_weights[2] = 20;
-		layer1_weights[3] = 0.87;
 
-		layer2_weights[0] = 41;
-		layer2_weights[1] = -54;*/
+		if (useXor) {
+			layer1_weights[0] = 10.1;
+			layer1_weights[1] = 0.9;
+			layer1_weights[2] = 20;
+			layer1_weights[3] = 0.87;
+
+			layer2_weights[0] = 41;
+			layer2_weights[1] = -54;
+		}
 
 		std::vector<float*> partials1 = std::vector<float*>();
 		std::vector<float*> partials2 = std::vector<float*>();
@@ -139,24 +140,29 @@ int main(int argc, char* argv[]) {
 			partials2.push_back(new float[layer2_numWeights]);
 		}
 
+		// Begin loop iteration
 		auto start = std::chrono::steady_clock::now();
 		int numRandIters = 0;
 		float accumulatedError = 3.0; // Larger than accepted error
 		bool done = false;
-		while (!done && numRandIters < 1000) {
-			// Fill new random weights
-			auto end1 = std::chrono::steady_clock::now();
-			CharacterRecognition::fillRandomWeights(layer1_numWeights, layer1_weights, std::chrono::duration_cast<std::chrono::nanoseconds>(end1 - start).count());
-			auto end2 = std::chrono::steady_clock::now();
-			CharacterRecognition::fillRandomWeights(layer2_numWeights, layer2_weights, std::chrono::duration_cast<std::chrono::nanoseconds>(end2 - start).count());
-			std::cout << "NEW WEIGHTS" << std::endl;
+		int numRandAttempts = useXor ? 1 : numRandomWeightAttempts;
+		while (!done && numRandIters < numRandAttempts) {
+			// Fill new random weights (if xor, use preset weights)
+			if (!useXor) {
+				auto end1 = std::chrono::steady_clock::now();
+				CharacterRecognition::fillRandomWeights(layer1_numWeights, layer1_weights, std::chrono::duration_cast<std::chrono::nanoseconds>(end1 - start).count());
+				auto end2 = std::chrono::steady_clock::now();
+				CharacterRecognition::fillRandomWeights(layer2_numWeights, layer2_weights, std::chrono::duration_cast<std::chrono::nanoseconds>(end2 - start).count());
+				std::cout << "NEW WEIGHTS" << std::endl;
+			}
 			
 			int numInnerIters = 0.0;
 			// Try refining weights iteratively
-			while (!done && numInnerIters < 10000) {
+			while (!done && numInnerIters < numConvergeIterations) {
 				accumulatedError = 0.0;
 				bool resultAll1 = true;
 
+				// Run each input through mlp, accumulating error
 				for (int k = 0; k < numInputs; ++k) {
 					float currExpected = expectedData.at(k);
 					float output = CharacterRecognition::mlp(inputSize, numHiddenLayers, currExpected, 
@@ -177,7 +183,7 @@ int main(int argc, char* argv[]) {
 				if (accumulatedError < acceptedError) {
 					done = true;
 				}
-
+				// Adjust weights based on accumulated error
 				if (!done) {
 					for (int k = 0; k < numInputs; ++k) {
 						float* partialValues1 = partials1.at(k);
@@ -188,16 +194,6 @@ int main(int argc, char* argv[]) {
 
 						CharacterRecognition::updateWeights(layer2_numWeights,
 							accumulatedError, partialValues2, layer2_weights);
-
-
-						/*for (int i = 0; i < layer1_numWeights; ++i) {
-							float delta = -(accumulatedError / 5.0) * partialValues1[i];
-							layer1_weights[i] += delta;
-						}
-						for (int i = 0; i < layer2_numWeights; ++i) {
-							float delta = -(accumulatedError / 5.0) * partialValues2[i];
-							layer2_weights[i] += delta;
-						}*/
 					}
 				}
 				if (done) {
@@ -207,6 +203,7 @@ int main(int argc, char* argv[]) {
 			}
 			numRandIters++;
 		}
+		// Print out final weights and error after either converging to good weights or failing to converge
 		std::cout << "FINAL ERROR: " << accumulatedError << std::endl;
 		std::cout << "WEIGHTS:" << std::endl;
 		for (int i = 0; i < layer1_numWeights; ++i) {
@@ -226,49 +223,10 @@ int main(int argc, char* argv[]) {
 		for (float* i : partials2) {
 			delete[] i;
 		}
+		delete[] layer1_weights;
+		delete[] layer2_weights;
 	}
 	else {
-
-		std::map<float*, float> inputOutputMap = std::map<float*, float>();
-			// Read in data:
-		for (int i = 1; i <= numInputs; ++i) {
-			std::string filename = std::to_string(i) + "info.txt";
-			if (i < 10) {
-				filename = "0" + filename;
-			}
-			filename = "../data-set/" + filename;
-
-			std::ifstream inputFile;
-			inputFile.open(filename);
-			if (inputFile.is_open()) {
-				std::string firstLine;
-				getline(inputFile, firstLine);
-				int expectedVal = std::stoi(firstLine);
-
-				std::string secondLine;
-				getline(inputFile, secondLine);
-				int inputLength = std::stoi(secondLine);
-
-				float *currData = new float[inputLength];
-				int counter = 0;
-
-				std::string dataLine;
-				getline(inputFile, dataLine);
-
-				std::stringstream stream(dataLine);
-				while (1) {
-					int n;
-					stream >> n;
-					if (!stream) {
-						break;
-					}
-					currData[counter] = n;
-					counter++;
-				}
-				inputOutputMap.insert(std::pair<float*, float>(currData, expectedVal));
-			}
-			inputFile.close();
-		}
 		// Setup weights arrays:
 		int numHiddenLayers = ceil((inputSize + 1) / 2.0);
 
@@ -278,52 +236,42 @@ int main(int argc, char* argv[]) {
 		float *layer1_weights = new float[layer1_numWeights];
 		float *layer2_weights = new float[layer2_numWeights];
 
-		float *layer1_adjustedWeights = new float[layer1_numWeights];
-		float *layer2_adjustedWeights = new float[layer2_numWeights];
+
+		if (useXor) {
+			layer1_weights[0] = 10.1;
+			layer1_weights[1] = 0.9;
+			layer1_weights[2] = 20;
+			layer1_weights[3] = 0.87;
+
+			layer2_weights[0] = 41;
+			layer2_weights[1] = -54;
+		}
 
 		auto start = std::chrono::steady_clock::now();
-
-		// Fill weights
-		auto end1 = std::chrono::steady_clock::now();
-		CharacterRecognition::fillRandomWeights(layer1_numWeights, layer1_weights, std::chrono::duration_cast<std::chrono::nanoseconds>(end1 - start).count());
-		auto end2 = std::chrono::steady_clock::now();
-		CharacterRecognition::fillRandomWeights(layer2_numWeights, layer2_weights, std::chrono::duration_cast<std::chrono::nanoseconds>(end2 - start).count());
-
-		for (std::pair<float*, float> i : inputOutputMap) {
-			float currExpected = i.second;
-			float output = CharacterRecognition::mlp(inputSize, numHiddenLayers, currExpected, layer1_weights, layer2_weights, i.first, layer1_adjustedWeights, layer2_adjustedWeights);
-			std::cout << "expected output: " << currExpected << "  Result: " << output << std::endl;
+		// if not xor, use random weights because never found good weights
+		if (!useXor) {
+			auto end1 = std::chrono::steady_clock::now();
+			CharacterRecognition::fillRandomWeights(layer1_numWeights, layer1_weights, std::chrono::duration_cast<std::chrono::nanoseconds>(end1 - start).count());
+			auto end2 = std::chrono::steady_clock::now();
+			CharacterRecognition::fillRandomWeights(layer2_numWeights, layer2_weights, std::chrono::duration_cast<std::chrono::nanoseconds>(end2 - start).count());
+			std::cout << "NEW WEIGHTS" << std::endl;
 		}
 
+		// Run input data through mlp to get output with given weights
+		for (int k = 0; k < numInputs; ++k) {
+			float currExpected = expectedData.at(k);
+			float output = CharacterRecognition::mlpNoError(inputSize, numHiddenLayers, currExpected,
+				layer1_weights, layer2_weights, inputData.at(k));
+			// Print out results, rounding output to integer to match input type
+			std::cout << "expected output: " << currExpected << "  Result: " << round(output) << std::endl;
+		}
+	
 		// Delete data arrays stored in map
-		for (std::pair<float*, float> i : inputOutputMap) {
-			delete[] i.first;
+		for (float* i : inputData) {
+			delete[] i;
 		}
+		delete[] layer1_weights;
+		delete[] layer2_weights;
 	}
 	
-	/*
-	// if training	
-
-	randomize weights (kernel function)
-	for 1 through 52, get the text numbers values into an array:
-	Read file data into an array of arrays for all inputs
-
-	for every array in array of inputs, pass in to mlp as the input data
-	Accumulate all the error values
-
-	while error is not within accepted error range.  
-
-		adjust the weights (adjust weights)
-		rerun mlp
-		get new error
-
-	keep final weights
-	print out output weights, or write out to a txt file
-
-	if not training
-		read weights from text file
-		read the input from the text file
-		run the mlp just to get the final result, no error calculation
-	*/
-
 }

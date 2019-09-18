@@ -160,7 +160,6 @@ namespace CharacterRecognition {
 
 		float *host_output;
 
-		float *host_hidden;
 
 		// Malloc for buffers
 		cudaMalloc((void**)&dev_inputData, inputSize * sizeof(float));
@@ -168,9 +167,6 @@ namespace CharacterRecognition {
 		
 		cudaMalloc((void**)&dev_hidden, numHiddenLayers * sizeof(float));
 		checkCUDAError("cudaMalloc dev_hidden failed!");
-
-		cudaMallocHost((void**)&host_hidden, numHiddenLayers * sizeof(float));
-		checkCUDAError("cudaMallocHost host_hidden failed!");
 		
 		cudaMalloc((void**)&dev_weights1, numWeights1 * sizeof(float));
 		checkCUDAError("cudaMalloc dev_weights1 failed!");
@@ -251,7 +247,6 @@ namespace CharacterRecognition {
 		cudaFree(dev_partials2);
 		cudaFree(dev_output);
 		cudaFreeHost(host_output);
-		cudaFreeHost(host_hidden);
 
 
 		return output;
@@ -296,5 +291,88 @@ namespace CharacterRecognition {
 
 
 	}
+
+
+
+
+	float mlpNoError(int inputSize, int numHiddenLayers, float expectedValue,
+		const float *weights1, const float *weights2,
+		const float *idata) {
+		// size of input is 2 for xor and 512 by 512 for characters
+		// hidden layer somewhere between 1 and size of input
+		// first number of weights is size of hidden layer * size of input
+		// second number of weights is size of hidden layer * size of output(1)
+
+		int numWeights1 = inputSize * numHiddenLayers;
+		int numWeights2 = numHiddenLayers;
+
+
+		// Initialize buffers
+		float *dev_inputData;
+		float *dev_hidden;
+		float *dev_weights1;
+		float *dev_weights2;
+		float *dev_output;
+
+		float *dev_partials1;
+		float *dev_partials2;
+
+		float *host_output;
+
+		// Malloc for buffers
+		cudaMalloc((void**)&dev_inputData, inputSize * sizeof(float));
+		checkCUDAError("cudaMalloc dev_inputData failed!");
+
+		cudaMalloc((void**)&dev_hidden, numHiddenLayers * sizeof(float));
+		checkCUDAError("cudaMalloc dev_hidden failed!");
+
+		cudaMalloc((void**)&dev_weights1, numWeights1 * sizeof(float));
+		checkCUDAError("cudaMalloc dev_weights1 failed!");
+
+		cudaMalloc((void**)&dev_weights2, numWeights2 * sizeof(float));
+		checkCUDAError("cudaMalloc dev_weights2 failed!");
+
+		cudaMalloc((void**)&dev_output, sizeof(float));
+		checkCUDAError("cudaMalloc dev_output failed!");
+
+		cudaMallocHost((void**)&host_output, sizeof(float));
+		checkCUDAError("cudaMallocHost host_output failed!");
+
+		// Fille input and weights data
+		cudaMemcpy(dev_inputData, idata, inputSize * sizeof(float), cudaMemcpyHostToDevice);
+		cudaMemcpy(dev_weights1, weights1, numWeights1 * sizeof(float), cudaMemcpyHostToDevice);
+		cudaMemcpy(dev_weights2, weights2, numWeights2 * sizeof(float), cudaMemcpyHostToDevice);
+
+		// Perform the multiplications for layer 1 to get the hidden layers
+		int numThreads = numHiddenLayers;
+		dim3 blocksPerGrid((numThreads + blockSize - 1) / blockSize);
+
+		kernLayer1Mult << <blocksPerGrid, threadsPerBlock >> > (numHiddenLayers, dev_hidden, inputSize, dev_inputData, dev_weights1);
+
+		// perform the multiplications for layer 2 to get the output value
+		int layer2_numThreads = 1;
+		dim3 layer2_blocksPerGrid((layer2_numThreads + blockSize - 1) / blockSize);
+
+		kernLayer2Mult << <layer2_blocksPerGrid, threadsPerBlock >> > (1, numHiddenLayers, dev_output, dev_hidden, dev_weights2);
+
+		// Copy the output onto the host
+		cudaMemcpy(host_output, dev_output, sizeof(float), cudaMemcpyDeviceToHost);
+		float output = host_output[0];
+
+		
+
+		// Free buffer memory
+		cudaFree(dev_inputData);
+		cudaFree(dev_hidden);
+		cudaFree(dev_weights1);
+		cudaFree(dev_weights2);
+		cudaFree(dev_output);
+		cudaFreeHost(host_output);
+
+
+		return output;
+
+	}
+
 
 }
