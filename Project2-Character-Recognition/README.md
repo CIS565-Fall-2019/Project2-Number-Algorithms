@@ -16,7 +16,7 @@ CIS 565: GPU Programming and Architecture**
 - [Introduction](https://github.com/chhavisharma/Project2-Number-Algorithms/blob/master/Project2-Character-Recognition/README.md#introduciton )
 - [Implementation Details](https://github.com/chhavisharma/Project2-Number-Algorithms/blob/master/Project2-Character-Recognition/README.md#implementation-details)
 - [Training MLP to Predict a 2x2 XOR](https://github.com/chhavisharma/Project2-Number-Algorithms/blob/master/Project2-Character-Recognition/README.md#training-mlp-to-predict-a-2x2-xor)
-- [Training MLP for Character Recognition](https://github.com/chhavisharma/Project2-Number-Algorithms/blob/master/Project2-Character-Recognition/README.md#2-training-mlp-for-character-recognition)
+- [Training MLP for Character Recognition](https://github.com/chhavisharma/Project2-Number-Algorithms/blob/master/Project2-Character-Recognition/README.md#training-mlp-for-character-recognition)
 - [Observations and Comments](https://github.com/chhavisharma/Project2-Number-Algorithms/blob/master/Project2-Character-Recognition/README.md#observations-and-comments)
 - [Extra Credit](https://github.com/chhavisharma/Project2-Number-Algorithms/blob/master/Project2-Character-Recognition/README.md#extra-credit)
 
