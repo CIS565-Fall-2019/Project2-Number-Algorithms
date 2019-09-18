@@ -74,17 +74,17 @@ Stream compaction, also known as stream filtering or selection, usually produces
 We can naively parallelize the scan algorithm on the GPU to reduce the loop to ```log2(n)``` iterations. At the first iteraction, n-1 threads add a pair of values and store it in the next array, but as iteractions progress, the number of additions come down to 'O(1)'. Thus this scan has a runtime of 'log2(n)' where as the CPU sequential scan has the runtime of 'O(n)'. The number of additions in this scenario increase to ```O(n*log2(n))```.
 
 
-![Naive Parallel Scan](Project2-Stream-Compaction/img/NaiveScan.png)
+![Naive Parallel Scan](img/NaiveScan.png)
 
 #### 3: Work-Efficient GPU Scan
 
 We can further parallelize the scan algorithm to bring down the number of addition operations to ```O(n)``` and make it *Work Efficient*. This is done by implementing the scan algorithm using a Balanced Binary Tree and perfroming the UpSweep and DownSweep algorithm. During Upsweep, we start from the tree's leaf nodes and compute partial sums upto the root. These operations are in place. 
 
-![UpSweep](Project2-Stream-Compaction/img/UpSweepScan.png)
+![UpSweep](img/UpSweepScan.png)
 
 Finally in the downsweep, starting from the Root node, we perfom the following steps to get the preorder sum.
 
-![DownSweep](Project2-Stream-Compaction/img/DownSweepScan.png)
+![DownSweep](img/DownSweepScan.png)
 
 ##### 4: Work-Efficient Stream Compaction
 Work efficient stram compaction is nothing but the stream compaction algorithm explained above that uses the work-efficient scan. 
@@ -144,7 +144,6 @@ We also experiemented with CUDA's `thrust::exclusive_scan(first, last, result)` 
   - Internstingly, stream compction without scan on the cpu outperforms stream compaction with scan in terms of computation time. The drawback of stream compaction without scan is that it is not in place and uses double the memory of input size. 
   
 
-  * **Paste the output of the test program into a triple-backtick block in your
-     README.**
+  * **Paste the output of the test program **
 
   ![](img/BlockSz-128-DataSz-20.PNG)
