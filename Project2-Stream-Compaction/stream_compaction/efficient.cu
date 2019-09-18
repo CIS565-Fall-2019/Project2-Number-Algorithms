@@ -38,10 +38,10 @@ namespace StreamCompaction {
 			input[index + (1 << (d + 1)) - 1] += t;
 		}
 
-        /**
-         * Performs prefix-sum (aka scan) on idata, storing the result into odata.
-         */
-        void scan(int n, int *odata, const int *idata) {
+		/**
+		 * Performs prefix-sum (aka scan) on idata, storing the result into odata.
+		 */
+		void scan(int n, int *odata, const int *idata) {
 			bool exception = true;
 			try {
 				timer().startGpuTimer();
@@ -63,9 +63,9 @@ namespace StreamCompaction {
 
 
 
-            // TODO
+			// TODO
 			for (int d = 0; d < ilog2(newSize); d++) {
-				dim3 fullBlocksPerGrid((((int)(newSize / (1<<(d + 1)))) + blockSize - 1) / blockSize);
+				dim3 fullBlocksPerGrid((((int)(newSize / (1 << (d + 1)))) + blockSize - 1) / blockSize);
 				upSweep << <fullBlocksPerGrid, blockSize >> > (newSize, d, devIdataEfficient);
 			}
 
@@ -88,7 +88,36 @@ namespace StreamCompaction {
 			catch (const std::exception& e) {
 
 			}
-        }
+		}
+
+		/**
+		 * Performs prefix-sum (aka scan) on idata, storing the result into odata.
+		 */
+		void scanForRadix(int n, int *odata, const int *idata, int radixBlockSize) {
+			int newSize = 1 << ilog2ceil(n);
+
+			cudaMemset(odata, 0, newSize * sizeof(int));
+			checkCUDAError("cudaMemset");
+			cudaMemcpy(odata, idata, n * sizeof(int), cudaMemcpyHostToDevice);
+			checkCUDAError("cudaMemcpy");
+
+
+
+
+			// TODO
+			for (int d = 0; d < ilog2(newSize); d++) {
+				dim3 fullBlocksPerGrid((((int)(newSize / (1 << (d + 1)))) + radixBlockSize - 1) / radixBlockSize);
+				upSweep << <fullBlocksPerGrid, radixBlockSize >> > (newSize, d, odata);
+			}
+
+
+			cudaMemset(odata + (newSize - 1), 0, 1 * sizeof(int));
+
+			for (int d = ilog2(newSize) - 1; d >= 0; d--) {
+				dim3 fullBlocksPerGrid(((1 << (ilog2(newSize) - d)) + radixBlockSize - 1) / radixBlockSize);
+				downSweep << <fullBlocksPerGrid, radixBlockSize >> > (newSize, d, odata);
+			}
+		}
 
         /**
          * Performs stream compaction on idata, storing the result into odata.
