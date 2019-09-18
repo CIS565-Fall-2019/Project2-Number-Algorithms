@@ -23,6 +23,8 @@ Currently we do not support changing the number of layers. But the number of neu
 
  All calculations are implemented in parallel using custom CUDA kernels and cuCLABS library.
 
+ **Extra Credit:** Instead of doing 1d vector for input to output, matrix multiplication of the weights is used between each layer of the overall network as well as in back propagation.
+
 ## Traning Result
 ### XOR Example
  - input neuron: 2
@@ -33,6 +35,7 @@ Currently we do not support changing the number of layers. But the number of neu
  - learning rate: 10^-2 fixed
 
 The graph below shows the change of total error in the first 200 epoches.
+
 ![](img/xor_curve.jpg)
 
 Debug Output:
@@ -69,34 +72,36 @@ epoch: 190 | cost: 0.000752402
  - learning rate: 10^-4 fixed
 
  The graph below shows the change of total error in the first 200 epoches.
+
  ![](img/image_curve.jpg)
 
  Another graph shows the evolution of prediction correctness in the training set. The prediction reaches 100% correct at about 80th epoch.
+
  ![](img/image_corr.jpg)
 
 Debug Output:
 ```
 --- Character Recognition ---
-epoch: 0 | cost: 0.291311 | correct: 82.6923%
-epoch: 10 | cost: 0.142109 | correct: 96.1538%
-epoch: 20 | cost: 0.0961198 | correct: 100%
-epoch: 30 | cost: 0.063884 | correct: 100%
-epoch: 40 | cost: 0.0623333 | correct: 98.0769%
-epoch: 50 | cost: 0.0497727 | correct: 100%
-epoch: 60 | cost: 0.0461378 | correct: 100%
-epoch: 70 | cost: 0.0356991 | correct: 100%
-epoch: 80 | cost: 0.0315837 | correct: 100%
-epoch: 90 | cost: 0.0304885 | correct: 100%
-epoch: 100 | cost: 0.026108 | correct: 100%
-epoch: 110 | cost: 0.0254792 | correct: 100%
-epoch: 120 | cost: 0.0291465 | correct: 100%
-epoch: 130 | cost: 0.0230684 | correct: 100%
-epoch: 140 | cost: 0.0249249 | correct: 100%
-epoch: 150 | cost: 0.0206818 | correct: 100%
-epoch: 160 | cost: 0.0191929 | correct: 100%
-epoch: 170 | cost: 0.0171115 | correct: 100%
-epoch: 180 | cost: 0.0167711 | correct: 100%
-epoch: 190 | cost: 0.0161567 | correct: 100%
+epoch: 0 | cost: 0.291311 | correct: 82.6923% | time elapsed: 32.632 ms
+epoch: 10 | cost: 0.142109 | correct: 96.1538% | time elapsed: 26.9052 ms
+epoch: 20 | cost: 0.0961198 | correct: 100% | time elapsed: 26.2422 ms
+epoch: 30 | cost: 0.063884 | correct: 100% | time elapsed: 24.8418 ms
+epoch: 40 | cost: 0.0623333 | correct: 98.0769% | time elapsed: 26.4026 ms
+epoch: 50 | cost: 0.0497727 | correct: 100% | time elapsed: 26.6263 ms
+epoch: 60 | cost: 0.0461378 | correct: 100% | time elapsed: 26.3336 ms
+epoch: 70 | cost: 0.0356991 | correct: 100% | time elapsed: 27.0863 ms
+epoch: 80 | cost: 0.0315837 | correct: 100% | time elapsed: 26.8796 ms
+epoch: 90 | cost: 0.0304885 | correct: 100% | time elapsed: 28.085 ms
+epoch: 100 | cost: 0.026108 | correct: 100% | time elapsed: 25.3946 ms
+epoch: 110 | cost: 0.0254792 | correct: 100% | time elapsed: 26.126 ms
+epoch: 120 | cost: 0.0291465 | correct: 100% | time elapsed: 25.2853 ms
+epoch: 130 | cost: 0.0230684 | correct: 100% | time elapsed: 21.3816 ms
+epoch: 140 | cost: 0.0249249 | correct: 100% | time elapsed: 26.5961 ms
+epoch: 150 | cost: 0.0206818 | correct: 100% | time elapsed: 26.4256 ms
+epoch: 160 | cost: 0.0191929 | correct: 100% | time elapsed: 25.502 ms
+epoch: 170 | cost: 0.0171115 | correct: 100% | time elapsed: 27.0411 ms
+epoch: 180 | cost: 0.0167711 | correct: 100% | time elapsed: 24.4687 ms
+epoch: 190 | cost: 0.0161567 | correct: 100% | time elapsed: 27.0288 ms
 ---
 Target Label:1, Predicted Label:1
 Target Label:2, Predicted Label:2
@@ -151,5 +156,3 @@ Target Label:50, Predicted Label:50
 Target Label:51, Predicted Label:51
 Target Label:52, Predicted Label:52
 ```
-
-## Performance Analysis

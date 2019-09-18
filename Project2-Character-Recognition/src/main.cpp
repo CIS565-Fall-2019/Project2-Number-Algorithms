@@ -99,7 +99,10 @@ void train_image() {
   cout << "--- Character Recognition ---" << endl;
   for (int t = 0; t < 20; t++) {
     // Train
+    CharacterRecognition::timer().startCpuTimer();
     image_mlp.train(image_input, image_label, num_inputs, 10, false);
+    CharacterRecognition::timer().endCpuTimer();
+    float time_elapsed = CharacterRecognition::timer().getCpuElapsedTimeForPreviousOperation();
     float cost = image_mlp.total_error();
 
     // Test
@@ -109,7 +112,7 @@ void train_image() {
         correct_cnt++;
       }
     }
-    std::cout << "epoch: " << t * 10 << " | cost: " << cost << " | correct: " << correct_cnt / 52.0 * 100 << "%" << std::endl;
+    std::cout << "epoch: " << t * 10 << " | cost: " << cost << " | correct: " << correct_cnt / 52.0 * 100 << "% | time elapsed: " << time_elapsed << " ms" << std::endl;
   }
   cout << "---" << endl;
   for (int i = 1; i <= 52; i++) {
