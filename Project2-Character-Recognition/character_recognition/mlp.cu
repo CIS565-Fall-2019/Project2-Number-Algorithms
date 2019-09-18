@@ -237,6 +237,17 @@ namespace CharacterRecognition {
 
     gpu_blas_mtrans(cublas_handle_, dev_input_, temp8, input_size_, n_data_);
     gpu_blas_mmul(cublas_handle_, temp8, temp7, gwkj_, input_size_, n_data_, hidden_size_);
+
+    // free cuda memory
+    cudaFree(temp1);
+    cudaFree(temp2);
+    cudaFree(temp3);
+    cudaFree(temp4);
+    cudaFree(temp5);
+    cudaFree(temp6);
+    cudaFree(temp7);
+    cudaFree(temp8);
+    cudaFree(wji_T);
   }
 
   void MLP3::calculate_loss() {

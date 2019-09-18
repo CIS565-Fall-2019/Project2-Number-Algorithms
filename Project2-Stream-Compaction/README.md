@@ -31,9 +31,36 @@ The graphs below compare the runtime of different scan implementations.
 ![](img/scan_perf.jpg)
  - The advantage of using GPU begins to dominate when the array size is large (> 2^15).
  - Thrust performed significently better. The reason is probably it utilizes shared memory instead of the much slower global memory.
- - Work efficient scan performs worse than naive scan, which is unexpected.
+ - Work efficient scan performs worse than naive scan, which is unexpected. This will be discussed later. 
  - Another unexplained phenomenon is CPU scan with non-power-of-two array size has significantly better performance (even better than GPU) than power-of-two array size. It could be a bug in the test program.
 
+### Extra Credit 5: Why is My GPU Approach So Slow
+The reason why work efficient scan is slower than expected is although the number of arithmetic operation is reduced, the kernel call is launching too much unnecessary threads. This effect has more influence on runtime when the array size is large.
+
+To resolve this, both the kernel code and calling code is altered so that only necessary number of threads are launched. The thread index is converted to the array index by multiplying stride length.
+
+Before optimization:
+ - number of threads = 2^dmax
+ - In kernel:
+```
+if (k < n && k % (1 << (d+1)) == 0) {
+    array_idx = k;
+    ...
+}
+```
+
+After optimization:
+ - number of threads = 2^(dmax - 1 - d)
+ - In kernel:
+```
+if (k < n) {
+    array_idx = k * (1 << (d+1));
+    ...
+}
+```
+
+After optimization, work efficient is significantly improved, outperforming naive scan and cpu scan.
+![](img/work_efficient_optimized.jpg)
 
 ### Test Output
  - In `common.h`, BLOCKSIZE = 128.

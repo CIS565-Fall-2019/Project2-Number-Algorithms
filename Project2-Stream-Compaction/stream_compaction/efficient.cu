@@ -14,18 +14,22 @@ namespace StreamCompaction {
 
         __global__ void kernUpSweep(int n, int pow2d, int *idata) {
           int k = threadIdx.x + (blockIdx.x * blockDim.x);
-          if (k < n && k % (pow2d * 2) == 0) {
-            idata[k + pow2d * 2 - 1] += idata[k + pow2d - 1];
+          if (k >= n) {
+            return;
           }
+          int pow2d2 = pow2d * 2;
+          idata[k * pow2d2 + pow2d2 - 1] += idata[k * pow2d2 + pow2d - 1];
         }
 
         __global__ void kernDownSweep(int n, int pow2d, int *idata) {
           int k = threadIdx.x + (blockIdx.x * blockDim.x);
-          if (k < n && k % (pow2d * 2) == 0) {
-            int t = idata[k + pow2d - 1];
-            idata[k + pow2d - 1] = idata[k + pow2d * 2 - 1];
-            idata[k + pow2d * 2 - 1] += t;
+          if (k >= n) {
+            return;
           }
+          int pow2d2 = pow2d * 2;
+          int t = idata[k * pow2d2 + pow2d - 1];
+          idata[k * pow2d2 + pow2d - 1] = idata[k * pow2d2 + pow2d2 - 1];
+          idata[k * pow2d2 + pow2d2 - 1] += t;
         }
 
         /**
@@ -46,13 +50,17 @@ namespace StreamCompaction {
             int dmax = ilog2ceil(n);
 
             for (int d = 0; d < dmax; d++) {
-              kernUpSweep << <gridSize, blockSize >> > (size, 1 << d, dev_in);
+              int n_threads = 1 << (dmax - 1 - d);
+              gridSize = dim3((n_threads + BLOCKSIZE - 1) / BLOCKSIZE);
+              kernUpSweep << <gridSize, blockSize >> > (n_threads, 1 << d, dev_in);
             }
 
             cudaMemset((void*)&(dev_in[size - 1]), 0, sizeof(int));
 
             for (int d = dmax - 1; d >= 0; d--) {
-              kernDownSweep << <gridSize, blockSize >> > (size, 1 << d, dev_in);
+              int n_threads = 1 << (dmax - 1 - d);
+              gridSize = dim3((n_threads + BLOCKSIZE - 1) / BLOCKSIZE);
+              kernDownSweep << <gridSize, blockSize >> > (n_threads, 1 << d, dev_in);
             }
 
             timer().endGpuTimer();
@@ -104,15 +112,19 @@ namespace StreamCompaction {
             cudaMemcpy(dev_indices, dev_bools, size, cudaMemcpyDeviceToDevice);
 
             int dmax = ilog2ceil(n2);
-            
+            int n_threads;
             for (int d = 0; d < dmax; d++) {
-              kernUpSweep << <gridSize2, BLOCKSIZE >> > (n2, 1 << d, dev_indices);
+              int n_threads = 1 << (dmax - 1 - d);
+              gridSize2 = (n_threads + BLOCKSIZE - 1) / BLOCKSIZE;
+              kernUpSweep << <gridSize2, BLOCKSIZE >> > (n_threads, 1 << d, dev_indices);
             }
 
             cudaMemset((void*)&(dev_indices[n2 - 1]), 0, sizeof(int));
 
             for (int d = dmax - 1; d >= 0; d--) {
-              kernDownSweep << <gridSize2, BLOCKSIZE >> > (n2, 1 << d, dev_indices);
+              int n_threads = 1 << (dmax - 1 - d);
+              gridSize2 = (n_threads + BLOCKSIZE - 1) / BLOCKSIZE;
+              kernDownSweep << <gridSize2, BLOCKSIZE >> > (n_threads, 1 << d, dev_indices);
             }
             
             // stream compaction
