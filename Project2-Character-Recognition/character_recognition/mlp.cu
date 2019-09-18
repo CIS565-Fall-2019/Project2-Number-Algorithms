@@ -2,7 +2,8 @@
 #include <cuda_runtime.h>
 #include "common.h"
 #include "mlp.h"
-
+#include <fstream>
+#include <string>
 
 #ifndef imax
 #define imax(a,b) (((a)>(b))?(a):(b))
@@ -17,21 +18,6 @@ namespace CharacterRecognition {
         static PerformanceTimer timer;
         return timer;
     }
-        
-    // TODO: __global__
-
-    /**
-        * Example of use case (follow how you did it in stream compaction)
-        */
-    /*void scan(int n, int *odata, const int *idata) {
-        timer().startGpuTimer();
-        // TODO
-        timer().endGpuTimer();
-    }
-    */
-
-	// TODO: implement required elements for MLP sections 1 and 2 here
-
 
 	__global__ void kernCrossEntropyLoss(int n, float *predicted, float *label, float *lossForEachLabel) {
 		int index = blockIdx.x * blockDim.x + threadIdx.x;
@@ -42,37 +28,6 @@ namespace CharacterRecognition {
 	}
 
 	float MultiLayerPerceptron::loss(float *label, float *predicted) {
-		/*float *devLabel;
-		cudaMalloc((void**)&devLabel, batchDim*layer2->getOutputDim() * sizeof(float));
-		checkCUDAError("cudaMalloc");
-		cudaMemcpy(devLabel, label, batchDim * layer2->getOutputDim() * sizeof(float), cudaMemcpyHostToDevice);
-		checkCUDAError("cudaMemcpy");
-
-		float *devPredicted;
-		cudaMalloc((void**)&devPredicted, batchDim*layer2->getOutputDim() * sizeof(float));
-		checkCUDAError("cudaMalloc");
-		cudaMemcpy(devPredicted, predicted, batchDim*layer2->getOutputDim() * sizeof(float), cudaMemcpyHostToDevice);
-		checkCUDAError("cudaMemcpy");
-
-
-		float *lossForEachLabel = new float[batchDim * layer2->getOutputDim()];
-		float *devLossForEachLabel;
-		cudaMalloc((void**)&devLossForEachLabel, batchDim * layer2->getOutputDim() * sizeof(float));
-		checkCUDAError("cudaMalloc");
-
-		int gridRows = ((batchDim * layer2->getOutputDim()) + blockSize - 1) / blockSize;
-		kernCrossEntropyLoss << <gridRows, blockSize >> > (batchDim * layer2->getOutputDim(), devPredicted, devLabel, devLossForEachLabel);
-		checkCUDAError("kernCrossEntropyLoss");
-
-		cudaMemcpy(lossForEachLabel, devLossForEachLabel, batchDim * layer2->getOutputDim() * sizeof(float), cudaMemcpyDeviceToHost);
-		checkCUDAError("cudaMemcpy");
-
-		float loss = 0;
-
-		for (int i = 0; i < batchDim * layer2->getOutputDim(); i++) {
-			loss += lossForEachLabel[i];
-		}
-		return loss / batchDim;*/
 
 		float *devLabel;
 		cudaMalloc((void**)&devLabel, batchDim*layers[layers.size() - 1]->getOutputDim() * sizeof(float));
@@ -194,9 +149,7 @@ namespace CharacterRecognition {
 
 
 	void genArray(int n, float *a) {
-		//11, 15
-		//srand(11);
-		srand(time(NULL));
+		srand(11);
 
 		for (int i = 0; i < n; i++) {
 			a[i] = ((2 *((rand() * 1.0 )/ RAND_MAX)) - 1) * 0.0002;
@@ -223,7 +176,7 @@ namespace CharacterRecognition {
 		return outputDim;
 	}
 
-	void FullyConnectedLayer::forward(float *inputArg, float *outputArg) {
+	void FullyConnectedLayer::forward(float *inputArg, float *outputArg, bool test) {
 		cudaMemcpy(inputs, inputArg, batchDim * inputDim * sizeof(float), cudaMemcpyDeviceToDevice);
 		int gridRows = (batchDim*outputDim + blockSize - 1) / blockSize;
 
@@ -255,6 +208,19 @@ namespace CharacterRecognition {
 
 			cudaFree(devSoftmaxDenominator);
 			checkCUDAError("cudaFree");
+		}
+
+		if (test) {
+			printf("\n\n\tWeights : ");
+			float *tempWeight = new float[inputDim * outputDim];
+			cudaMemcpy(tempWeight, weight, inputDim * outputDim * sizeof(float), cudaMemcpyDeviceToHost);
+			for (int i = 0; i < inputDim * outputDim; i++) {
+				if (i % outputDim == 0) {
+					printf("\n\t\t");
+				}
+				printf("%f ", tempWeight[i]);
+			}
+			delete(tempWeight);
 		}
 	}
 
@@ -324,17 +290,6 @@ namespace CharacterRecognition {
 
 	}
 
-
-
-	/*MultiLayerPerceptron::MultiLayerPerceptron(int inputDim, int hiddenDim, int outputDim, int batchDim) {
-		this->batchDim = batchDim;
-
-		this->layer1 = new FullyConnectedLayer(inputDim, hiddenDim, batchDim, false);
-		this->layer2 = new FullyConnectedLayer(hiddenDim, outputDim, batchDim, true);
-
-	}*/
-
-
 	MultiLayerPerceptron::MultiLayerPerceptron(int inputDim, int numHiddenLayers, int *hiddenDim, int outputDim, int batchDim) {
 		this->batchDim = batchDim;
 
@@ -349,52 +304,17 @@ namespace CharacterRecognition {
 
 	}
 
-	void MultiLayerPerceptron::forward(float *input, float *output) {
-		/*float *devInput;
-		cudaMalloc((void**)&devInput, batchDim * layer1->getInputDim() * sizeof(float));
-		checkCUDAError("cudaMalloc");
-		cudaMemset(devInput, 1, batchDim * layer1->getInputDim() * sizeof(float));
-		checkCUDAError("cudaMemset");
-		cudaMemcpy(devInput, input, batchDim * layer1->getInputDim() * sizeof(float), cudaMemcpyHostToDevice);
-		checkCUDAError("cudaMemcpy");
-
-
-		float *hiddenOutput;
-		cudaMalloc((void**)&hiddenOutput, batchDim * layer1->getOutputDim() * sizeof(float));
-		checkCUDAError("cudaMalloc");
-		layer1->forward(devInput, hiddenOutput);
-
-		cudaFree(devInput);
-		cudaMalloc((void**)&devInput, batchDim * layer2->getInputDim() * sizeof(float));
-		checkCUDAError("cudaMalloc");
-		cudaMemcpy(devInput, hiddenOutput, batchDim * layer2->getInputDim() * sizeof(float), cudaMemcpyDeviceToDevice);
-		checkCUDAError("cudaMemcpy");
-		cudaFree(hiddenOutput);
-
-		float *devOutput;
-		cudaMalloc((void**)&devOutput, batchDim * layer2->getOutputDim() * sizeof(float));
-		checkCUDAError("cudaMalloc");
-		layer2->forward(devInput, devOutput);
-		cudaMemcpy(output, devOutput, batchDim * layer2->getOutputDim() * sizeof(float), cudaMemcpyDeviceToHost);
-		checkCUDAError("cudaMemcpy");
-
-		cudaFree(devInput);
-		cudaFree(devOutput);*/
-
-
-
+	void MultiLayerPerceptron::forward(float *input, float *output, bool test) {
 		float *devOutput;
 		cudaMalloc((void**)&devOutput, batchDim * layers[0]->getInputDim() * sizeof(float));
-		checkCUDAError("cudaMalloc");/*
-		cudaMemset(devOutput, 1, batchDim * layers[0]->getInputDim() * sizeof(float));
-		checkCUDAError("cudaMemset");*/
+		checkCUDAError("cudaMalloc");
 		cudaMemcpy(devOutput, input, batchDim * layers[0]->getInputDim() * sizeof(float), cudaMemcpyHostToDevice);
 		checkCUDAError("cudaMemcpy");
 		float *hiddenOutput;
 		for (int i = 0; i < layers.size(); i++) {
 			cudaMalloc((void**)&hiddenOutput, batchDim * layers[i]->getOutputDim() * sizeof(float));
 			checkCUDAError("cudaMalloc");
-			layers[i]->forward(devOutput, hiddenOutput);
+			layers[i]->forward(devOutput, hiddenOutput, test);
 			cudaFree(devOutput);
 			cudaMalloc((void**)&devOutput, batchDim * layers[i]->getOutputDim() * sizeof(float));
 			checkCUDAError("cudaMalloc");
@@ -409,44 +329,6 @@ namespace CharacterRecognition {
 	}
 
 	void MultiLayerPerceptron::backward(float *label, float *predicted, float learningRate) {
-
-
-		/*float *devLabel;
-		cudaMalloc((void**)&devLabel, batchDim*layer2->getOutputDim() * sizeof(float));
-		checkCUDAError("cudaMalloc");
-		cudaMemcpy(devLabel, label, batchDim * layer2->getOutputDim() * sizeof(float), cudaMemcpyHostToDevice);
-		checkCUDAError("cudaMemcpy");
-
-		float *devPredicted;
-		cudaMalloc((void**)&devPredicted, batchDim*layer2->getOutputDim() * sizeof(float));
-		checkCUDAError("cudaMalloc");
-		cudaMemcpy(devPredicted, predicted, batchDim*layer2->getOutputDim() * sizeof(float), cudaMemcpyHostToDevice);
-		checkCUDAError("cudaMemcpy");
-
-		float *incomingGradient;
-		cudaMalloc((void**)&incomingGradient, batchDim*layer2->getOutputDim() * sizeof(float));
-		checkCUDAError("cudaMalloc");
-
-		int gridRows = ((batchDim * layer2->getOutputDim()) + blockSize - 1) / blockSize;
-		kernSubtractMatrices << <gridRows, blockSize >> > (devPredicted, devLabel, incomingGradient, batchDim, layer2->getOutputDim());
-		checkCUDAError("kernSubtractMatrices");
-
-		float *outgoingGradient;
-		cudaMalloc((void**)&outgoingGradient, batchDim*layer2->getInputDim() * sizeof(float));
-		checkCUDAError("cudaMalloc");
-		layer2->backward(learningRate, incomingGradient, outgoingGradient);
-		cudaFree(incomingGradient);
-		cudaMalloc((void**)&incomingGradient, batchDim*layer2->getInputDim() * sizeof(float));
-		checkCUDAError("cudaMalloc");
-		cudaMemcpy(incomingGradient, outgoingGradient, batchDim*layer2->getInputDim() * sizeof(float), cudaMemcpyDeviceToDevice);
-		checkCUDAError("cudaMemcpy");
-		cudaFree(outgoingGradient);
-		cudaMalloc((void**)&outgoingGradient, batchDim*layer1->getInputDim() * sizeof(float));
-		checkCUDAError("cudaMalloc");
-		layer1->backward(learningRate, incomingGradient, outgoingGradient);*/
-
-
-
 		float *devLabel;
 		cudaMalloc((void**)&devLabel, batchDim*layers[layers.size() - 1]->getOutputDim() * sizeof(float));
 		checkCUDAError("cudaMalloc");
