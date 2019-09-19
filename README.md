@@ -15,3 +15,4 @@ Links to the readmes of the two subprojects:
 
 [Part 2: Character Recognition](Project2-Character-Recognition/README.md)
 
+In both, I changed the CMake files to match my computer architecture.

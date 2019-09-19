@@ -13,6 +13,9 @@
     <ClInclude Include="C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\stream_compaction\efficient.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\stream_compaction\radix.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\stream_compaction\thrust.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -28,6 +31,9 @@
       <Filter>Source Files</Filter>
     </CustomBuild>
     <CustomBuild Include="C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\stream_compaction\efficient.cu">
+      <Filter>Source Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\stream_compaction\radix.cu">
       <Filter>Source Files</Filter>
     </CustomBuild>
     <CustomBuild Include="C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\stream_compaction\thrust.cu">
@@ -46,6 +52,9 @@
       <Filter>Object Files</Filter>
     </Object>
     <Object Include="C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\$(Configuration)\stream_compaction_generated_efficient.cu.obj">
+      <Filter>Object Files</Filter>
+    </Object>
+    <Object Include="C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\$(Configuration)\stream_compaction_generated_radix.cu.obj">
       <Filter>Object Files</Filter>
     </Object>
     <Object Include="C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\stream_compaction\CMakeFiles\stream_compaction.dir\$(Configuration)\stream_compaction_generated_thrust.cu.obj">

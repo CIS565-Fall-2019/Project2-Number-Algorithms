@@ -1,4 +1,4 @@
-The system is: Windows - 10.0.17134 - AMD64
+The system is: Windows - 10.0.18362 - AMD64
 Compiling the C compiler identification source file "CMakeCCompilerId.c" succeeded.
 Compiler:  
 Build flags: 
@@ -9,7 +9,7 @@ The output was:
 Microsoft (R) Build Engine version 15.9.21+g9802d43bc3 for .NET Framework
 Copyright (C) Microsoft Corporation. All rights reserved.
 
-Build started 9/16/2019 3:23:51 PM.
+Build started 9/18/2019 4:53:56 PM.
 Project "C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\CMakeFiles\3.15.2\CompilerIdC\CompilerIdC.vcxproj" on node 1 (default targets).
 PrepareForBuild:
   Creating directory "Debug\".
@@ -35,7 +35,7 @@ Build succeeded.
     0 Warning(s)
     0 Error(s)
 
-Time Elapsed 00:00:01.13
+Time Elapsed 00:00:00.56
 
 
 Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "CompilerIdC.exe"
@@ -54,7 +54,7 @@ The output was:
 Microsoft (R) Build Engine version 15.9.21+g9802d43bc3 for .NET Framework
 Copyright (C) Microsoft Corporation. All rights reserved.
 
-Build started 9/16/2019 3:23:53 PM.
+Build started 9/18/2019 4:53:57 PM.
 Project "C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\CMakeFiles\3.15.2\CompilerIdCXX\CompilerIdCXX.vcxproj" on node 1 (default targets).
 PrepareForBuild:
   Creating directory "Debug\".
@@ -80,7 +80,7 @@ Build succeeded.
     0 Warning(s)
     0 Error(s)
 
-Time Elapsed 00:00:01.01
+Time Elapsed 00:00:00.51
 
 
 Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "CompilerIdCXX.exe"
@@ -92,68 +92,68 @@ The CXX compiler identification is MSVC, found in "C:/Users/aleks/OneDrive/Docum
 Determining if the C compiler works passed with the following output:
 Change Dir: C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2017/Community/MSBuild/15.0/Bin/MSBuild.exe cmTC_0f8c1.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=15.0 /v:m && Microsoft (R) Build Engine version 15.9.21+g9802d43bc3 for .NET Framework
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2017/Community/MSBuild/15.0/Bin/MSBuild.exe cmTC_a72a1.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=15.0 /v:m && Microsoft (R) Build Engine version 15.9.21+g9802d43bc3 for .NET Framework
 Copyright (C) Microsoft Corporation. All rights reserved.
 
   Microsoft (R) C/C++ Optimizing Compiler Version 19.00.24234.1 for x64
   Copyright (C) Microsoft Corporation.  All rights reserved.
   
-  cl /c /Zi /W3 /WX- /Od /Ob0 /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_0f8c1.dir\Debug\\" /Fd"cmTC_0f8c1.dir\Debug\vc140.pdb" /Gd /TC /errorReport:queue "C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\CMakeFiles\CMakeTmp\testCCompiler.c"
+  cl /c /Zi /W3 /WX- /Od /Ob0 /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_a72a1.dir\Debug\\" /Fd"cmTC_a72a1.dir\Debug\vc140.pdb" /Gd /TC /errorReport:queue "C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\CMakeFiles\CMakeTmp\testCCompiler.c"
   testCCompiler.c
   
-  cmTC_0f8c1.vcxproj -> C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\CMakeFiles\CMakeTmp\Debug\cmTC_0f8c1.exe
-  cmTC_0f8c1.vcxproj -> C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/CMakeFiles/CMakeTmp/Debug/cmTC_0f8c1.pdb (Full PDB)
+  cmTC_a72a1.vcxproj -> C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\CMakeFiles\CMakeTmp\Debug\cmTC_a72a1.exe
+  cmTC_a72a1.vcxproj -> C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/CMakeFiles/CMakeTmp/Debug/cmTC_a72a1.pdb (Full PDB)
 
 
 
 Detecting C compiler ABI info compiled with the following output:
 Change Dir: C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2017/Community/MSBuild/15.0/Bin/MSBuild.exe cmTC_a4fc0.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=15.0 /v:m && Microsoft (R) Build Engine version 15.9.21+g9802d43bc3 for .NET Framework
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2017/Community/MSBuild/15.0/Bin/MSBuild.exe cmTC_844bf.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=15.0 /v:m && Microsoft (R) Build Engine version 15.9.21+g9802d43bc3 for .NET Framework
 Copyright (C) Microsoft Corporation. All rights reserved.
 
   Microsoft (R) C/C++ Optimizing Compiler Version 19.00.24234.1 for x64
+  CMakeCCompilerABI.c
   Copyright (C) Microsoft Corporation.  All rights reserved.
   
-  cl /c /Zi /W3 /WX- /Od /Ob0 /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_a4fc0.dir\Debug\\" /Fd"cmTC_a4fc0.dir\Debug\vc140.pdb" /Gd /TC /errorReport:queue "C:\Program Files\CMake\share\cmake-3.15\Modules\CMakeCCompilerABI.c"
-  CMakeCCompilerABI.c
+  cl /c /Zi /W3 /WX- /Od /Ob0 /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_844bf.dir\Debug\\" /Fd"cmTC_844bf.dir\Debug\vc140.pdb" /Gd /TC /errorReport:queue "C:\Program Files\CMake\share\cmake-3.15\Modules\CMakeCCompilerABI.c"
   
-  cmTC_a4fc0.vcxproj -> C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\CMakeFiles\CMakeTmp\Debug\cmTC_a4fc0.exe
-  cmTC_a4fc0.vcxproj -> C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/CMakeFiles/CMakeTmp/Debug/cmTC_a4fc0.pdb (Full PDB)
+  cmTC_844bf.vcxproj -> C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\CMakeFiles\CMakeTmp\Debug\cmTC_844bf.exe
+  cmTC_844bf.vcxproj -> C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/CMakeFiles/CMakeTmp/Debug/cmTC_844bf.pdb (Full PDB)
 
 
 
 Determining if the CXX compiler works passed with the following output:
 Change Dir: C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2017/Community/MSBuild/15.0/Bin/MSBuild.exe cmTC_21a80.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=15.0 /v:m && Microsoft (R) Build Engine version 15.9.21+g9802d43bc3 for .NET Framework
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2017/Community/MSBuild/15.0/Bin/MSBuild.exe cmTC_6a5fe.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=15.0 /v:m && Microsoft (R) Build Engine version 15.9.21+g9802d43bc3 for .NET Framework
 Copyright (C) Microsoft Corporation. All rights reserved.
 
   Microsoft (R) C/C++ Optimizing Compiler Version 19.00.24234.1 for x64
   Copyright (C) Microsoft Corporation.  All rights reserved.
   
-  cl /c /Zi /W3 /WX- /Od /Ob0 /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /Fo"cmTC_21a80.dir\Debug\\" /Fd"cmTC_21a80.dir\Debug\vc140.pdb" /Gd /TP /errorReport:queue "C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\CMakeFiles\CMakeTmp\testCXXCompiler.cxx"
+  cl /c /Zi /W3 /WX- /Od /Ob0 /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /Fo"cmTC_6a5fe.dir\Debug\\" /Fd"cmTC_6a5fe.dir\Debug\vc140.pdb" /Gd /TP /errorReport:queue "C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\CMakeFiles\CMakeTmp\testCXXCompiler.cxx"
   testCXXCompiler.cxx
   
-  cmTC_21a80.vcxproj -> C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\CMakeFiles\CMakeTmp\Debug\cmTC_21a80.exe
-  cmTC_21a80.vcxproj -> C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/CMakeFiles/CMakeTmp/Debug/cmTC_21a80.pdb (Full PDB)
+  cmTC_6a5fe.vcxproj -> C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\CMakeFiles\CMakeTmp\Debug\cmTC_6a5fe.exe
+  cmTC_6a5fe.vcxproj -> C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/CMakeFiles/CMakeTmp/Debug/cmTC_6a5fe.pdb (Full PDB)
 
 
 
 Detecting CXX compiler ABI info compiled with the following output:
 Change Dir: C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2017/Community/MSBuild/15.0/Bin/MSBuild.exe cmTC_55192.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=15.0 /v:m && Microsoft (R) Build Engine version 15.9.21+g9802d43bc3 for .NET Framework
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2017/Community/MSBuild/15.0/Bin/MSBuild.exe cmTC_c46c3.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=15.0 /v:m && Microsoft (R) Build Engine version 15.9.21+g9802d43bc3 for .NET Framework
 Copyright (C) Microsoft Corporation. All rights reserved.
 
   Microsoft (R) C/C++ Optimizing Compiler Version 19.00.24234.1 for x64
   Copyright (C) Microsoft Corporation.  All rights reserved.
   
-  cl /c /Zi /W3 /WX- /Od /Ob0 /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /Fo"cmTC_55192.dir\Debug\\" /Fd"cmTC_55192.dir\Debug\vc140.pdb" /Gd /TP /errorReport:queue "C:\Program Files\CMake\share\cmake-3.15\Modules\CMakeCXXCompilerABI.cpp"
+  cl /c /Zi /W3 /WX- /Od /Ob0 /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /Fo"cmTC_c46c3.dir\Debug\\" /Fd"cmTC_c46c3.dir\Debug\vc140.pdb" /Gd /TP /errorReport:queue "C:\Program Files\CMake\share\cmake-3.15\Modules\CMakeCXXCompilerABI.cpp"
   CMakeCXXCompilerABI.cpp
   
-  cmTC_55192.vcxproj -> C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\CMakeFiles\CMakeTmp\Debug\cmTC_55192.exe
-  cmTC_55192.vcxproj -> C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/CMakeFiles/CMakeTmp/Debug/cmTC_55192.pdb (Full PDB)
+  cmTC_c46c3.vcxproj -> C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\CMakeFiles\CMakeTmp\Debug\cmTC_c46c3.exe
+  cmTC_c46c3.vcxproj -> C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/CMakeFiles/CMakeTmp/Debug/cmTC_c46c3.pdb (Full PDB)
 
 
 
@@ -162,17 +162,17 @@ Copyright (C) Microsoft Corporation. All rights reserved.
 Detecting CXX [-std:c++14] compiler features compiled with the following output:
 Change Dir: C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2017/Community/MSBuild/15.0/Bin/MSBuild.exe cmTC_fbab2.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=15.0 /v:m && Microsoft (R) Build Engine version 15.9.21+g9802d43bc3 for .NET Framework
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2017/Community/MSBuild/15.0/Bin/MSBuild.exe cmTC_fee99.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=15.0 /v:m && Microsoft (R) Build Engine version 15.9.21+g9802d43bc3 for .NET Framework
 Copyright (C) Microsoft Corporation. All rights reserved.
 
   Microsoft (R) C/C++ Optimizing Compiler Version 19.00.24234.1 for x64
   Copyright (C) Microsoft Corporation.  All rights reserved.
   
-  cl /c /Zi /W3 /WX- /Od /Ob0 /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /Fo"cmTC_fbab2.dir\Debug\\" /Fd"cmTC_fbab2.dir\Debug\vc140.pdb" /Gd /TP /errorReport:queue  -std:c++14 "C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\CMakeFiles\feature_tests.cxx"
+  cl /c /Zi /W3 /WX- /Od /Ob0 /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /Fo"cmTC_fee99.dir\Debug\\" /Fd"cmTC_fee99.dir\Debug\vc140.pdb" /Gd /TP /errorReport:queue  -std:c++14 "C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\CMakeFiles\feature_tests.cxx"
   feature_tests.cxx
   
-  cmTC_fbab2.vcxproj -> C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\CMakeFiles\CMakeTmp\Debug\cmTC_fbab2.exe
-  cmTC_fbab2.vcxproj -> C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/CMakeFiles/CMakeTmp/Debug/cmTC_fbab2.pdb (Full PDB)
+  cmTC_fee99.vcxproj -> C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\CMakeFiles\CMakeTmp\Debug\cmTC_fee99.exe
+  cmTC_fee99.vcxproj -> C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/CMakeFiles/CMakeTmp/Debug/cmTC_fee99.pdb (Full PDB)
 
 
 
@@ -238,17 +238,17 @@ Copyright (C) Microsoft Corporation. All rights reserved.
 Detecting CXX [] compiler features compiled with the following output:
 Change Dir: C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2017/Community/MSBuild/15.0/Bin/MSBuild.exe cmTC_e79b5.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=15.0 /v:m && Microsoft (R) Build Engine version 15.9.21+g9802d43bc3 for .NET Framework
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2017/Community/MSBuild/15.0/Bin/MSBuild.exe cmTC_aab43.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=15.0 /v:m && Microsoft (R) Build Engine version 15.9.21+g9802d43bc3 for .NET Framework
 Copyright (C) Microsoft Corporation. All rights reserved.
 
   Microsoft (R) C/C++ Optimizing Compiler Version 19.00.24234.1 for x64
   Copyright (C) Microsoft Corporation.  All rights reserved.
   
-  cl /c /Zi /W3 /WX- /Od /Ob0 /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /Fo"cmTC_e79b5.dir\Debug\\" /Fd"cmTC_e79b5.dir\Debug\vc140.pdb" /Gd /TP /errorReport:queue "C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\CMakeFiles\feature_tests.cxx"
+  cl /c /Zi /W3 /WX- /Od /Ob0 /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /Fo"cmTC_aab43.dir\Debug\\" /Fd"cmTC_aab43.dir\Debug\vc140.pdb" /Gd /TP /errorReport:queue "C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\CMakeFiles\feature_tests.cxx"
   feature_tests.cxx
   
-  cmTC_e79b5.vcxproj -> C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\CMakeFiles\CMakeTmp\Debug\cmTC_e79b5.exe
-  cmTC_e79b5.vcxproj -> C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/CMakeFiles/CMakeTmp/Debug/cmTC_e79b5.pdb (Full PDB)
+  cmTC_aab43.vcxproj -> C:\Users\aleks\OneDrive\Documents\Alexis\CIS565\Project2-Number-Algorithms\Project2-Stream-Compaction\build\CMakeFiles\CMakeTmp\Debug\cmTC_aab43.exe
+  cmTC_aab43.vcxproj -> C:/Users/aleks/OneDrive/Documents/Alexis/CIS565/Project2-Number-Algorithms/Project2-Stream-Compaction/build/CMakeFiles/CMakeTmp/Debug/cmTC_aab43.pdb (Full PDB)
 
 
 

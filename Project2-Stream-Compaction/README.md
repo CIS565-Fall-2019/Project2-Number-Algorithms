@@ -39,3 +39,25 @@ I assume thrust works so well because it does pay attention to slower threads, e
 I ran my program on power-of-two array sizes (from 2^8 to 2^18), and recorded and plotted the results. The time cost, again is the y-axis, and the x-axis represents array size. Methods with the label "2^n" were recorded at the listed array sizes, and methods with the label "non-2^n" were recorded at the listed array size, minus 3. These tests were done using an optimized block size of 128 for all methods.
 
 Similarly to the Scan analyses above, the CPU implementations are faster than the GPU. As before, the non-power-of-two-sized arrays are slightly faster than their counterparts, and the CPU-with-scan algorithm is the slowest of the three CPU algorithm. This makes sense as we are performing more operations in With-Scan.
+
+
+## LATE DAY EDIT, EXTRA CREDIT: 
+
+### Part 5: Why is My GPU Approach So Slow?
+
+My efficient GPU scan is not that efficient, because I do not properly partition warps. Because we operate on a binary tree structure, my up-sweep and down-sweep methods have divergent warps at EVERY pass. Thus I created an index offset to map the first [0, n / 2^(d+1)] thread indices to the needed idata indices at every pass. This allows me to make similar thread executions adjacent rather than split by modulus.
+
+### Part 6: Radix Sort 
+
+I edited the cmake files to include radix.h and radix.cu
+
+Here are the results of my Radix sort:
+
+![](img/radix-time.png)
+
+I noticed a discrepency for non-power-of-two values when using my own exclusive scan (the values were shifted by one index), and so I also implemented a naive and thrust inclusive scan to get matching results. However, because of device vectors interacting with the rest of my data causing some memory issues, I removed the thrust scan. The naive scan is commented out for now.
+
+### NOTE 
+
+IMPORTANT: Sadly after doing extra credits, I have introduced issues with memory. Previously, I could rus arrays of size up to 2^20, and now I can only run arrays up to 2^15. I believe this is an issue with the warp partitions. If you would like to see an earlier performance, please check my prior comit, or look at the commented out code in efficient.cu.
+

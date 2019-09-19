@@ -73,5 +73,41 @@ namespace StreamCompaction {
             cudaFree(dev_tempIData);
 			cudaFree(dev_tempOData);
         }
+
+		/**
+		 * Performs prefix-sum (aka scan) on idata, storing the result into odata.
+		 Inclusive to assist with Radix sort
+		 */
+		void scanInclusive(int n, int *odata, const int *idata) {
+			// Initializing arrays
+			int* dev_tempIData;
+			int* dev_tempOData;
+
+			cudaMalloc((void**)&dev_tempIData, n * sizeof(int));
+			checkCUDAErrorFn("cudaMalloc tempIData failed!", "Naive.cu", 44);
+
+			cudaMalloc((void**)&dev_tempOData, n * sizeof(int));
+			checkCUDAErrorFn("cudaMalloc tempOData failed!", "Naive.cu", 47);
+
+			// Copying the input array to the device
+			cudaMemcpy(dev_tempIData, idata, n * sizeof(int), cudaMemcpyHostToDevice);
+			checkCUDAErrorFn("cudaMemcpy to input-copy failed!", "Naive.cu", 51);
+
+			// Using GPU Gems' scan function
+			for (int d = 1; d <= ilog2ceil(n); d++) {
+				kernScanNaive << < n, blockSize >> > (n, d, dev_tempOData, dev_tempIData);
+				checkCUDAErrorFn("kernScanNaive failed!", "Naive.cu", 58);
+
+				std::swap(dev_tempIData, dev_tempOData);
+			}
+
+
+			// Copying the result back to the output array
+			cudaMemcpy(odata, dev_tempOData, n * sizeof(int), cudaMemcpyDeviceToHost);
+			checkCUDAErrorFn("cudaMemcpy to output failed!", "Naive.cu", 71);
+
+			cudaFree(dev_tempIData);
+			cudaFree(dev_tempOData);
+		}
     }
 }
