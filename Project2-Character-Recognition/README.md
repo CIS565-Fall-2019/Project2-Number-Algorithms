@@ -77,7 +77,7 @@ The graph below shows the change of total error in the first 200 epoches.
 
  ![](img/image_curve.jpg)
 
- Another graph shows the evolution of prediction correctness in the training set. The prediction reaches 100% correct at about 80th epoch. The cost continues to decrease after the prediction achieves 100% correctness.
+ Another graph shows the evolution of prediction accuracy in the training set. The network reaches 100% accuracy on the training set at about 80th epoch. The cost continues to decrease after achieving 100% accuracy on the training set.
 
  ![](img/image_corr.jpg)
 
