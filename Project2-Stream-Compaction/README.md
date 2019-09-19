@@ -45,54 +45,54 @@ CUDA Stream Compaction
 ****************
 ** SCAN TESTS **
 ****************
-    [  25  15  21  13  27  28  36  12  46  44  46  45  42 ...  17   0 ]
-SIZE: 128, NPOT:125
+    [   4  39  13  14   6  31  41  35  29  20   8  20  16 ...  19   0 ]
+SIZE: 512, NPOT:509
 ==== cpu scan, power-of-two ====
-   elapsed time: 0.0016ms    (std::chrono Measured)
+   elapsed time: 0.0009ms    (std::chrono Measured)
 ==== cpu scan, non-power-of-two ====
    elapsed time: 0.0009ms    (std::chrono Measured)
     passed
 ==== naive scan, power-of-two ====
-   elapsed time: 0.106496ms    (CUDA Measured)
+   elapsed time: 0.044032ms    (CUDA Measured)
     passed
 ==== naive scan, non-power-of-two ====
-   elapsed time: 0.11264ms    (CUDA Measured)
+   elapsed time: 0.043008ms    (CUDA Measured)
     passed
 ==== work-efficient scan, power-of-two ====
-   elapsed time: 0.077824ms    (CUDA Measured)
+   elapsed time: 0.083968ms    (CUDA Measured)
     passed
 ==== work-efficient scan, non-power-of-two ====
-   elapsed time: 0.095232ms    (CUDA Measured)
+   elapsed time: 0.08192ms    (CUDA Measured)
     passed
 ==== thrust scan, power-of-two ====
-   elapsed time: 11.607ms    (CUDA Measured)
+   elapsed time: 0.091136ms    (CUDA Measured)
     passed
 ==== thrust scan, non-power-of-two ====
-   elapsed time: 1.11616ms    (CUDA Measured)
+   elapsed time: 0.06512ms    (CUDA Measured)
     passed
 
 *****************************
 ** STREAM COMPACTION TESTS **
 *****************************
-    [   0   0   1   3   2   1   2   1   3   0   0   1   1 ...   3   0 ]
+    [   2   3   1   1   0   2   0   2   0   0   2   0   3 ...   2   0 ]
 ==== cpu compact without scan, power-of-two ====
-   elapsed time: 0.0012ms    (std::chrono Measured)
+   elapsed time: 0.0019ms    (std::chrono Measured)
     passed
 ==== cpu compact without scan, non-power-of-two ====
-   elapsed time: 0.001ms    (std::chrono Measured)
+   elapsed time: 0.0013ms    (std::chrono Measured)
     passed
 ==== cpu compact with scan ====
-   elapsed time: 0.0075ms    (std::chrono Measured)
+   elapsed time: 0.0054ms    (std::chrono Measured)
     passed
 ==== work-efficient compact, power-of-two ====
-   elapsed time: 0.18944ms    (CUDA Measured)
+   elapsed time: 0.146432ms    (CUDA Measured)
     passed
 ==== work-efficient compact, non-power-of-two ====
-   elapsed time: 0.287744ms    (CUDA Measured)
+   elapsed time: 0.137216ms    (CUDA Measured)
     passed
 ==== radix sort ====
-    [  20  60  29  31  26  25  58  45  63  56  44  37  45 ...  40  10 ]
-    [  10  12  20  25  26  29  31  36  37  40  44  45  45 ...  62  63 ]
+    [  62  63  17   9   8   6  12  46  28   0  58  16  47 ...  62  41 ]
+    [   0   6   8   8   9  12  16  17  17  28  32  32  41 ...  62  63 ]
 ```
 
 
