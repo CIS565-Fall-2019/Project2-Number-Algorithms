@@ -45,6 +45,8 @@ CUDA Character Recognition
 
 - Multiply neuro data in this layer with weights(full connected)
 
+- sigmoid
+
 - softmax 
 
 - get output
@@ -55,6 +57,7 @@ CUDA Character Recognition
 
 - calculate the error between ground truth and output
 - softmax derivative, pass backward
+- sigmoid derivative
 - multiply with weights, pass backward and get the hidden-output gradient
 - sigmoid derivative
 - multiply with weights, get the input-hidden gradient
@@ -67,8 +70,6 @@ CUDA Character Recognition
 ![](img/epi.png)
 
 As shown in the graph, when we increase the hidden layer size, the less count of episode we need to train to the expected value.
-
-
 
 ## Result
 
@@ -198,4 +199,14 @@ test time: 52 ,correct probability: 100%
 
 ## Extra
 
-I use the cublas to do the network calculation as a matrix multiply.
+I use the cublas to do the forward pass and the back propagation calculation as a matrix multiply.
+
+The input of the txt data can be a matrix of  *1 x 10201*
+
+and the input_hid_weight is *10201 x hid_layer_size*
+
+the hid layer data is  *1 x hid_layer_size*
+
+the hid_output_weight is  *hid_layer_size x output_layer_size*
+
+the output is  *1 x output_layer_size*
