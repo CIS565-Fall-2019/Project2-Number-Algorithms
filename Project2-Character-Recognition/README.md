@@ -67,7 +67,7 @@ CUDA Character Recognition
 
 ## Analysis
 
-![](img/epi.png)
+![](img/epi2.png)
 
 As shown in the graph, when we increase the hidden layer size, sometimes the episode goes down, sometimes increase, there is no obvious stable tendency for my network.
 
