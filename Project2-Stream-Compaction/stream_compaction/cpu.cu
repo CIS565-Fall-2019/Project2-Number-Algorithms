@@ -12,15 +12,25 @@ namespace StreamCompaction {
 	        return timer;
         }
 
+        void scan_implementation(int n, int *odata, const int *idata) {
+          odata[0] = 0;
+          for (int i = 1; i < n; i++) {
+            odata[i] = odata[i - 1] + idata[i - 1];
+          }
+        }
+
         /**
          * CPU scan (prefix sum).
          * For performance analysis, this is supposed to be a simple for loop.
          * (Optional) For better understanding before starting moving to GPU, you can simulate your GPU scan in this function first.
          */
-        void scan(int n, int *odata, const int *idata) {
-	        timer().startCpuTimer();
-            // TODO
-	        timer().endCpuTimer();
+        void scan(int n, int *odata, const int *idata) {	        
+          // TODO
+          timer().startCpuTimer();
+
+          scan_implementation(n, odata, idata);
+	        
+          timer().endCpuTimer();
         }
 
         /**
@@ -29,10 +39,20 @@ namespace StreamCompaction {
          * @returns the number of elements remaining after compaction.
          */
         int compactWithoutScan(int n, int *odata, const int *idata) {
-	        timer().startCpuTimer();
-            // TODO
+          // TODO
+
+          timer().startCpuTimer();
+
+          int cnt = 0;
+          for (int i = 0; i < n; i++) {
+            if (idata[i] != 0) {
+              odata[cnt++] = idata[i];
+            }
+          }
+
 	        timer().endCpuTimer();
-            return -1;
+
+          return cnt;
         }
 
         /**
@@ -41,10 +61,36 @@ namespace StreamCompaction {
          * @returns the number of elements remaining after compaction.
          */
         int compactWithScan(int n, int *odata, const int *idata) {
-	        timer().startCpuTimer();
 	        // TODO
-	        timer().endCpuTimer();
-            return -1;
+          // allocate memory
+          int* isnonzero = (int*)malloc(n * sizeof(int));
+          int* indices = (int*)malloc(n * sizeof(int));
+          
+          timer().startCpuTimer();
+            
+          // identify non zero elements
+          for (int i = 0; i < n; i++) {
+            isnonzero[i] = (idata[i] != 0) ? 1 : 0;
+          }
+
+          // compute indices with an exclusive scan
+          scan_implementation(n, indices, isnonzero);
+          int n_compact = isnonzero[n - 1] ? indices[n - 1] + 1: indices[n - 1];
+
+          // scatter
+          for (int i = 0; i < n; i++) {
+            if (isnonzero[i]) {
+              odata[indices[i]] = idata[i];
+            }
+          }
+
+          timer().endCpuTimer();
+
+          // free memory
+          free(isnonzero);
+          free(indices);
+ 
+          return n_compact;
         }
     }
 }
