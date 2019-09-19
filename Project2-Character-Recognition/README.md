@@ -10,7 +10,7 @@ CUDA Character Recognition
 In this project, a three-layer perceptron is implemented using CUDA.The implementation is tested on the XOR example and the given character recognition dataset. 
 
 The three-layer perceptron is warpped into a class `MLP3`, which is declared in `mlp.h` and implemented in `mlp.cu`. Related CUDA kernels and cuBLAS helper functions are implemented in `mlp.cu`. The neural network is composed of three layers:
- - A input layer
+ - An input layer
  - A fully connected hidden layer with Sigmoid activation
  - A fully connected output layer with Sigmoid activation
 
@@ -21,7 +21,7 @@ Currently we do not support changing the number of layers. But the number of neu
  3. **Calculate Loss**: compute the total training loss of current batch.
  4. **Update weights**: update the gradient using naive gradient descent.
 
- All calculations are implemented in parallel using custom CUDA kernels and cuCLABS library.
+ All calculations are implemented in parallel using custom CUDA kernels and cuCLABS library. Since the training process is very fast, the weights are not saved to any file. To test the implementation we can re-train the network within seconds.
 
  **Extra Credit:** Instead of doing 1d vector for input to output, matrix multiplication of the weights is used between each layer of the overall network as well as in back propagation.
 
@@ -34,7 +34,7 @@ Currently we do not support changing the number of layers. But the number of neu
  - initial weights: As given in the Excel
  - learning rate: 10^-2 fixed
 
-The graph below shows the change of total error in the first 200 epoches.
+The initial weights are set according to the Excel example. Values generated in the first pass is compared and verified. The graph below shows the change of total error in the first 200 epoches.
 
 ![](img/xor_curve.jpg)
 
@@ -64,18 +64,20 @@ epoch: 190 | cost: 0.000752402
 ```
 
 ### Character Recognition
- - input neuron: 2
- - hidden neuron: 2
- - output neuron: 1
+ - input neuron: 10201
+ - hidden neuron: 128
+ - output neuron: 52
  - batch size: 52
  - initial weights: random
  - learning rate: 10^-4 fixed
+ 
+In the character recgnition dataset, we are given 52 101x101 images representing each of the 26 letters in the alphabet with and without capitalization. Each input is a 1x10201 array containing the pixel values of the image, and the correspond label is a 1x52 one hot vector. These data are used directly in training without further preprocessing.
 
- The graph below shows the change of total error in the first 200 epoches.
+The graph below shows the change of total error in the first 200 epoches.
 
  ![](img/image_curve.jpg)
 
- Another graph shows the evolution of prediction correctness in the training set. The prediction reaches 100% correct at about 80th epoch.
+ Another graph shows the evolution of prediction correctness in the training set. The prediction reaches 100% correct at about 80th epoch. The cost continues to decrease after the prediction achieves 100% correctness.
 
  ![](img/image_corr.jpg)
 

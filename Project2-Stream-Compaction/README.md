@@ -34,7 +34,7 @@ The graphs below compare the runtime of different scan implementations.
  - Work efficient scan performs worse than naive scan, which is unexpected. This will be discussed later. 
  - Another unexplained phenomenon is CPU scan with non-power-of-two array size has significantly better performance (even better than GPU) than power-of-two array size. It could be a bug in the test program.
 
-### Extra Credit 5: Why is My GPU Approach So Slow
+### Extra Credit: Why is My GPU Approach So Slow?
 The reason why work efficient scan is slower than expected is although the number of arithmetic operation is reduced, the kernel call is launching too much unnecessary threads. This effect has more influence on runtime when the array size is large.
 
 To resolve this, both the kernel code and calling code is altered so that only necessary number of threads are launched. The thread index is converted to the array index by multiplying stride length.

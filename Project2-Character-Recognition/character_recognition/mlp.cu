@@ -101,7 +101,8 @@ namespace CharacterRecognition {
     array[idx] = (float)unitDistrib(rng);
   }
 
-	// TODO: implement required elements for MLP sections 1 and 2 here
+	// MLP3 function definitions
+
   MLP3::MLP3(int input_size, int hidden_size, int output_size) {
     input_size_ = input_size;
     hidden_size_ = hidden_size;

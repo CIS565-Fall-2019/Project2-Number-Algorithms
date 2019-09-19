@@ -1,8 +1,8 @@
 /**
  * @file      main.cpp
- * @brief     Stream compaction test program
- * @authors   Kai Ninomiya
- * @date      2015
+ * @brief     Character Recognition test program
+ * @authors   Zheyuan Xie
+ * @date      2019
  * @copyright University of Pennsylvania
  */
 
