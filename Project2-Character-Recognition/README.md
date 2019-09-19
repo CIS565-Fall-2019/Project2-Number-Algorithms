@@ -41,9 +41,11 @@ CUDA Character Recognition
 
 - get hidden layer data
 
+- sigmoid
+
 - Multiply neuro data in this layer with weights(full connected)
 
-- sigmoid and softmax 
+- softmax 
 
 - get output
 
@@ -54,6 +56,7 @@ CUDA Character Recognition
 - calculate the error between ground truth and output
 - softmax derivative, pass backward
 - multiply with weights, pass backward and get the hidden-output gradient
+- sigmoid derivative
 - multiply with weights, get the input-hidden gradient
 - update the weights
 
@@ -88,6 +91,8 @@ another is just follow the order(maybe forward or backward, here I use forward)
 to make 52 tests. 
 
 I print each recognize test result.
+
+###### I print the weights in the folder, see hid_out_w.txt and input_hid_w,txt
 
 ```
 ****************
