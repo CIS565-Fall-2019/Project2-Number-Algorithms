@@ -1,16 +1,16 @@
-CUDA Number Algorithms
-======================
+# Project 2: CUDA Number Algorithms
+**University of Pennsylvania, CIS 565: GPU Programming and Architecture,
+Project 2**
 
-**University of Pennsylvania, CIS 565: GPU Programming and Architecture, Project 2**
+Caroline Lachanski: [LinkedIn](https://www.linkedin.com/in/caroline-lachanski/), [personal website](http://carolinelachanski.com/)
 
-* (TODO) YOUR NAME HERE
-  * (TODO) [LinkedIn](), [personal website](), [twitter](), etc.
-* Tested on: (TODO) Windows 22, i7-2222 @ 2.22GHz 22GB, GTX 222 222MB (Moore 2222 Lab)
+Tested on: Windows 10, i5-6500 @ 3.20GHz 16GB, GTX 1660 (personal computer)
 
-### (TODO: Your README)
+## Project Description
 
-Link to the readmes of the other two subprojects.
+The repository contains two separate projects:
 
-Add anything else you think is relevant up to this point.
-(Remember, this is public, so don't put anything here that you don't want to share with the world.)
+1. [Stream Compaction](https://github.com/clach/Project2-Number-Algorithms/blob/master/Project2-Stream-Compaction)
+
+2. [Character Recognition](https://github.com/clach/Project2-Number-Algorithms/tree/master/Project2-Character-Recognition)
 

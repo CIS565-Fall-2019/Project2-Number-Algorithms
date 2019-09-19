@@ -19,9 +19,24 @@ namespace StreamCompaction {
          */
         void scan(int n, int *odata, const int *idata) {
 	        timer().startCpuTimer();
-            // TODO
+
+			odata[0] = 0;
+			for (int i = 1; i < n; i++) {
+				odata[i] = idata[i - 1] + odata[i - 1];
+			}
+
 	        timer().endCpuTimer();
         }
+
+		/**
+		 * CPU scan (prefix sum) with no timers
+		 */
+		void scanNoTimer(int n, int *odata, const int *idata) {
+			odata[0] = 0;
+			for (int i = 1; i < n; i++) {
+				odata[i] = idata[i - 1] + odata[i - 1];
+			}
+		}
 
         /**
          * CPU stream compaction without using the scan function.
@@ -30,10 +45,33 @@ namespace StreamCompaction {
          */
         int compactWithoutScan(int n, int *odata, const int *idata) {
 	        timer().startCpuTimer();
-            // TODO
+
+			// copy over non-zero values to odata
+			int currIndex = 0;
+			for (int i = 0; i < n; i++) {
+				if (idata[i] != 0) {
+					odata[currIndex] = idata[i];
+					currIndex++;
+				}
+			}
+
 	        timer().endCpuTimer();
-            return -1;
+            return currIndex;
         }
+
+		/**
+		 * CPU scatter
+		 *
+		 * @returns the number of elements remaining after compaction.
+		 */
+		int scatter(int n, int *odata, const int *idata, const int *bools, const int *scanOutput) {
+			for (int i = 0; i < n; i++) {
+				if (bools[i] == 1) {
+					odata[scanOutput[i]] = idata[i];
+				}
+			}
+			return scanOutput[n - 1];
+		}
 
         /**
          * CPU stream compaction using scan and scatter, like the parallel version.
@@ -42,9 +80,26 @@ namespace StreamCompaction {
          */
         int compactWithScan(int n, int *odata, const int *idata) {
 	        timer().startCpuTimer();
-	        // TODO
+
+			int *bools = new int[n];
+			int *scanResult = new int[n];
+
+			// map input to binary array 
+			for (int i = 0; i < n; i++) {
+				bools[i] = idata[i] == 0 ? 0 : 1;
+			}
+
+			// scan binary array
+			scanNoTimer(n, scanResult, bools);
+
+			// scatter
+			int outSize = scatter(n, odata, idata, bools, scanResult);
+			delete(bools);
+			delete(scanResult);
+
 	        timer().endCpuTimer();
-            return -1;
+
+            return outSize;
         }
     }
 }
