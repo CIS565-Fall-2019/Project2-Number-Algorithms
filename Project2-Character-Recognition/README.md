@@ -69,7 +69,11 @@ CUDA Character Recognition
 
 ![](img/epi.png)
 
-As shown in the graph, when we increase the hidden layer size, the less count of episode we need to train to the expected value.
+As shown in the graph, when we increase the hidden layer size, sometimes the episode goes down, sometimes increase, there is no obvious stable tendency for my network.
+
+![](img/acc.png)
+
+after training more times, the accuracy increase.
 
 ## Result
 
