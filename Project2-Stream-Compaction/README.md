@@ -11,7 +11,7 @@ CUDA Stream Compaction
 
 
 
-[Result](#features) - [Rules](#rules) - [Runtime Analysis](#analysis) - [Extra](#extra)
+[Result](#features) - [Runtime Analysis](#analysis) - [Extra](#extra)
 
 
 
@@ -97,27 +97,41 @@ SIZE: 128, NPOT:125
 
 
 
-## Rules
-
-Scan: sum the variable together
-
-Stream Compaction: reduce the operation count
-
 ## Analysis
 
 ![](img/blocksize.png)
 
-
+As we increase the block size, there is no obvious change in the time cost. So I think just change change the block size cannot improve the performance. Some other time consuming things a lot of time(such as read and write global memory).
 
 ![](img/arraysize.png)
 
+As we increase the array size, most of the line increase as well.  As for CPU, the 2 lines are so near, and pot and npot do not affect so clearly. And in the Graph, the CPU is the fastest method.
+
+For GPU,  first is the thrust. As you can see the thrust lines are most written lines. I have tried the same parameters for running several times, and find different thrust output. This really makes me confused. Anyway their time consuming are unstable.
+
+For Naive, the npot line is always lower than the pot one. Although it is not so obvious difference. I think this is because we deal with less number in the npot case. Finally, for the work efficient method. I the npot line sometimes higher than the pot one. I think this is cased by the operation and more memory access in dealing with npot to pot when we meet the npot array. 
+
+
+
+![](img/beforeandafter.png)
+
+Here is a graph I show the effect of making the extra1. After remove the lazy thread, we have a stable time saving result!
+
 ## Questions
+
+##### Guess at what might be happening inside the Thrust implementation 
+
+The thrust result always vibrate between numbers, but as in my testing, the speed of it is between Naive and Work Efficient method. I think maybe they allocate less memory and use shared memory to save same latency.
 
 ##### Can you find the performance bottlenecks? Is it memory I/O? Computation? Is it different for each implementation?
 
+I think is yes.
 
+For the CPU, I think the computation is the main bottlenecks, since you need to do a for loop. And that is the improvement for GPU.
 
+For GPU Naive Scan, in the slides, we know that although the numbers of add is o(nlog2(n)), the whole complexity is o(log2(n)), which is smaller than the o(n). But in my test... the CPU is always faster than the GPU. So I think is the problem of memory I/O.  And in this homework, I do not use the shared memory, so there will be some latency in interact with global memory. There can be other time consuming things, such as bank conflict and SM resource problem, happens, Work Efficient also suffer from these and take more memory operations than Naive, I think that's why it is time costing than Naive.
 
+As for thrust, I am not sure...maybe memory I/O?
 
 ## Extra
 
@@ -150,5 +164,18 @@ Here is a comparison for before and after changing:
 ##### Radix sort
 
 just follow the slides from the course.
+
+How to call:
+
+```
+genArray(Sort_Size, ra, 64);
+zeroArray(Sort_Size, raout);
+StreamCompaction::Radix::radix_sort(Sort_Size, 6, raout, ra);
+printDesc("radix sort");
+printArray(Sort_Size, ra, true);
+printArray(Sort_Size, raout, true);
+```
+
+Result:
 
 ![](img/radix.png)
