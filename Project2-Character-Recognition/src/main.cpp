@@ -18,9 +18,9 @@ int *b = new int[SIZE];
 int *c = new int[SIZE];
 
 int main(int argc, char* argv[]) {
-    // Scan tests
 
-    printf("\n");
+   // Scan tests :/
+   /* printf("\n");
     printf("****************\n");
     printf("** SCAN TESTS **\n");
     printf("****************\n");
@@ -58,7 +58,7 @@ int main(int argc, char* argv[]) {
 	StreamCompaction::Naive::scan(SIZE, c, a);
 	printArray(SIZE, c, true); */
 
-    zeroArray(SIZE, c);
+    /*zeroArray(SIZE, c);
     printDesc("naive scan, non-power-of-two");
     StreamCompaction::Naive::scan(NPOT, c, a);
     printElapsedTime(StreamCompaction::Naive::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
@@ -148,5 +148,5 @@ int main(int argc, char* argv[]) {
     system("pause"); // stop Win32 console from closing on exit
 	delete[] a;
 	delete[] b;
-	delete[] c;
+	delete[] c;*/
 }
