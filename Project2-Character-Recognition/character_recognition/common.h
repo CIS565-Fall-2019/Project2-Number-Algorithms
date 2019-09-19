@@ -4,15 +4,18 @@
 #include <cuda_runtime.h>
 
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
+#include <iostream>
 #include <cmath>
+#include <vector>
 #include <algorithm>
 #include <chrono>
 #include <stdexcept>
 
 #define FILENAME (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
 #define checkCUDAError(msg) checkCUDAErrorFn(msg, FILENAME, __LINE__)
-
+#define BLOCK_SIZE 512
 /**
  * Check for CUDA errors; print and exit if there was a problem.
  */
@@ -30,6 +33,13 @@ inline int ilog2ceil(int x) {
     return x == 1 ? 0 : ilog2(x - 1) + 1;
 }
 
+//isInput = 1 -> input, isInput = 0 -> hidden
+//n is number of element in input
+inline int matrix_index(int n, int row, int col)
+{
+    return row * n + col;
+}
+
 
 namespace Common {
     /**
@@ -38,6 +48,7 @@ namespace Common {
     *
     * Adapted from WindyDarian(https://github.com/WindyDarian)
     */
+
     class PerformanceTimer
     {
     public:

@@ -57,6 +57,41 @@ void genArray(int n, int *a, int maxval) {
     }
 }
 
+//initialize weight matrix within a certain range -- should that be sequential?
+void init_weight_matrix(int n, int hidden_num,  float* weight_matrix, float range_min = 0, float range_max = 1)
+{
+    srand(time(nullptr));
+    for (int i = 0; i < n * hidden_num; ++i)
+    {
+        weight_matrix[i] = range_min + (static_cast <float> (rand()) / (static_cast <float> (RAND_MAX))) * (range_max - range_min);
+        if (weight_matrix[i] > range_max)
+        {
+            std::cout << "weight matrix index " << i << " has problem, its value is " << weight_matrix[i] << std::endl;
+            weight_matrix[i] = range_max;
+        }
+        else if (weight_matrix[i] < range_min)
+        {
+            std::cout << "weight matrix index " << i << " has problem, its value is " << weight_matrix[i] << std::endl;
+            weight_matrix[i] = range_min;
+        }
+    }
+}
+
+void init_bais_vec(int n, float *mat)
+{
+    for (int i = 0; i < n; ++i)
+    {
+        mat[i] = 0;
+    }
+}
+
+void init_input(int n, float* input) {
+    for (int i = 0; i < n; ++i)
+    {
+        input[i] = i % 2 == 0 ? 1 : 0;
+    }
+}
+
 void printArray(int n, int *a, bool abridged = false) {
     printf("    [ ");
     for (int i = 0; i < n; i++) {
@@ -65,6 +100,18 @@ void printArray(int n, int *a, bool abridged = false) {
             printf("... ");
         }
         printf("%3d ", a[i]);
+    }
+    printf("]\n");
+}
+
+void printFloatArray(int n, float *a, bool abridged = false) {
+    printf("    [ ");
+    for (int i = 0; i < n; i++) {
+        if (abridged && i + 2 == 15 && n > 16) {
+            i = n - 2;
+            printf("... ");
+        }
+        printf("%.3f ", a[i]);
     }
     printf("]\n");
 }
