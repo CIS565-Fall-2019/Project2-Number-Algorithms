@@ -16,18 +16,13 @@
 #include <vector>
 
 
-const int SIZE = 1 << 8; // feel free to change the size of array
-const int NPOT = SIZE - 3; // Non-Power-Of-Two
-int *a = new int[SIZE];
-int *b = new int[SIZE];
-int *c = new int[SIZE];
+const int INPUT_N = 10201;
+const int trainingSize = 52;	// How many samples to train
 
 using namespace std;
 
-void loadTrainingData(const string& dir, vector<vector<double> >& input, vector<vector<double> >& output)
+void loadTrainingData(const string& dir, vector<vector<float> >& input, vector<vector<float> >& output)
 {
-	const int trainingSize = 52;	// How many samples to train
-	const int numVals = 10201;
 
 	input.resize(trainingSize); // 52 x 10201
 	output.resize(trainingSize); // 52 x 52
@@ -44,34 +39,81 @@ void loadTrainingData(const string& dir, vector<vector<double> >& input, vector<
 		if (file.is_open()) {
 			int tmp;
 			for (size_t c = 0; c < 2; c++) file >> tmp;
-			input[i-1].resize(numVals);
-			for (size_t c = 0; c < numVals; c++) {
+			input[i-1].resize(INPUT_N);
+			for (size_t c = 0; c < INPUT_N; c++) {
 				file >> input[i-1][c];
 			}
 			file.close();
 		}
-
 		output[i - 1].resize(trainingSize, 0);
 		output[i - 1][i - 1] = 1;
 	}
 
+	// Normalization
+	for (size_t i = 0; i < trainingSize; i++) {
+		float mean = 0.f;
+		float variance = 0;
+		for (int j = 0; j < INPUT_N; j++) {
+			mean += input[i][j];
+		}
+		mean /= INPUT_N;
+		for (int j = 0; j < INPUT_N; j++) {
+			variance += (input[i][j] - mean) * (input[i][j] - mean);
+		}
+		float stdv = std::sqrt(variance / INPUT_N);
+		for (int j = 0; j < INPUT_N; j++) {
+			input[i][j] = (input[i][j]) / (stdv + 0.00001f);
+		}
+	}
 }
 
 int main(int argc, char* argv[]) {
 
-	const string dir = "..\\data-set\\";
-	vector<vector<double>> input;
-	vector<vector<double>> output;
 
-//	loadTrainingData(dir, input, output);
+	//CharacterRecognition::unitTest();
+	//system("pause"); // stop Win32 console from closing on exit
+	//return 1;
+
+
+	const string dir = "..\\data-set\\";
+	vector<vector<float>> input;
+	vector<vector<float>> output;
+
+	const int hidden_N = 64;
+	loadTrainingData(dir, input, output);
+	CharacterRecognition::init(INPUT_N, hidden_N, trainingSize, 0.1f);
 
 	// compute output
-	
-	CharacterRecognition::init(32, 8, 1, 0.5);
+	std::vector<float> inputArr = { 1, 2 };
+
+	// train on 10 iterations
+	for (int i = 0; i < 40; i++)
+	{
+		float cost;
+		for (int j = 0; j < input.size(); j++) // train all 52 samples
+		{
+			CharacterRecognition::Matrix* m = CharacterRecognition::computeOutput(input[j]);
+			cost = CharacterRecognition::learn(output[j]);
+		}
+		cout << "#" << i + 1 << "/10  Cost: " << cost <<  endl;
+	}
+
+
+	// test
+	cout << "expected output : actual output" << endl;
+	for (int i = 0; i < input.size(); i++) // testing on last 10 examples
+	{
+		for (int j = 0; j < trainingSize; j++)
+		{
+			cout << output[i][j] << " ";
+		}
+		cout << endl;
+
+		CharacterRecognition::Matrix* result = CharacterRecognition::computeOutput(input[i]);
+		result->copyToHost();
+		result->print();
+	}
 
 
     system("pause"); // stop Win32 console from closing on exit
-	delete[] a;
-	delete[] b;
-	delete[] c;
 }
