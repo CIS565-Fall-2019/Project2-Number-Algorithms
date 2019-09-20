@@ -22,9 +22,7 @@ namespace CharacterRecognition {
 	}
 
 	double learningRate;
-//	Matrix* W1, * W2, * B1, * B2, *IN, *H, *Y, *X;
 	shared_ptr<Matrix> W1, W2, B1, B2, IN, H, Y, X;;
-
 	int inputN, hiddenN, outputN;
 
 	// Fill the array A(nr_rows_A, nr_cols_A) with random numbers on GPU
@@ -232,14 +230,8 @@ namespace CharacterRecognition {
 
 		W1->initWithRandom();
 		W2->initWithRandom();
-
 		B1->initWithZero();
 		B2->initWithZero();
-
-		W1->copyToHost();
-		W2->copyToHost();
-		B1->copyToHost();
-		B2->copyToHost();
 	}
 
 	Matrix* computeOutput(const vector<float> & input) {
@@ -248,7 +240,6 @@ namespace CharacterRecognition {
 		X->copyToDevice();
 
 		H = shared_ptr<Matrix>( X->dot(W1.get()) );
-		H->copyToHost();
 		
 		H->add(B1.get());
 		H->sigmoid();
@@ -261,8 +252,7 @@ namespace CharacterRecognition {
 	}
 
 	float learn(const vector<float> expectedOutput) {
-		// compute gradients
-
+		// Compute gradients
 		//dJdB2 = Y.subtract(Y2).multiply( H.dot(W2).add(B2).applyFunction(sigmoidePrime) );
 		vector<vector<float>> wrapper = { expectedOutput };
 		auto Y2 = std::make_unique<Matrix>(wrapper); // 1 x numOutput matrix
