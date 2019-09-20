@@ -40,7 +40,7 @@ namespace StreamCompaction {
          */
         int compactWithoutScan(int n, int *odata, const int *idata) {
 	        timer().startCpuTimer();
-            // TODO
+            // DONE
 			int num = 0;
 			for (int i = 0; i < n; i++) {
 				if (idata[i] == 0) continue;
@@ -57,7 +57,7 @@ namespace StreamCompaction {
          */
         int compactWithScan(int n, int *odata, const int *idata) {
 	        timer().startCpuTimer();
-	        // TODO
+	        // DONE
 			int* scanResult = (int*)malloc(n * sizeof(int));
 
 			// Scan

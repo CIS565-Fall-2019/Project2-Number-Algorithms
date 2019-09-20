@@ -46,9 +46,8 @@ namespace StreamCompaction {
         /**
          * Performs prefix-sum (aka scan) on idata, storing the result into odata.
          */
-        void scan(int n, int *odata, const int *idata) {
-         //   timer().startGpuTimer();
-            // TODO
+        void scan(int n, int *odata, const int *idata, bool useTimer) {
+            // DONE
 			int* d_idata;
 			int maxD = ilog2ceil(n);
 			int nCeil = 1 << maxD;
@@ -60,24 +59,22 @@ namespace StreamCompaction {
 			int threadsPerBlock = 512;
 			int blockSize = (nCeil + threadsPerBlock - 1) / threadsPerBlock;
 
+			if (useTimer) timer().startGpuTimer();
 			// Parallel Reduction
 			for (int d = 0; d < maxD; d++) {
 				kernReduction << <blockSize, threadsPerBlock >> > (n, d, d_idata);
-				cudaDeviceSynchronize();
 			}
 
 			kernSetZero << <1, 1 >> > (nCeil, d_idata);
-			cudaDeviceSynchronize();
 			// Down Sweep
 			for (int d = maxD-1; d >= 0; d--) {
 				kernDownSweep << <blockSize, threadsPerBlock >> > (n, d, d_idata);
-				cudaDeviceSynchronize();
 			}
+			if (useTimer) timer().endGpuTimer();
 
 			cudaMemcpy(odata, d_idata, n * sizeof(int), cudaMemcpyDeviceToHost);
 			cudaFree(d_idata);
 
-         //   timer().endGpuTimer();
         }
 
         /**
@@ -90,8 +87,7 @@ namespace StreamCompaction {
          * @returns      The number of elements remaining after compaction.
          */
         int compact(int n, int *odata, const int *idata) {
-            timer().startGpuTimer();
-            // TODO
+            // DONE
 			int numOfCompacted = 0;
 			int* d_idata;
 			int* d_odata;
@@ -105,14 +101,15 @@ namespace StreamCompaction {
 
 			cudaMemcpy(d_idata, idata, n * sizeof(int), cudaMemcpyHostToDevice);
 
+			timer().startGpuTimer();
 			int threadsPerBlock = 512;
 			int blockSize = (n + threadsPerBlock - 1) / threadsPerBlock;
 			kernMapToBoolean<<<blockSize, threadsPerBlock>>>(n, d_bools, d_idata);
-			cudaDeviceSynchronize();
 
-			scan(n, d_indices, d_bools);
+			// false: Not using the scan's timer
+			scan(n, d_indices, d_bools, false);
+			timer().endGpuTimer();
 
-			cudaDeviceSynchronize();
 
 			int* lastIndex = d_indices + n - 1;
 			cudaMemcpy(&numOfCompacted, lastIndex, sizeof(int), cudaMemcpyDeviceToHost);
@@ -128,7 +125,6 @@ namespace StreamCompaction {
 			cudaFree(d_bools);
 			cudaFree(d_indices);
 
-            timer().endGpuTimer();
 
             return (idata[n-1] > 0 ) ? ( numOfCompacted + 1 ) : numOfCompacted;
         }
