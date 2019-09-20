@@ -32,6 +32,9 @@ inline int ilog2ceil(int x) {
 
 namespace StreamCompaction {
     namespace Common {
+
+		static int THREADS_PER_BLOCK = 256;
+
         __global__ void kernMapToBoolean(int n, int *bools, const int *idata);
 
         __global__ void kernScatter(int n, int *odata,

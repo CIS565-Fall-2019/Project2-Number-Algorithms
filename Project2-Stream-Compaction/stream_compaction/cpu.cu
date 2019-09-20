@@ -1,6 +1,5 @@
 #include <cstdio>
 #include "cpu.h"
-
 #include "common.h"
 
 namespace StreamCompaction {
@@ -20,6 +19,17 @@ namespace StreamCompaction {
         void scan(int n, int *odata, const int *idata) {
 	        timer().startCpuTimer();
             // TODO
+
+			if (n == 0) {
+				timer().endCpuTimer();
+				return;
+			}
+			// odata[0] = idata[0];  // Inclusive Scan
+			odata[0] = 0;	// Exclusive Scan
+			for (int i = 1; i < n; i++) {
+				odata[i] = odata[i - 1] + idata[i-1];
+			}
+
 	        timer().endCpuTimer();
         }
 
@@ -30,9 +40,14 @@ namespace StreamCompaction {
          */
         int compactWithoutScan(int n, int *odata, const int *idata) {
 	        timer().startCpuTimer();
-            // TODO
+            // DONE
+			int num = 0;
+			for (int i = 0; i < n; i++) {
+				if (idata[i] == 0) continue;
+				odata[num++] = idata[i];
+			}
 	        timer().endCpuTimer();
-            return -1;
+            return num;
         }
 
         /**
@@ -42,9 +57,26 @@ namespace StreamCompaction {
          */
         int compactWithScan(int n, int *odata, const int *idata) {
 	        timer().startCpuTimer();
-	        // TODO
+	        // DONE
+			int* scanResult = (int*)malloc(n * sizeof(int));
+
+			// Scan
+			scanResult[0] = 0;
+			for (int i = 1; i < n; i++) {
+				scanResult[i] = scanResult[i - 1] + (idata[i-1]?1:0);
+			}
+			
+			int num = 0;
+			for (int i = 0; i < n; i++) {
+				// Only write on element if idata has a 1
+				if (idata[i]) {
+					odata[scanResult[i]] = idata[i];
+					num++;
+				}
+			}
+			free(scanResult);
 	        timer().endCpuTimer();
-            return -1;
+            return num;
         }
     }
 }
