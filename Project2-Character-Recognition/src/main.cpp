@@ -18,8 +18,15 @@ int *b = new int[SIZE];
 int *c = new int[SIZE];
 
 int main(int argc, char* argv[]) {
-    // Scan tests
+	//Character Recognition Tests
+    printf("\n");
+    printf("****************\n");
+    printf("** SCAN TESTS **\n");
+    printf("****************\n");
 
+
+    // Scan tests
+	/*
     printf("\n");
     printf("****************\n");
     printf("** SCAN TESTS **\n");
@@ -37,6 +44,7 @@ int main(int argc, char* argv[]) {
     StreamCompaction::CPU::scan(SIZE, b, a);
     printElapsedTime(StreamCompaction::CPU::timer().getCpuElapsedTimeForPreviousOperation(), "(std::chrono Measured)");
     printArray(SIZE, b, true);
+	
 
     zeroArray(SIZE, c);
     printDesc("cpu scan, non-power-of-two");
@@ -51,13 +59,13 @@ int main(int argc, char* argv[]) {
     printElapsedTime(StreamCompaction::Naive::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
     //printArray(SIZE, c, true);
     printCmpResult(SIZE, b, c);
-
+	*/
 	/* For bug-finding only: Array of 1s to help find bugs in stream compaction or scan
 	onesArray(SIZE, c);
 	printDesc("1s array for finding bugs");
 	StreamCompaction::Naive::scan(SIZE, c, a);
 	printArray(SIZE, c, true); */
-
+	/*
     zeroArray(SIZE, c);
     printDesc("naive scan, non-power-of-two");
     StreamCompaction::Naive::scan(NPOT, c, a);
@@ -144,7 +152,7 @@ int main(int argc, char* argv[]) {
     printElapsedTime(StreamCompaction::Efficient::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
     //printArray(count, c, true);
     printCmpLenResult(count, expectedNPOT, b, c);
-
+	*/
     system("pause"); // stop Win32 console from closing on exit
 	delete[] a;
 	delete[] b;
