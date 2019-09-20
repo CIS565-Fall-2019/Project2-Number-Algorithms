@@ -46,7 +46,7 @@ namespace StreamCompaction {
 			cudaMalloc(&d_idata, n * sizeof(int));
 			cudaMemcpy(d_idata, idata, n * sizeof(int), cudaMemcpyHostToDevice);
 
-			int threadsPerBlock = 512;
+			int threadsPerBlock = Common::THREADS_PER_BLOCK;
 			int blockSize = (n + threadsPerBlock - 1) / threadsPerBlock;
 
 			timer().startGpuTimer();

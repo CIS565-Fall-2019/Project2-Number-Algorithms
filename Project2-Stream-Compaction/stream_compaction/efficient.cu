@@ -56,7 +56,7 @@ namespace StreamCompaction {
 			cudaMemset(d_idata, 0, nCeil * sizeof(int));
 			cudaMemcpy(d_idata, idata, n * sizeof(int), cudaMemcpyHostToDevice);
 
-			int threadsPerBlock = 512;
+			int threadsPerBlock = Common::THREADS_PER_BLOCK;
 			int blockSize = (nCeil + threadsPerBlock - 1) / threadsPerBlock;
 
 			if (useTimer) timer().startGpuTimer();
@@ -102,7 +102,7 @@ namespace StreamCompaction {
 			cudaMemcpy(d_idata, idata, n * sizeof(int), cudaMemcpyHostToDevice);
 
 			timer().startGpuTimer();
-			int threadsPerBlock = 512;
+			int threadsPerBlock = Common::THREADS_PER_BLOCK;
 			int blockSize = (n + threadsPerBlock - 1) / threadsPerBlock;
 			kernMapToBoolean<<<blockSize, threadsPerBlock>>>(n, d_bools, d_idata);
 

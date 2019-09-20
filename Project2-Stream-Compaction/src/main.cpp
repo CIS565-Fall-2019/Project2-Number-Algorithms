@@ -13,15 +13,80 @@
 #include <stream_compaction/thrust.h>
 #include "testing_helpers.hpp"
 
-const int SIZE = 1 << 10; // feel free to change the size of array
+#define AUTOMATION 0
+
+#if AUTOMATION
+#include "cxxopts.hpp"
+
+int SIZE = 1;
+const char timingFileName[] = "C:/Users/Gangzheng/Desktop/565/Project2-Number-Algorithms/Project2-Stream-Compaction/output_data/BLOCK_SIZE.csv";
+
+void writeTime(FILE* of, float time, bool newLine = false) {
+
+		
+		if (newLine)
+			fprintf(of, "%0.6f \n", time);
+		else
+			fprintf(of, "%0.6f,", time);
+
+
+}//writeTime
+
+cxxopts::ParseResult
+parse(int argc, char* argv[])
+{
+	try
+	{
+		cxxopts::Options options(argv[0], " - automation command line options");
+		options
+			.positional_help("[optional args]")
+			.show_positional_help();
+
+		options
+			.allow_unrecognised_options()
+			.add_options()
+			("b, blockSize", "Change BlockSize, must be power of 2", cxxopts::value<int>(StreamCompaction::Common::THREADS_PER_BLOCK))
+			("n, numObjects", "Size of arrray", cxxopts::value<int>(SIZE));
+
+		auto result = options.parse(argc, argv);
+
+		if (result.count("help"))
+		{
+			std::cout << options.help({ "", "Group" }) << std::endl;
+			exit(0);
+		}
+
+		return result;
+
+	}
+	catch (const cxxopts::OptionException& e)
+	{
+		std::cout << "error parsing options: " << e.what() << std::endl;
+		exit(1);
+	}
+} // parse
+
+#else
+const int SIZE = 1 << 20; // feel free to change the size of array
+#endif
+
 const int NPOT = SIZE - 3; // Non-Power-Of-Two
 int *a = new int[SIZE];
 int *b = new int[SIZE];
 int *c = new int[SIZE];
 
-int main(int argc, char* argv[]) {
-    // Scan tests
 
+
+
+int main(int argc, char* argv[]) {
+
+#if AUTOMATION
+	parse(argc, argv);
+
+	FILE* of = fopen(timingFileName, "w+");
+#endif
+
+    // Scan tests
     printf("\n");
     printf("****************\n");
     printf("** SCAN TESTS **\n");
@@ -38,7 +103,10 @@ int main(int argc, char* argv[]) {
     printDesc("cpu scan, power-of-two");
     StreamCompaction::CPU::scan(SIZE, b, a);
     printElapsedTime(StreamCompaction::CPU::timer().getCpuElapsedTimeForPreviousOperation(), "(std::chrono Measured)");
-    printArray(SIZE, b, true);
+	printArray(SIZE, b, true);
+#if AUTOMATION
+	writeTime(of, StreamCompaction::CPU::timer().getCpuElapsedTimeForPreviousOperation(), false);
+#endif
 
     zeroArray(SIZE, c);
     printDesc("cpu scan, non-power-of-two");
@@ -53,7 +121,9 @@ int main(int argc, char* argv[]) {
     printElapsedTime(StreamCompaction::Naive::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
     //printArray(SIZE, c, true);
     printCmpResult(SIZE, b, c);
-
+#if AUTOMATION
+	writeTime(of, StreamCompaction::CPU::timer().getCpuElapsedTimeForPreviousOperation(), false);
+#endif
 	/* For bug-finding only: Array of 1s to help find bugs in stream compaction or scan
 	onesArray(SIZE, c);
 	printDesc("1s array for finding bugs");
@@ -73,6 +143,9 @@ int main(int argc, char* argv[]) {
     printElapsedTime(StreamCompaction::Efficient::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
     //printArray(SIZE, c, true);
     printCmpResult(SIZE, b, c);
+#if AUTOMATION
+	writeTime(of, StreamCompaction::CPU::timer().getCpuElapsedTimeForPreviousOperation(), false);
+#endif
 
     zeroArray(SIZE, c);
     printDesc("work-efficient scan, non-power-of-two");
@@ -87,7 +160,9 @@ int main(int argc, char* argv[]) {
     printElapsedTime(StreamCompaction::Thrust::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
     //printArray(SIZE, c, true);
     printCmpResult(SIZE, b, c);
-
+#if AUTOMATION
+	writeTime(of, StreamCompaction::CPU::timer().getCpuElapsedTimeForPreviousOperation(), true);
+#endif
     zeroArray(SIZE, c);
     printDesc("thrust scan, non-power-of-two");
     StreamCompaction::Thrust::scan(NPOT, c, a);
@@ -151,4 +226,8 @@ int main(int argc, char* argv[]) {
 	delete[] a;
 	delete[] b;
 	delete[] c;
+
+#if AUTOMATION
+	fclose(of);
+#endif
 }
