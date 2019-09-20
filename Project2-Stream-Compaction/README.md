@@ -9,7 +9,7 @@ CUDA Stream Compaction
 
 ![Screenshot](img/block_size.PNG)
 
-![Screenshot](img/N.png)
+![Screenshot](img/N.PNG)
 
 
 ### Features Implemented
