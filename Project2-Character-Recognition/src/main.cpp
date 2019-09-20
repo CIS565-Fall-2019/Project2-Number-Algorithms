@@ -17,6 +17,8 @@
 
 
 const int INPUT_N = 10201;
+const int HIDDEN_N = 64;
+
 const int trainingSize = 52;	// How many samples to train
 
 using namespace std;
@@ -62,26 +64,22 @@ void loadTrainingData(const string& dir, vector<vector<float> >& input, vector<v
 		}
 		float stdv = std::sqrt(variance / INPUT_N);
 		for (int j = 0; j < INPUT_N; j++) {
-			input[i][j] = (input[i][j]) / (stdv + 0.00001f);
+			input[i][j] = (input[i][j]) / (stdv + 0.000001f);
 		}
 	}
 }
 
 int main(int argc, char* argv[]) {
 
-
 	//CharacterRecognition::unitTest();
 	//system("pause"); // stop Win32 console from closing on exit
-	//return 1;
-
 
 	const string dir = "..\\data-set\\";
 	vector<vector<float>> input;
 	vector<vector<float>> output;
 
-	const int hidden_N = 64;
 	loadTrainingData(dir, input, output);
-	CharacterRecognition::init(INPUT_N, hidden_N, trainingSize, 0.1f);
+	CharacterRecognition::init(INPUT_N, HIDDEN_N, trainingSize, 0.01f);
 
 	// compute output
 	std::vector<float> inputArr = { 1, 2 };
@@ -89,15 +87,17 @@ int main(int argc, char* argv[]) {
 	// train on 10 iterations
 	for (int i = 0; i < 40; i++)
 	{
+		CharacterRecognition::timer().startCpuTimer();
 		float cost;
 		for (int j = 0; j < input.size(); j++) // train all 52 samples
 		{
 			CharacterRecognition::Matrix* m = CharacterRecognition::computeOutput(input[j]);
 			cost = CharacterRecognition::learn(output[j]);
 		}
-		cout << "#" << i + 1 << "/10  Cost: " << cost <<  endl;
+		CharacterRecognition::timer().endCpuTimer();
+		float time = CharacterRecognition::timer().getCpuElapsedTimeForPreviousOperation();
+		cout << "#" << i + 1 << "/40  Cost: " << cost  << "	 Took time: " << time << endl;
 	}
-
 
 	// test
 	cout << "expected output : actual output" << endl;
