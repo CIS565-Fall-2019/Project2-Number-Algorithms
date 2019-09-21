@@ -12,6 +12,14 @@ namespace CharacterRecognition {
         static PerformanceTimer timer;
         return timer;
     }
+
+	void printFloatArray(float *x, int n) {
+		printf("    [ ");
+		for (int i = 0; i < n; i++) {
+			printf("%f ", x[i]);
+		}
+		printf("]\n");
+	}
 	__host__ __device__ unsigned int hash(unsigned int a) {
 	  a = (a + 0x7ed55d16) + (a << 12);
 	  a = (a ^ 0xc761c23c) ^ (a >> 19);
@@ -29,8 +37,8 @@ namespace CharacterRecognition {
 		}
 		thrust::default_random_engine rng(hash((int)(index * inputDim * outputDim)));
 		thrust::uniform_real_distribution<float> dist(0.0, 1.0);
-		//W[index] = dist(rng);
-		W[index] = 0.1 * index;
+		W[index] = dist(rng);
+		//W[index] = 0.1 * index;
 		int y = index / outputDim;
 		b[y] = 0;
 	}
@@ -110,7 +118,7 @@ namespace CharacterRecognition {
 		if (row < inputDim && col < outputDim) {
 			for (int i = 0; i < numSamples; i++) {
 				doutLinearIdx = doutLinear[i * outputDim + col];
-				val += in[row * inputDim + i] * doutLinearIdx;
+				val += in[i * inputDim + row] * doutLinearIdx;
 				dbval += doutLinearIdx;
 			}
 			W[row * outputDim + col] = currW - lr * (val);
@@ -153,9 +161,6 @@ namespace CharacterRecognition {
 		checkCUDAError("cuda Malloc b failed");
 		cudaMalloc((void**)&dev_in, inputDim * numSamples * sizeof(float));
 		checkCUDAError("cuda Malloc dev_in in failed");
-		cudaMalloc((void**)&dev_out, outputDim * numSamples * sizeof(float));
-		checkCUDAError("cuda Malloc dev_out in failed");
-
 
 		//Call Initializer Kernels
 		dim3 fullBlocksPerGrid((inputDim * outputDim + blockSize - 1) / blockSize);
@@ -173,6 +178,10 @@ namespace CharacterRecognition {
 		/*Uses W & b to perform forward pass on an Affine Layer 
 		Assumes dev_input is set (on GPU), numSamples is set and eval is set
 		*/
+		float *dev_out;
+		cudaMalloc((void**)&dev_out, outputDim * numSamples * sizeof(float));
+		checkCUDAError("cuda Malloc dev_out in failed");
+
 		//Memcpy the *in information into dev_in
 		cudaMemcpy(dev_in, in, inputDim * numSamples * sizeof(float), cudaMemcpyHostToDevice);
 
@@ -216,7 +225,6 @@ namespace CharacterRecognition {
 			checkCUDAError("cuda Malloc dev_din in failed");
 			//Get derivative of softmax, and update 
 			kern_dSigmoid<<<outputGrid, blockSize >>>(dev_dout, dev_doutLinear, inputDim, outputDim);
-			cudaFree(&dev_dout);
 		}
 		else {
 			dev_doutLinear = dev_dout;
@@ -225,23 +233,27 @@ namespace CharacterRecognition {
 		//Use matrix to compute dIn 
 		kern_dIn<<<inputGrid, blockSize >>>(dev_doutLinear, W, dev_din, inputDim, outputDim, numSamples);
 
+
 		//Update dw and db
 		kern_dW<<<weightBiasGrid, blockSize >>>(W, b, dev_doutLinear, dev_in, inputDim, outputDim, numSamples, lr);
+
+		//DEBUG STUFF
+		float *myW= new float[inputDim * outputDim];
+		cudaMemcpy(myW, W, inputDim * outputDim * sizeof(float), cudaMemcpyDeviceToHost);
+		printf("MY WSTARTS\n");
+		printFloatArray(myW, inputDim * outputDim);
+		printf("MY WENDS\n");
 
 		//Memcpy back the din info
 		float *din = new float[inputDim * numSamples];
 		cudaMemcpy(din, dev_din, inputDim * numSamples * sizeof(float), cudaMemcpyDeviceToHost);
 		checkCUDAError("cuda Memcpy din in failed");
+
+
+		//Free Mems
+		cudaFree(dev_doutLinear);
 		cudaFree(dev_din);
 		return din;
-	}
-
-	void printFloatArray(float *x, int n) {
-		printf("    [ ");
-		for (int i = 0; i < n; i++) {
-			printf("%f ", x[i]);
-		}
-		printf("]\n");
 	}
 
 	void cpu_softmax(float *pred, int numSamples, int outputDim) {
@@ -287,34 +299,9 @@ namespace CharacterRecognition {
 		target: Shape numSamples
 		dout: Each element
 		*/
-		//Alloc and copy predicted
-		float *dev_pred;
-		float *dev_pred2;
-		cudaMalloc((void**)&dev_pred, numSamples * outputDim * sizeof(float));
-		checkCUDAError("cuda Malloc dev_pred failed");
-		cudaMalloc((void**)&dev_pred2, numSamples * outputDim * sizeof(float));
-		checkCUDAError("cuda Malloc dev_pred2 failed");
-		cudaMemcpy(dev_pred, pred, numSamples * outputDim * sizeof(float), cudaMemcpyHostToDevice);
-		cudaMemcpy(dev_pred2, pred, numSamples * outputDim * sizeof(float), cudaMemcpyHostToDevice);
-
-		//Alloc and copy predicted
-		float *dev_sum;
-		cudaMalloc((void**)&dev_sum, numSamples * sizeof(float));
-		checkCUDAError("cuda Malloc dev_sum failed");
-
-		//Alloc and copy Target
-		float *dev_target;
-		cudaMalloc((void**)&dev_target, numSamples * sizeof(float));
-		checkCUDAError("cuda Malloc dev_target failed");
-		cudaMemcpy(dev_target, target, numSamples * sizeof(float), cudaMemcpyHostToDevice);
-		printf("PRED INSIDE B4\n");
-		printFloatArray(pred, numSamples * outputDim);
 
 		//Apply Softmax to pred
 		cpu_softmax(pred, numSamples, outputDim);
-
-		printf("PRED INSIDE AFTER\n");
-		printFloatArray(pred, numSamples * outputDim);
 
 		float loss = cpu_crossEntropy(pred, target, numSamples, outputDim, dout);
 		return loss;
@@ -330,44 +317,52 @@ namespace CharacterRecognition {
 		//XOR Input Array and Target Array
 		float *x = new float[numSamples * inputDim];
 		float *target = new float[numSamples * outputDim];
-		for (int i = 0; i < numSamples * inputDim; ++i) { 
-			if (i % 2 == 0) {
-				x[i] = 1;
-			}
-			else {
-				x[i] = 0;
-			}
-		}
-		for (int i = 0; i < numSamples * outputDim; ++i) { 
-			target[i] = 1;
-		}
-		printFloatArray(x, numSamples * inputDim);
-		printFloatArray(target, numSamples);
+		x[0] = 0;
+		x[1] = 0;
+		target[0] = 0;
+		x[2] = 0;
+		x[3] = 1;
+		target[1] = 1;
+		x[4] = 1;
+		x[5] = 0;
+		target[2] = 1;
+		x[6] = 1;
+		x[7] = 1;
+		target[3] = 0;
 
 		//Build Layers
 		AffineLayer* layer1 = new AffineLayer(inputDim, hiddenDim[0], numSamples);
-		layer1->setSigmoid(false);
+		//layer1->setSigmoid(false);
 		AffineLayer* layer1copy = new AffineLayer(inputDim, hiddenDim[0], numSamples);
-		layer1copy->setSigmoid(false);
+		//layer1copy->setSigmoid(false);
 		AffineLayer* layer2 = new AffineLayer(hiddenDim[0], outputDim, numSamples);
 		layer2->setSigmoid(false);
+		float lr = 0.01;
+		for (int l = 0; l < 100; ++l) {
+			/* FORWARD PROP */
+			float *out0, *out1;
+			printf("IN\n");
+			printFloatArray(x, numSamples * outputDim);
+			out0 = layer1->forward(x, numSamples);
+			printf("OUT0\n");
+			printFloatArray(out0, numSamples * outputDim);
+			out1 = layer2->forward(out0, numSamples);
+			printf("OUT1\n");
+			printFloatArray(out1, numSamples * outputDim);
 
-		/* FORWARD PROP */
-		float *out0, *out1;
-		out0 = layer1->forward(x, numSamples);
-		printFloatArray(out0, numSamples * outputDim);
-		out1 = layer2->forward(out0, numSamples);
-		printFloatArray(out1, numSamples * outputDim);
+			/* CALCULATE LOSS */
+			float *dout = new float[outputDim * numSamples];
+			float loss = softmax_loss(out1, target, dout, numSamples, outputDim);
+			printf("LOSS:%f\n", loss);
+			printFloatArray(dout, outputDim * numSamples);
 
-		/* CALCULATE LOSS */
-		float *dout = new float[outputDim * numSamples];
-		float loss = softmax_loss(out1, target, dout, numSamples, outputDim);
-		printf("LOSS:%f\n", loss);
-		printFloatArray(dout, outputDim * numSamples);
-
-		/* BACKWARD PROP */
-		float* dout1, dout0;
-		dout1 = layer2->backward(dout, 0.0);
-		printFloatArray(dout1, inputDim * numSamples);
+			/* BACKWARD PROP */
+			float *dout1, *dout0;
+			dout1 = layer2->backward(dout, lr);
+			dout0 = layer1->backward(dout1, lr);
+			printf("DOUT0\n");
+			printFloatArray(dout0, inputDim * numSamples);
+			printf("======================================\n", loss);
+		}
 	}
 }

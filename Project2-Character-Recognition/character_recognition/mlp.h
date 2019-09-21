@@ -7,7 +7,6 @@ namespace CharacterRecognition {
     Common::PerformanceTimer& timer();
 	class AffineLayer{
 		float *dev_in;
-		float *dev_out;
 		float *W;
 		float *b;
 		int numSamples;
