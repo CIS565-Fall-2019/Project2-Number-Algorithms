@@ -8,13 +8,20 @@ namespace CharacterRecognition {
 	class AffineLayer{
 		float *W;
 		float *b;
+		float *dev_in;
+		float *dev_out;
+		float *dev_dout;
+		float *dev_doutLinear;
+		float *dev_din;
+		int numSamples;
 		int inputDim, outputDim;
 		bool sigmoid;
 		bool eval;
+		bool doneFwd;
 	public:
 		AffineLayer(int idim, int odim);
-		void forward(float *in, float *out, int num_samples);
-		void backward(float *dout, float *dw, float *dx, float *db);
+		float* forward(float *in, int num_samples);
+		float* backward(float *dout, float lr);
 		void setEval(bool state);
 		void setSigmoid(bool state);
 		char* getType();

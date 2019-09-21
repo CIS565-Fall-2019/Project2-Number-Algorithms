@@ -1,5 +1,5 @@
 #include <cuda.h>
-#include <cuda_runtime.h>
+#include <cuda_runtime.h>Shape 
 #include "common.h"
 #include "mlp.h"
 #include <thrust/random.h>
@@ -12,78 +12,188 @@ namespace CharacterRecognition {
         static PerformanceTimer timer;
         return timer;
     }
-	__global__ void kernInitWeightsBias(float *W, float *b, int inputDim, int num_samples, int outputDim) {
+	__host__ __device__ unsigned int hash(unsigned int a) {
+	  a = (a + 0x7ed55d16) + (a << 12);
+	  a = (a ^ 0xc761c23c) ^ (a >> 19);
+	  a = (a + 0x165667b1) + (a << 5);
+	  a = (a + 0xd3a2646c) ^ (a << 9);
+	  a = (a + 0xfd7046c5) + (a << 3);
+	  a = (a ^ 0xb55a4f09) ^ (a >> 16);
+	  return a;
+	}
+	__global__ void kernInitWeightsBias(float *W, float *b, int inputDim, int outputDim){
+		//Random Weight Initialization & Zero Bias Initialization
 		int index = (blockIdx.x * blockDim.x) + threadIdx.x;
 		if (index >= inputDim * outputDim) {
 			return;
 		}
-		thrust::default_random_engine rng;
+		thrust::default_random_engine rng(hash((int)(index * inputDim * outputDim)));
 		thrust::uniform_real_distribution<float> dist(0.0, 1.0);
 		W[index] = dist(rng);
 		int y = index / outputDim;
 		b[y] = 0;
 	}
 
-	__global__  void kernAffineForward(float *W, float *b, float *in, float *out, int inputDim, int outputDim, int num_samples, bool sigmoid) {
-		int row = blockIdx.y * blockDim.y + threadIdx.y;
-		int col = blockIdx.x * blockDim.x + threadIdx.x;
+	__global__ void kernAffineForward(float *W, float *b, float *in, float *out, int inputDim, int outputDim, int numSamples, bool sigmoid) {
+		/*
+		W: Shape inputDim x outputDim
+		b: Shape outputDim
+		in: Shape numSamples x inputDim
+		out: Shape numSamples x outputDim
+		*/
+		int index = blockIdx.x * blockDim.x + threadIdx.x;
+		int row = index / outputDim;
+		int col = index % outputDim;
 		float val = 0;
-
-		if (row < num_samples && col < inputDim) {
+		if (row < numSamples && col < outputDim) {
 			for (int i = 0; i < inputDim; i++) {
-				val += W[row * inputDim + i] * in[i * inputDim + col];
+				val += in[row * inputDim + i] * W[i * outputDim + col];
 			}
 			val += b[row];
 		}
-		out[row * outputDim + col] = sigmoid ? val : 1/(1+__expf(-val));
+		out[row * outputDim + col] = sigmoid ? 1/(1+__expf(-val)) : val;
 	}
 
-	__global__  void kernAffineBackward() {
-		int row = blockIdx.y * blockDim.y + threadIdx.y;
-		int col = blockIdx.x * blockDim.x + threadIdx.x;
-		float val = 0;
+	__device__ float applySigmoid(float x) {
+		return 1 / (1 + __expf(-x));
+	}
 
-		if (row < num_samples && col < inputDim) {
-			for (int i = 0; i < inputDim; i++) {
-				val += W[row * inputDim + i] * in[i * inputDim + col];
-			}
-			val += b[row];
+	__device__ float dSigmoid(float x) {
+		return x * (1 - x);
+	}
+
+	__global__ void kern_dSoftmax(float *dout, float *doutLinear, int numSamples, int outputDim) {
+		//Apply softmax across entire dout matrix (dout is outputDim x 
+		int index = (blockIdx.x * blockDim.x) + threadIdx.x;
+		if (index >= numSamples * outputDim) {
+			return;
 		}
-		out[row * outputDim + col] = sigmoid ? val : 1/(1+__expf(-val));
+		float doutidx = dout[index];
+		doutLinear[index] = doutidx * (1 - doutidx);
+	}
+
+	__global__ void kern_dIn(float *doutLinear, float *W, float *din, int inputDim, int outputDim, int numSamples) {
+		/* Effectively calculates matmul(doutLinear, W.T)
+		doutLinear: outputDim x numSamples - each element is dL/dY where Y = XW + b
+		W: inputDim x outputDim
+		din: inputDim x numSamples - each element is dL/din_(i,j)
+		*/
+		int index = blockIdx.x * blockDim.x + threadIdx.x;
+		int row = index / inputDim;
+		int col = index % inputDim;
+		float val = 0;
+		if (row < numSamples && col < inputDim) {
+			for (int i = 0; i < outputDim; i++) {
+				val += doutLinear[row * outputDim + i] * W[col * outputDim + i];
+			}
+		}
+		din[row * inputDim + col] = val;
+	}
+
+	__global__ void kern_dW(float *W, float *b, float *doutLinear, float *in, int inputDim, int outputDim, int numSamples, float lr) {
+		/* Effectively calculates matmul(input.T, doutLinear) and applies an update
+		W: inputDim x outputDim (We do gradient descent here)
+		b: outputDim (we do gradient decent here too)
+		doutLinear: outputDim x numSamples - each element is dL/dY where Y = XW + b
+		in: inputDim x numSamples
+		lr: learning rate
+		*/
+		int index = blockIdx.x * blockDim.x + threadIdx.x;
+		int row = index / outputDim;
+		int col = index % outputDim;
+		float val = 0;
+		float dbval = 0;
+		float currW = W[row * outputDim + col];
+		float currb = b[col];
+		float doutLinearIdx = 0;
+		if (row < inputDim && col < outputDim) {
+			for (int i = 0; i < numSamples; i++) {
+				doutLinearIdx = doutLinear[i * outputDim + col];
+				val += in[row * inputDim + i] * doutLinearIdx;
+				dbval += doutLinearIdx;
+			}
+		}
+		W[row * outputDim + col] = currW - lr * (val);
+		b[col] = currb - lr * (dbval);
 	}
 
 	//AffineLayer 
-	AffineLayer::AffineLayer(int idim, int odim) : inputDim(idim), outputDim(odim), softmax(true), eval(false) {
-		//Malloc Weights & Biases
+	AffineLayer::AffineLayer(int idim, int odim) : numSamples(0), inputDim(idim), outputDim(odim), sigmoid(true), eval(false), doneFwd(false){
+		//Malloc Weights, Biases 
 		cudaMalloc(&W, idim * odim * sizeof(float));
 		checkCUDAError("cuda Malloc W failed");
 		cudaMalloc(&b, odim * sizeof(float));
 		checkCUDAError("cuda Malloc b failed");
 
 		//Call Initializer Kernels
-		dim3 fullBlocksPerGrid((inputDim * outputDim - 1) / blockSize);
+		dim3 fullBlocksPerGrid((inputDim * outputDim + blockSize - 1) / blockSize);
 		kernInitWeightsBias<<<fullBlocksPerGrid, blockSize>>>(W, b, inputDim, outputDim);
 	}
+	void AffineLayer::setSigmoid(bool state) {
+		sigmoid = state;
+	}
+	void AffineLayer::setEval(bool state) {
+		eval = state;
+	}
 
-	void AffineLayer::forward(float *in, float *out, int num_samples) {
-		/*Uses W & b to perform forward pass on an Affine Layer (Assumes dimensions are correct or things will go very wrong)
-		in: Input array of shape inputDim * num_samples
-		out: Output array of shape outputDim * num_samples (to be filled in)
+	float* AffineLayer::forward(float *in, int ns) {
+		/*Uses W & b to perform forward pass on an Affine Layer 
+		Assumes dev_input is set (on GPU), numSamples is set and eval is set
 		*/
-		//Malloc the input matrix and an output matrix (should I even do this? Memcpy?)
-		cudaMalloc(&in, inputDim * num_samples * sizeof(float));
-		checkCUDAError("cuda Malloc in failed");
-		cudaMalloc(&out, outputDim * num_samples * sizeof(float));
-		checkCUDAError("cuda Malloc in failed");
+		//Malloc the input matrix and an output matrix 
+		numSamples = ns;
+		cudaMalloc((void**)&dev_in, inputDim * numSamples * sizeof(float));
+		checkCUDAError("cuda Malloc dev_in in failed");
+		cudaMalloc((void**)&dev_out, outputDim * numSamples * sizeof(float));
+		checkCUDAError("cuda Malloc dev_out in failed");
+
+		//Memcpy the *in information into dev_in
+		cudaMemcpy(dev_in, in, inputDim * numSamples * sizeof(float), cudaMemcpyHostToDevice);
 
 		//Call Affine Forward Kernel 
-		dim3 affine_blocksize(8, 8);
-		dim3 numBlocks((outputDim + affine_blocksize.x - 1) / affine_blocksize.x, (num_samples + affine_blocksize.y - 1) / affine_blocksize.y);
-		kernAffineForward<<<numBlocks, affine_blocksize>>>(W, b, in, out, inputDim, outputDim, num_samples, sigmoid);
+		int numBlocks = (numSamples * outputDim + blockSize - 1) / blockSize;
+		kernAffineForward<<<numBlocks, blockSize>>>(W, b, dev_in, dev_out, inputDim, outputDim, numSamples, sigmoid);
 
+		//Memcpy out the *out and *in information from dev_out
+		float *out = new float[outputDim * numSamples];
 
-		//delete 
-		cudaFree(&out);
-		cudaFree(&in);
+		//free (dont free dev_in because you'll need it for backprop)
+		cudaFree(&dev_out);
+		return out;
+	}
+
+	float* AffineLayer::backward(float *dout, float lr){
+		/* Does backprop and one gradient update for W & b & returns din
+		dout: upstream gradient coming in 
+		lr: learning rate
+		Returns 
+		*/
+		//Malloc the input matrix and an output matrix 
+		cudaMalloc((void**)&dev_dout, outputDim * numSamples * sizeof(float));
+		checkCUDAError("cuda Malloc dev_dout in failed");
+		cudaMalloc((void**)&dev_din, inputDim * numSamples * sizeof(float));
+		checkCUDAError("cuda Malloc dev_din in failed");
+		cudaMalloc((void**)&dev_doutLinear, outputDim * numSamples * sizeof(float));
+		checkCUDAError("cuda Malloc dev_din in failed");
+
+		//Memcpy the *dout information into dev_dout
+		cudaMemcpy(dev_dout, dout, outputDim * numSamples * sizeof(float), cudaMemcpyHostToDevice);
+		checkCUDAError("cuda Memcpy dout in failed");
+
+		//Make 3 diff grid layouts
+		dim3 weightBiasGrid((inputDim * outputDim + blockSize - 1) / blockSize);
+		dim3 outputGrid = (numSamples * outputDim + blockSize - 1) / blockSize;
+		dim3 inputGrid = ((numSamples * inputDim + blockSize - 1) / blockSize);
+
+		//Get derivative of softmax, and update 
+		kern_dSoftmax <<<outputGrid, blockSize >>>(dev_dout, dev_doutLinear, inputDim, outputDim);
+		cudaFree(&dev_dout);
+
+		//Use transposed matrix to compute dIn 
+		kern_dIn << <inputGrid, blockSize >> > (dev_doutLinear, W, dev_din, inputDim, outputDim, numSamples);
+
+		//Update dw
+		kern_dW<<<weightBiasGrid, blockSize>>>
+		return NULL;
 	}
 }

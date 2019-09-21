@@ -11,19 +11,40 @@
 #include <character_recognition/common.h>
 #include "testing_helpers.hpp"
 
-const int SIZE = 1 << 8; // feel free to change the size of array
+const int SIZE = 1 << 3; // feel free to change the size of array
 const int NPOT = SIZE - 3; // Non-Power-Of-Two
 int *a = new int[SIZE];
 int *b = new int[SIZE];
 int *c = new int[SIZE];
 
+void printFloatArray(float *x, int n) {
+    printf("    [ ");
+    for (int i = 0; i < n; i++) {
+        printf("%f ", x[i]);
+	}
+	printf("]\n");
+}
+
 int main(int argc, char* argv[]) {
 	//Character Recognition Tests
     printf("\n");
     printf("****************\n");
-    printf("** SCAN TESTS **\n");
+    printf("** CHARACTER RECOGNITION TESTS **\n");
     printf("****************\n");
+	//Input Array
+	float *x = new float[SIZE];
+	for (int i = 0; i < SIZE; ++i) {
+		x[i] = (float)i;
+	}
+	printFloatArray(x, SIZE);
+	//Build Layers
+	float *out;
+	CharacterRecognition::AffineLayer layer1(SIZE, 4);
+	layer1.setSigmoid(false);
+	out = layer1.forward(x, 1);
 
+	//print out float array
+	printFloatArray(out, 4);
 
     // Scan tests
 	/*
