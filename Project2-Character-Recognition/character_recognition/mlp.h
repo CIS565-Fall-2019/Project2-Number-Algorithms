@@ -8,9 +8,6 @@ namespace CharacterRecognition {
 	class AffineLayer{
 		float *dev_in;
 		float *dev_out;
-		float *dev_dout;
-		float *dev_doutLinear;
-		float *dev_din;
 		float *W;
 		float *b;
 		int numSamples;
@@ -24,6 +21,9 @@ namespace CharacterRecognition {
 		float* backward(float *dout, float lr);
 		void setEval(bool state);
 		void setSigmoid(bool state);
+		float softmax_loss(float *pred, float *target, float *dout, int numSamples, int outputDim);
+		void cpu_softmax(float *pred, int numSamples, int outputDim);
+		float cpu_crossEntropy(float *pred, float *target, int numSamples, int outputDim, float* dout);
 		char* getType();
 	};
 
