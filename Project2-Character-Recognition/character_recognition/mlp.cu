@@ -118,6 +118,32 @@ namespace CharacterRecognition {
 		}
 	}
 
+	__global__ void kernStableSoftmax(float *pred, float *pred2, float *target, int *sums, int numSamples, int outputDim) {
+		int index = blockIdx.x * blockDim.x + threadIdx.x;
+		int row = index / outputDim;
+		float rowval = 0.0;
+		if (index < numSamples * outputDim) {
+			for (int i = 0; i < outputDim; i++) {
+				rowval += pred2[row * outputDim + i];
+			}
+			sums[row] = rowval;
+			pred[index] = expf(pred2[index]);
+			pred[index] = pred2[index] / rowval;
+		}
+	}
+
+	__global__ void kernSums(float *pred, int *sums, int numSamples, int outputDim) {
+		int index = blockIdx.x * blockDim.x + threadIdx.x;
+		int row = index / outputDim;
+		float rowval = 0.0;
+		if (index < numSamples * outputDim) {
+			for (int i = 0; i < outputDim; i++) {
+				rowval += pred[row * outputDim + i];
+			}
+			sums[row] = rowval;
+		}
+	}
+
 	//AffineLayer 
 	AffineLayer::AffineLayer(int idim, int odim, int ns): numSamples(ns), inputDim(idim), outputDim(odim), sigmoid(true), eval(false), doneFwd(false){
 		//Malloc Weights, Biases, in and out
@@ -221,8 +247,9 @@ namespace CharacterRecognition {
 		int hiddenDim[1] = { 3 };
 		int outputDim = 2;
 
-		//XOR Input Array
+		//XOR Input Array and Target Array
 		float *x = new float[numSamples * inputDim];
+		float *target = new float[numSamples * outputDim];
 		for (int i = 0; i < numSamples * inputDim; ++i) { 
 			if (i % 2 == 0) {
 				x[i] = 1;
@@ -230,6 +257,9 @@ namespace CharacterRecognition {
 			else {
 				x[i] = 0;
 			}
+		}
+		for (int i = 0; i < numSamples * outputDim; ++i) { 
+			target[i] = 1;
 		}
 		printFloatArray(x, numSamples * inputDim);
 
@@ -251,16 +281,43 @@ namespace CharacterRecognition {
 
 		/* CALCULATE LOSS */
 
+
 		/* BACKWARD PROP */
 		float* din;
 	}
 	
-	float softmax_loss(float *pred, float *target, float *dout) {
+	float softmax_loss(float *pred, float *target, float *dout, int numSamples, int outputDim) {
 		/* Returns a float representing the loss, and updates dout
 		pred: Shape numSamples x outputDim
 		target: Shape numSamples
 		dout: Each element
 		*/
+		//Alloc and copy predicted
+		float *dev_pred;
+		float *dev_pred2;
+		cudaMalloc((void**)&dev_pred, numSamples * outputDim * sizeof(float));
+		checkCUDAError("cuda Malloc dev_pred failed");
+		cudaMalloc((void**)&dev_pred2, numSamples * outputDim * sizeof(float));
+		checkCUDAError("cuda Malloc dev_pred2 failed");
+		cudaMemcpy(dev_pred, pred, numSamples * outputDim * sizeof(float), cudaMemcpyHostToDevice);
+		cudaMemcpy(dev_pred2, pred, numSamples * outputDim * sizeof(float), cudaMemcpyHostToDevice);
+
+		//Alloc and copy predicted
+		float *dev_sum;
+		cudaMalloc((void**)&dev_sum, numSamples * sizeof(float));
+		checkCUDAError("cuda Malloc dev_sum failed");
+
+		//Alloc and copy Target
+		float *dev_target;
+		cudaMalloc((void**)&dev_target, numSamples * sizeof(float));
+		checkCUDAError("cuda Malloc dev_target failed");
+		cudaMemcpy(dev_target, target, numSamples * sizeof(float), cudaMemcpyHostToDevice);
+
+		//Apply Softmax to pred
+		dim3 outputGrid = (numSamples * outputDim + blockSize - 1) / blockSize;
+		kernSums << <outputGrid, blockSize >> > (float *pred, int *sums, int numSamples, int outputDim);
+		kernStableSoftmax << <outputGrid, blockSize >> >(dev_pred, dev_pred2, dev_sum, numSamples, outputDim);
+		kernCrossEntropy<<<outputGrid, blockSize>>>(dev_pred, )
 		return 0.0;
 	}
 }
