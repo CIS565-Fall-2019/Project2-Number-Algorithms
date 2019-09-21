@@ -24,8 +24,6 @@ namespace CharacterRecognition {
 		float* backward(float *dout, float lr);
 		void setEval(bool state);
 		void setSigmoid(bool state);
-		void initWeights();
-		void initBias();
 		char* getType();
 	};
 
@@ -36,5 +34,5 @@ namespace CharacterRecognition {
 		void forward(float *input, float *ouput, bool eval);
 	};
     // TODO: implement required elements for MLP sections 1 and 2 here
-	void charRegTests();
+	void XORTest();
 }

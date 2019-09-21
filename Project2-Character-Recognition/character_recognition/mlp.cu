@@ -87,8 +87,8 @@ namespace CharacterRecognition {
 			for (int i = 0; i < outputDim; i++) {
 				val += doutLinear[row * outputDim + i] * W[col * outputDim + i];
 			}
+			din[row * inputDim + col] = val;
 		}
-		din[row * inputDim + col] = val;
 	}
 
 	__global__ void kern_dW(float *W, float *b, float *doutLinear, float *in, int inputDim, int outputDim, int numSamples, float lr) {
@@ -113,9 +113,9 @@ namespace CharacterRecognition {
 				val += in[row * inputDim + i] * doutLinearIdx;
 				dbval += doutLinearIdx;
 			}
+			W[row * outputDim + col] = currW - lr * (val);
+			b[col] = currb - lr * (dbval);
 		}
-		W[row * outputDim + col] = currW - lr * (val);
-		b[col] = currb - lr * (dbval);
 	}
 
 	//AffineLayer 
@@ -133,21 +133,6 @@ namespace CharacterRecognition {
 		//Call Initializer Kernels
 		dim3 fullBlocksPerGrid((inputDim * outputDim + blockSize - 1) / blockSize);
 		kernInitWeightsBias<<<fullBlocksPerGrid, blockSize>>>(W, b, inputDim, outputDim);
-	}
-	void AffineLayer::initWeights() {
-		float* temp = new float[inputDim * outputDim];
-		for (int i = 0; i < inputDim * outputDim; ++i) {
-			temp[i] = i * 0.01;
-		}
-		cudaMemcpy(W, temp, inputDim * outputDim * sizeof(float), cudaMemcpyHostToDevice);
-	}
-
-	void AffineLayer::initBias() {
-		float* tempb = new float[outputDim];
-		for (int i = 0; i < outputDim; ++i) {
-			tempb[i] = i * 0.01;
-		}
-		cudaMemcpy(b, tempb, outputDim * sizeof(float), cudaMemcpyHostToDevice);
 	}
 
 	void AffineLayer::setSigmoid(bool state) {
@@ -173,6 +158,7 @@ namespace CharacterRecognition {
 		cudaMemcpy(out, dev_out, outputDim * numSamples * sizeof(float), cudaMemcpyDeviceToHost);
 
 		//free (dont free dev_in because you'll need it for backprop)
+		cudaFree(dev_out);
 		return out;
 	}
 
@@ -215,6 +201,7 @@ namespace CharacterRecognition {
 		float *din = new float[outputDim * numSamples];
 		cudaMemcpy(dev_din, din, inputDim * numSamples * sizeof(float), cudaMemcpyDeviceToHost);
 		checkCUDAError("cuda Memcpy din in failed");
+		
 		cudaFree(dev_din);
 		return din;
 	}
@@ -227,7 +214,7 @@ namespace CharacterRecognition {
 		printf("]\n");
 	}
 
-	void charRegTests() {
+	void XORTest() {
 		//Network Structure
 		int numSamples = 4;
 		int inputDim = 2;
@@ -251,20 +238,16 @@ namespace CharacterRecognition {
 		layer1->setSigmoid(false);
 		AffineLayer* layer1copy = new AffineLayer(inputDim, hiddenDim[0], numSamples);
 		layer1copy->setSigmoid(false);
-		//CharacterRecognition::AffineLayer layer2(hiddenDim[0], outputDim);
-		//layer2.setSigmoid(false);
+		AffineLayer* layer2 = new AffineLayer(hiddenDim[0], outputDim, numSamples);
+		layer2->setSigmoid(false);
 
 		/* FORWARD PROP */
 		float *out0, *out1;
 		out0 = layer1->forward(x, numSamples);
 		printFloatArray(out0, numSamples * outputDim);
 		printFloatArray(x, numSamples * inputDim);
-		out1 = layer1copy->forward(x, numSamples);
+		out1 = layer2->forward(out0, numSamples);
 		printFloatArray(out1, numSamples * outputDim);
-		/*
-		out1 = layer2.forward(out0, numSamples);
-		printFloatArray(out1, numSamples * outputDim);
-		*/
 
 		/* CALCULATE LOSS */
 

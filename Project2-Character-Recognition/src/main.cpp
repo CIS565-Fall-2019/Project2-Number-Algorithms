@@ -34,7 +34,7 @@ int main(int argc, char* argv[]) {
     printf("** CHARACTER RECOGNITION TESTS **\n");
     printf("****************\n");
 
-	CharacterRecognition::charRegTests();
+	CharacterRecognition::XORTest();
 
     system("pause"); // stop Win32 console from closing on exit
 	delete[] a;
