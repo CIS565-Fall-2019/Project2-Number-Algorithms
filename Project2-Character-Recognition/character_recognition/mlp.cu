@@ -192,8 +192,13 @@ namespace CharacterRecognition {
 		//Use transposed matrix to compute dIn 
 		kern_dIn << <inputGrid, blockSize >> > (dev_doutLinear, W, dev_din, inputDim, outputDim, numSamples);
 
-		//Update dw
-		kern_dW<<<weightBiasGrid, blockSize>>>
-		return NULL;
+		//Update dw and db
+		kern_dW << <weightBiasGrid, blockSize >> > (W, b, dev_doutLinear, dev_in, inputDim, outputDim, numSamples, lr);
+
+		//Memcpy back the din info
+		float *din = new float[outputDim * numSamples];
+		cudaMemcpy(dev_din, din, inputDim * numSamples * sizeof(float), cudaMemcpyDeviceToHost);
+		checkCUDAError("cuda Memcpy din in failed");
+		return din;
 	}
 }
