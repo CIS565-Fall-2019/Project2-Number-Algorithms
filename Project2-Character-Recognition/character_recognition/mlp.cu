@@ -29,7 +29,8 @@ namespace CharacterRecognition {
 		}
 		thrust::default_random_engine rng(hash((int)(index * inputDim * outputDim)));
 		thrust::uniform_real_distribution<float> dist(0.0, 1.0);
-		W[index] = dist(rng);
+		//W[index] = dist(rng);
+		W[index] = 0.1 * index;
 		int y = index / outputDim;
 		b[y] = 0;
 	}
@@ -62,7 +63,7 @@ namespace CharacterRecognition {
 		return x * (1 - x);
 	}
 
-	__global__ void kern_dSoftmax(float *dout, float *doutLinear, int numSamples, int outputDim) {
+	__global__ void kern_dSigmoid(float *dout, float *doutLinear, int numSamples, int outputDim) {
 		//Apply softmax across entire dout matrix (dout is outputDim x 
 		int index = (blockIdx.x * blockDim.x) + threadIdx.x;
 		if (index >= numSamples * outputDim) {
@@ -156,6 +157,7 @@ namespace CharacterRecognition {
 
 		//Memcpy out the *out and *in information from dev_out
 		float *out = new float[outputDim * numSamples];
+		cudaMemcpy(out, dev_out, outputDim * numSamples * sizeof(float), cudaMemcpyDeviceToHost);
 
 		//free (dont free dev_in because you'll need it for backprop)
 		cudaFree(&dev_out);
@@ -185,20 +187,23 @@ namespace CharacterRecognition {
 		dim3 outputGrid = (numSamples * outputDim + blockSize - 1) / blockSize;
 		dim3 inputGrid = ((numSamples * inputDim + blockSize - 1) / blockSize);
 
-		//Get derivative of softmax, and update 
-		kern_dSoftmax <<<outputGrid, blockSize >>>(dev_dout, dev_doutLinear, inputDim, outputDim);
-		cudaFree(&dev_dout);
+		if (sigmoid) {
+			//Get derivative of softmax, and update 
+			kern_dSigmoid<<<outputGrid, blockSize >>>(dev_dout, dev_doutLinear, inputDim, outputDim);
+			cudaFree(&dev_dout);
+		}
 
-		//Use transposed matrix to compute dIn 
-		kern_dIn << <inputGrid, blockSize >> > (dev_doutLinear, W, dev_din, inputDim, outputDim, numSamples);
+		//Use matrix to compute dIn 
+		kern_dIn<<<inputGrid, blockSize >>>(dev_doutLinear, W, dev_din, inputDim, outputDim, numSamples);
 
 		//Update dw and db
-		kern_dW << <weightBiasGrid, blockSize >> > (W, b, dev_doutLinear, dev_in, inputDim, outputDim, numSamples, lr);
+		kern_dW<<<weightBiasGrid, blockSize >>>(W, b, dev_doutLinear, dev_in, inputDim, outputDim, numSamples, lr);
 
 		//Memcpy back the din info
 		float *din = new float[outputDim * numSamples];
 		cudaMemcpy(dev_din, din, inputDim * numSamples * sizeof(float), cudaMemcpyDeviceToHost);
 		checkCUDAError("cuda Memcpy din in failed");
+		cudaFree(dev_din);
 		return din;
 	}
 }
