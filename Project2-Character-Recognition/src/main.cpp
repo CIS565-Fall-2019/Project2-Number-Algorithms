@@ -34,32 +34,7 @@ int main(int argc, char* argv[]) {
     printf("** CHARACTER RECOGNITION TESTS **\n");
     printf("****************\n");
 
-	//XOR Input Array
-	int numSamples = 4;
-	int inputDim = 2;
-	int outputDim = 3;
-	float *x = new float[numSamples * inputDim];
-	for (int i = 0; i < SIZE; ++i) { 
-		if (i % 2 == 0) {
-			x[i] = 1;
-		}
-		else {
-			x[i] = 0;
-		}
-	}
-	printFloatArray(x, numSamples * inputDim);
-
-	//Build Layers
-	float *out;
-	CharacterRecognition::AffineLayer layer1(inputDim, outputDim);
-	layer1.setSigmoid(false);
-
-	/* FORWARD PROP */
-	out = layer1.forward(x, numSamples);
-	printFloatArray(out, numSamples * outputDim);
-
-	/* BACKWARD PROP */
-
+	CharacterRecognition::charRegTests();
 
     system("pause"); // stop Win32 console from closing on exit
 	delete[] a;
