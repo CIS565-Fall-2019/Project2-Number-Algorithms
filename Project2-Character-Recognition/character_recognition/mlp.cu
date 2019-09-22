@@ -5,7 +5,7 @@
 #include <thrust/random.h>
 
 #define blockSize 512
-#define NUM_ITERS 100
+#define NUM_ITERS 50
 #define LEARNING_RATE 0.1
 #define FULLBATCH 0
 
@@ -294,7 +294,9 @@ namespace CharacterRecognition {
 				dout[i * outputDim + c] = ting;
 			}
 		}
-
+		printf("DOUT\n");
+		printFloatArray(dout, outputDim);
+		
 		for (int i = 0; i < numSamples; ++i) {
 			int offset = target[i];
 			float ting = pred[i * outputDim + offset];
@@ -337,20 +339,20 @@ namespace CharacterRecognition {
 			x[7] = 1;
 			target[3] = 0;
 		}
-		if (idx % 2 == 0) {
+		if (idx % 4 == 0) {
 			x[0] = 1;
 			x[1] = 1;
 			target[0] = 0;
 		}
-		else if (idx % 1 == 0) {
-			x[0] = 1;
-			x[1] = 0;
-			target[0] = 1;
-		}
-		else if (idx % 2 == 0) {
+		else if (idx % 3 == 0) {
 			x[0] = 0;
 			x[1] = 0;
 			target[0] = 0;
+		}
+		else if (idx % 2 == 0) {
+			x[0] = 1;
+			x[1] = 0;
+			target[0] = 1;
 		}
 		else {
 			x[0] = 0;
@@ -358,12 +360,13 @@ namespace CharacterRecognition {
 			target[0] = 1;
 		}
 	}
+
 	void XORTest() {
 		//Network Structure
 		int numSamples = 1;
 		int inputDim = 2;
 		int numLayers = 1;
-		int hiddenDim[1] = {3};
+		int hiddenDim[1] = {5};
 		int outputDim = 2;
 
 		//XOR Input Array and Target Array
