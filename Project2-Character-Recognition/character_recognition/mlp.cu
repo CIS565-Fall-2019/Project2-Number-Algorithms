@@ -5,6 +5,10 @@
 #include <thrust/random.h>
 
 #define blockSize 512
+#define NUM_ITERS 100
+#define LEARNING_RATE 0.1
+#define FULLBATCH 0
+
 namespace CharacterRecognition {
     using Common::PerformanceTimer;
     PerformanceTimer& timer()
@@ -35,7 +39,7 @@ namespace CharacterRecognition {
 		if (index >= inputDim * outputDim) {
 			return;
 		}
-		thrust::default_random_engine rng(hash((int)(index * inputDim * outputDim)));
+		thrust::default_random_engine rng(hash((int)(index * inputDim * outputDim + W[0])));
 		thrust::uniform_real_distribution<float> dist(0.0, 1.0);
 		W[index] = dist(rng);
 		//W[index] = 0.1 * index;
@@ -58,13 +62,13 @@ namespace CharacterRecognition {
 			for (int i = 0; i < inputDim; i++) {
 				val += in[row * inputDim + i] * W[i * outputDim + col];
 			}
-			val += b[row];
-			out[row * outputDim + col] = sigmoid ? 1/(1+__expf(-val)) : val;
+			val += b[col];
+			out[row * outputDim + col] = sigmoid ? 1.0/(1+expf(-1.0*val)) : val;
 		}
 	}
 
 	__device__ float applySigmoid(float x) {
-		return 1 / (1 + __expf(-x));
+		return 1 / (1 + expf(-x));
 	}
 
 	__device__ float dSigmoid(float x) {
@@ -193,6 +197,9 @@ namespace CharacterRecognition {
 		float *out = new float[outputDim * numSamples];
 		cudaMemcpy(out, dev_out, outputDim * numSamples * sizeof(float), cudaMemcpyDeviceToHost);
 
+		printf("SCORES\n");
+		printFloatArray(out, outputDim*numSamples);
+
 		//free (dont free dev_in because you'll need it for backprop)
 		cudaFree(dev_out);
 		return out;
@@ -240,9 +247,15 @@ namespace CharacterRecognition {
 		//DEBUG STUFF
 		float *myW= new float[inputDim * outputDim];
 		cudaMemcpy(myW, W, inputDim * outputDim * sizeof(float), cudaMemcpyDeviceToHost);
-		printf("MY WSTARTS\n");
+		printf("BACKPROP:WSTARTS\n");
 		printFloatArray(myW, inputDim * outputDim);
-		printf("MY WENDS\n");
+		printf("BACKPROP:MY WENDS\n");
+
+		float *myb= new float[outputDim];
+		cudaMemcpy(myb, b, outputDim * sizeof(float), cudaMemcpyDeviceToHost);
+		printf("BACKPROP:MY bSTARTS\n");
+		printFloatArray(myb, outputDim);
+		printf("BACKPROP:MY bENDS\n");
 
 		//Memcpy back the din info
 		float *din = new float[inputDim * numSamples];
@@ -268,6 +281,8 @@ namespace CharacterRecognition {
 				pred[i * outputDim + k] /= rowSum;
 			}
 		}
+		printf("PRED-PROBABILITIES\n");
+		printFloatArray(pred, outputDim);
 	}
 
 	float cpu_crossEntropy(float *pred, float *target, int numSamples, int outputDim, float* dout){
@@ -307,44 +322,70 @@ namespace CharacterRecognition {
 		return loss;
 	}
 
+	void getXORSample(int idx, float *x, float *target) {
+		if (FULLBATCH) {
+			x[0] = 0;
+			x[1] = 0;
+			target[0] = 0;
+			x[2] = 0;
+			x[3] = 1;
+			target[1] = 1;
+			x[4] = 1;
+			x[5] = 0;
+			target[2] = 1;
+			x[6] = 1;
+			x[7] = 1;
+			target[3] = 0;
+		}
+		if (idx % 2 == 0) {
+			x[0] = 1;
+			x[1] = 1;
+			target[0] = 0;
+		}
+		else if (idx % 1 == 0) {
+			x[0] = 1;
+			x[1] = 0;
+			target[0] = 1;
+		}
+		else if (idx % 2 == 0) {
+			x[0] = 0;
+			x[1] = 0;
+			target[0] = 0;
+		}
+		else {
+			x[0] = 0;
+			x[1] = 1;
+			target[0] = 1;
+		}
+	}
 	void XORTest() {
 		//Network Structure
-		int numSamples = 2;
+		int numSamples = 1;
 		int inputDim = 2;
-		int hiddenDim[3] = {3};
-		int numLayers = 3;
+		int numLayers = 1;
+		int hiddenDim[1] = {3};
 		int outputDim = 2;
 
 		//XOR Input Array and Target Array
 		float *x = new float[numSamples * inputDim];
 		float *target = new float[numSamples * outputDim];
-		x[0] = 0;
-		x[1] = 0;
-		target[0] = 0;
-		x[2] = 0;
-		x[3] = 1;
-		target[1] = 1;
-		/*
-		x[4] = 1;
-		x[5] = 0;
-		target[2] = 1;
-		x[6] = 1;
-		x[7] = 1;
-		target[3] = 0;
-		*/
-
 		//Build Layers
 		std::vector<AffineLayer*> layers;
 		layers.push_back(new AffineLayer(inputDim, hiddenDim[0], numSamples));
 		for (int l = 1; l < numLayers; ++l) {
 			AffineLayer* currLayer = new AffineLayer(hiddenDim[l - 1], hiddenDim[l], numSamples);
+			currLayer->setSigmoid(true);
 			layers.push_back(currLayer);
 		}
 		layers.push_back(new AffineLayer(hiddenDim[numLayers-1], outputDim, numSamples));
 		layers[layers.size() - 1]->setSigmoid(false);
 
-		float lr = 0.7;
-		for (int k = 0; k < 100; ++k) {
+		for (int k = 0; k < NUM_ITERS; ++k) {
+			getXORSample(k, x, target);
+			printf("INPUT\n");
+			printFloatArray(x, inputDim * numSamples);
+			printf("TARGET\n");
+			printFloatArray(target, 1 * numSamples);
 			//FORWARD PROP
 			float *out;
 			out = x;
@@ -355,12 +396,12 @@ namespace CharacterRecognition {
 			//CALCULATE LOSS
 			float *dout = new float[outputDim * numSamples];
 			float loss = softmax_loss(out, target, dout, numSamples, outputDim);
-			printf("LOSS:%f\n", loss);
+			printf("LOSS BACKPROP:%f\n", loss);
 			printFloatArray(dout, outputDim * numSamples);
 
 			//BACKWARD PROP
 			for (int v = layers.size() - 1; v >= 0; v--) {
-				dout = layers[v]->backward(dout, lr);
+				dout = layers[v]->backward(dout, LEARNING_RATE);
 			}
 			printf("======================================\n", loss);
 		}
