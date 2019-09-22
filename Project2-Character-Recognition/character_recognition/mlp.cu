@@ -309,9 +309,10 @@ namespace CharacterRecognition {
 
 	void XORTest() {
 		//Network Structure
-		int numSamples = 4;
+		int numSamples = 2;
 		int inputDim = 2;
-		int hiddenDim[1] = { 3 };
+		int hiddenDim[3] = {3};
+		int numLayers = 3;
 		int outputDim = 2;
 
 		//XOR Input Array and Target Array
@@ -323,45 +324,44 @@ namespace CharacterRecognition {
 		x[2] = 0;
 		x[3] = 1;
 		target[1] = 1;
+		/*
 		x[4] = 1;
 		x[5] = 0;
 		target[2] = 1;
 		x[6] = 1;
 		x[7] = 1;
 		target[3] = 0;
+		*/
 
 		//Build Layers
-		AffineLayer* layer1 = new AffineLayer(inputDim, hiddenDim[0], numSamples);
-		//layer1->setSigmoid(false);
-		AffineLayer* layer1copy = new AffineLayer(inputDim, hiddenDim[0], numSamples);
-		//layer1copy->setSigmoid(false);
-		AffineLayer* layer2 = new AffineLayer(hiddenDim[0], outputDim, numSamples);
-		layer2->setSigmoid(false);
-		float lr = 0.01;
-		for (int l = 0; l < 100; ++l) {
-			/* FORWARD PROP */
-			float *out0, *out1;
-			printf("IN\n");
-			printFloatArray(x, numSamples * outputDim);
-			out0 = layer1->forward(x, numSamples);
-			printf("OUT0\n");
-			printFloatArray(out0, numSamples * outputDim);
-			out1 = layer2->forward(out0, numSamples);
-			printf("OUT1\n");
-			printFloatArray(out1, numSamples * outputDim);
+		std::vector<AffineLayer*> layers;
+		layers.push_back(new AffineLayer(inputDim, hiddenDim[0], numSamples));
+		for (int l = 1; l < numLayers; ++l) {
+			AffineLayer* currLayer = new AffineLayer(hiddenDim[l - 1], hiddenDim[l], numSamples);
+			layers.push_back(currLayer);
+		}
+		layers.push_back(new AffineLayer(hiddenDim[numLayers-1], outputDim, numSamples));
+		layers[layers.size() - 1]->setSigmoid(false);
 
-			/* CALCULATE LOSS */
+		float lr = 0.7;
+		for (int k = 0; k < 100; ++k) {
+			//FORWARD PROP
+			float *out;
+			out = x;
+			for (int c = 0; c < layers.size(); ++c) {
+				out = layers[c]->forward(out, numSamples);
+			}
+			
+			//CALCULATE LOSS
 			float *dout = new float[outputDim * numSamples];
-			float loss = softmax_loss(out1, target, dout, numSamples, outputDim);
+			float loss = softmax_loss(out, target, dout, numSamples, outputDim);
 			printf("LOSS:%f\n", loss);
 			printFloatArray(dout, outputDim * numSamples);
 
-			/* BACKWARD PROP */
-			float *dout1, *dout0;
-			dout1 = layer2->backward(dout, lr);
-			dout0 = layer1->backward(dout1, lr);
-			printf("DOUT0\n");
-			printFloatArray(dout0, inputDim * numSamples);
+			//BACKWARD PROP
+			for (int v = layers.size() - 1; v >= 0; v--) {
+				dout = layers[v]->backward(dout, lr);
+			}
 			printf("======================================\n", loss);
 		}
 	}
