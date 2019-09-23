@@ -10,7 +10,7 @@ ________________________________________________________________________________
 ____________________________________________________________________________________
 ## Outcome
 ### XOR Convergence
-![](img/charreg.PNG)
+![](img/chareg.PNG)
 
 ## Implementation Details
 ### Variable Neural Network Builder & Batched Updates
