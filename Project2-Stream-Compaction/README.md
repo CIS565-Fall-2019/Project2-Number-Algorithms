@@ -12,10 +12,19 @@ ________________________________________________________________________________
 
 ## Questions
 **Can you find the performance bottlenecks? Is it memory I/O? Computation? Is it different for each implementation?**
-Main Point: I actually removed 2 calls to cudaMemcpy and saw the execution time get halved across . 
+Main Point: I actually removed 2 calls to cudaMemcpy and saw the execution time get halved across all the GPU Implementations. 
 
-Copying back and forth (Device to Device & Device to Host) can seriously increase the execution time of the program. The CPU Implementation takes wins likely because of this. The Work Efficient scan is the faster of the GPU scans, but still requires that we copy. 
+Copying back and forth (Device to Device & Device to Host) can seriously increase the execution time of the program. 
+* The CPU Implementation takes wins likely because of no need for copying memory. It can just pass the pointer arround This takes *O(n)
+* The Naive Implementation does *O(nlogn)* computations (many of them needless in the event of an non-power-of-2 array) and runs slow than the CPU 
+The Work Efficient scan is the faster of the GPU scans, but still requires that we copy. While is it *O(n)*, many of the threads in a warp don't exit early when they should. Even worse is that unlike CPU, this still has 2 cudaMemcpy's.
 
+## Extra Credit Features
+**Why is my GPU implementation slower than my CPU implementation?**
+Apart from the calls to cudaMemcpy, some threads to unneccesarry work because they don't get terminated early as they will not be required for the next level of computation for the work-efficient scan. I optimized this by sending an offset value into the call to the kernel, so any threads that weren't neccesarry in the future could get terminated early. This was also useful because it saves one call to cudaMemcpy. Despite this, my CPU implementation was still slower
+This picture illustrates an early exiting strategy on the upsweep. 
+ ![](img/earlyexit.png)  
+ 
 ## Output
 ```bash
 ****************
