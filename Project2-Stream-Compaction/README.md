@@ -8,7 +8,7 @@ ________________________________________________________________________________
 ![Developer](https://img.shields.io/badge/Developer-Dhruv-0f97ff.svg?style=flat) ![CUDA 10.1](https://img.shields.io/badge/CUDA-10.1-yellow.svg) ![Built](https://img.shields.io/appveyor/ci/gruntjs/grunt.svg) ![Issues](https://img.shields.io/badge/issues-none-green.svg)
 ____________________________________________________________________________________
 ## Performance Analysis
-### Runtime vs Blocksize (Array SIZE = 4096, 1<<12)
+### Runtime vs Blocksize (ARRAY SIZE = 4096, 1<<12)
  ![](img/runtimevsblocksize.png)  
 
 ## Questions
