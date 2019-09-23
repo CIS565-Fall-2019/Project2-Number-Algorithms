@@ -8,7 +8,8 @@ ________________________________________________________________________________
 ![Developer](https://img.shields.io/badge/Developer-Dhruv-0f97ff.svg?style=flat) ![CUDA 10.1](https://img.shields.io/badge/CUDA-10.1-yellow.svg) ![Built](https://img.shields.io/appveyor/ci/gruntjs/grunt.svg) ![Issues](https://img.shields.io/badge/issues-none-green.svg)
 ____________________________________________________________________________________
 ## Performance Analysis
-### Blocksize vs Runtime (SIZE = 4096, 1<<12)
+### Runtime vs Blocksize (Array SIZE = 4096, 1<<12)
+ ![](img/runtimevsblocksize.png)  
 
 ## Questions
 **Can you find the performance bottlenecks? Is it memory I/O? Computation? Is it different for each implementation?**
@@ -26,7 +27,7 @@ The Work Efficient scan is the faster of the GPU scans, but still requires that 
 Apart from the calls to ```cudaMemcpy```, some threads to unneccesarry work because they don't get terminated early as they will not be required for the next level of computation for the work-efficient scan. I optimized this by sending an offset value into the call to the kernel, so any threads that weren't neccesarry in the future could get terminated early. This was also useful because it saves one call to cudaMemcpy. Despite this, my CPU implementation was still much faster. 
 
 This picture illustrates an early termination strategy on the upsweep. 
- ![](img/earlyexit.png)  
+ ![](img/earlyexits.png)  
  
 ## Output
 ```bash
