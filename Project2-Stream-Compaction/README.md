@@ -27,7 +27,7 @@ The Work Efficient scan is the faster of the GPU scans, but still requires that 
 Apart from the calls to ```cudaMemcpy```, some threads to unneccesarry work because they don't get terminated early as they will not be required for the next level of computation for the work-efficient scan. I optimized this by sending an offset value into the call to the kernel, so any threads that weren't neccesarry in the future could get terminated early. This was also useful because it saves one call to cudaMemcpy. Despite this, my CPU implementation was still much faster. 
 
 This picture illustrates an early termination strategy on the upsweep. 
- ![](img/earlyexits.png)  
+ ![](img/earlyexits.PNG)  
  
 ## Output
 ```bash
