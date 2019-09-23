@@ -29,6 +29,6 @@ Notice ```numSamples```. This allows you to set the batchSize of the Neural Netw
 ## Tragic Historical Significance of the XOR Problem
 Neural Networks are not new.In 1958, [Frank Rosenblatt](https://en.wikipedia.org/wiki/Frank_Rosenblatt) proposed a hypothetical model of a brain's nervous system and coined it the *perceptron*. Essentially, this model fit a line to a dataset. However, as seen below, you can't fit a line to an XOR function. 
 
-![](img/goodperceptron.PNG)
+![](img/goodperceptron.png)
 
 The perceptron got a ton of hype in the 60's, but two authors published a [book](https://mitpress.mit.edu/books/perceptrons) on emphasizing why perceptron's are terrible, because they can't fit the XOR function. This single handedly resulted in the first of three AI Winters. 
