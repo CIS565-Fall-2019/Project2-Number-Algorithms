@@ -14,11 +14,9 @@ ________________________________________________________________________________
 
 ## Analysis
 
-**Background**
+**Background** : As illustrated in the image above, I could train an XOR MLP via backpropagation. You can visually see backpropagation work by setting the learning rate to 1 and watching the softmax probabilities shift wildly on each training iteration. I trained the network with Binary Cross Entropy Loss, the network strure is illustrated as part of the Addtional Implementation Features section below.
 
-As illustrated in the image above, I could train an XOR MLP via backpropagation. You can visually see backpropagation work by setting the learning rate to 1 and watching the softmax probabilities shift wildly on each training iteration. I trained the network with Binary Cross Entropy Loss, the network strure is illustrated as part of the Addtional Implementation Features section below.
-
-
+**Loss**: The losses would vary greatly, but my best loss on the XOR problem was **0.005005**
 
 ## Additional Implementation Features
 ### Variable MLP Builder & Batched Updates
