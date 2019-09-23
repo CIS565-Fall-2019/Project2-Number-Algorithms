@@ -12,6 +12,13 @@ ________________________________________________________________________________
 ### XOR Convergence
 ![](img/chareg.PNG)
 
+## Analysis
+
+**Background**
+
+As illustrated in the image above, I could train an XOR MLP via backpropagation. You can visually see backpropagation work by setting the learning rate to 1 and watching the softmax probabilities shift wildly on each training iteration. I trained the network with Binary Cross Entropy Loss, the network strure is illustrated as part of the Addtional Implementation Features section below.
+
+
 
 ## Additional Implementation Features
 ### Variable MLP Builder & Batched Updates
@@ -26,9 +33,9 @@ int hiddenDim[1] = {5};
 int outputDim = 2;
 ```
 Notice ```numSamples```. This allows you to set the batchSize of the Neural Network to perform Batched Gradient Descent, as opposed to stochastic gradient descent which is the base implementation. This required that I implement an ```AffineLayer``` class and construct matrices out of these, and handle backpropagation for variables batches. 
-### Variable Image Sizes
+### Variable Input Sizes and biases
 
-This is a consequence of the previous feature, as I can accept arbitrarily sized inputs and outputs via the ```inputDim``` and ```outputDim``` variables.  
+This is a consequence of the previous feature, as I can accept arbitrarily sized inputs and outputs via the ```inputDim``` and ```outputDim``` variables.  I also had the option of including biases. 
 
 ## Tragic Historical Significance of the XOR Problem
 Neural Networks are not new. In 1958, [Frank Rosenblatt](https://en.wikipedia.org/wiki/Frank_Rosenblatt) proposed a hypothetical model of a brain's nervous system and coined it the *perceptron*. Essentially, this model fit a line to a dataset. However, as seen below, you can't fit a line to an XOR function. 
