@@ -4,7 +4,7 @@
 #include "efficient.h"
 
 /*! Block size used for CUDA kernel launch*/
-#define blockSize 512
+#define blockSize 1024
 namespace StreamCompaction {
 	namespace Efficient {
 		using StreamCompaction::Common::PerformanceTimer;
@@ -25,17 +25,17 @@ namespace StreamCompaction {
 			return p;
 		}
 
-		__global__ void kernUpsweep(int n, int d, int *odata, int *odata2, int incr, int twod) {
+		__global__ void kernUpsweep(int n, int d, int *odata, int incr, int twod) {
 			int index = (blockIdx.x * blockDim.x) + threadIdx.x;
 			//also return if index is not a multiple of the incr
 			if (index >= n || (index) % incr != 0) {
 				return;
 			}
 			//if we reached here, index+1 must be a multiple of incr (2^(d+1))
-			odata[index + incr - 1] += odata2[index + twod - 1];
+			odata[index + incr - 1] += odata[index + twod - 1];
 			odata[n - 1] = 0;
 		}
-		__global__ void kernDownsweep(int n, int d, int *odata, int *odata2, int incr, int twod) {
+		__global__ void kernDownsweep(int n, int d, int *odata, int incr, int twod) {
 			int index = (blockIdx.x * blockDim.x) + threadIdx.x;
 			//also return if index is not a multiple of the incr
 			if (index >= n || (index) % incr != 0) {
@@ -43,7 +43,7 @@ namespace StreamCompaction {
 			}
 			//if we reached here, index+1 must be a multiple of incr (2^(d+1))
 			int t = odata[index + twod - 1];
-			odata[index + twod - 1] = odata2[index + incr - 1];
+			odata[index + twod - 1] = odata[index + incr - 1];
 			odata[index + incr - 1] += t;
 		}
 
@@ -81,52 +81,38 @@ namespace StreamCompaction {
 			int malloc_size = nextPowerOf2(n);
 			//CUDA Malloc buffers
 			int *dev_odata;
-			int *dev_odata2;
 			cudaMalloc((void**)&dev_odata, malloc_size * sizeof(int));
 			checkCUDAError("cudaMalloc dev_odata failed!");
-			cudaMalloc((void**)&dev_odata2, malloc_size * sizeof(int));
-			checkCUDAError("cudaMalloc dev_odata2 failed!");
 
 			dim3 fullBlocksPerGrid((n + blockSize - 1) / blockSize);
 			int max_level = ilog2ceil(n);
 			int incr = 0;
 			int twod = 0;
-
-            timer().startGpuTimer();
 			//Copy idata into dev_odata
 			cudaMemcpy(dev_odata, idata, n * sizeof(int), cudaMemcpyHostToDevice);
 			checkCUDAError("cudaMemcpy dev_odata failed!");
-			cudaMemcpy(dev_odata2, dev_odata, n * sizeof(int), cudaMemcpyDeviceToDevice);
-			checkCUDAError("cudaMemcpy dev_odata failed!");
 
+            timer().startGpuTimer();
 			//Upsweep
 			for (int d = 0; d < max_level; d++) {
 				incr = pow(2, d + 1);
 				twod = pow(2, d);
-				kernUpsweep<<<fullBlocksPerGrid, blockSize >>>(malloc_size, d, dev_odata, dev_odata2, incr, twod);
-
-				//Ping Pong the buffers
-				cudaMemcpy(dev_odata2, dev_odata, malloc_size * sizeof(int), cudaMemcpyDeviceToDevice);
+				kernUpsweep<<<fullBlocksPerGrid, blockSize >>>(malloc_size, d, dev_odata, incr, twod);
 			}
 
 			//Downsweep
 			for (int d = max_level-1; d >= 0; d--) {
 				incr = pow(2, d + 1);
 				twod = pow(2, d);
-				kernDownsweep<<<fullBlocksPerGrid, blockSize >>>(malloc_size, d, dev_odata, dev_odata2, incr, twod);
-
-				//Ping Pong the buffers
-				cudaMemcpy(dev_odata2, dev_odata, malloc_size * sizeof(int), cudaMemcpyDeviceToDevice);
+				kernDownsweep<<<fullBlocksPerGrid, blockSize >>>(malloc_size, d, dev_odata, incr, twod);
 			}
-			cudaMemcpy(odata, dev_odata, n * sizeof(int), cudaMemcpyDeviceToHost);
             timer().endGpuTimer();
-
+			cudaMemcpy(odata, dev_odata, n * sizeof(int), cudaMemcpyDeviceToHost);
 			//Free Memory
 			cudaFree(dev_odata);
-			cudaFree(dev_odata2);
         }
 
-        void scan_notimer(int n, int malloc_size, int *dev_odata, int *dev_odata2) {
+        void scan_notimer(int n, int malloc_size, int *dev_odata) {
 			//Odata contains mask info
 			dim3 fullBlocksPerGrid((malloc_size + blockSize - 1) / blockSize);
 			int max_level = ilog2ceil(n);
@@ -137,20 +123,14 @@ namespace StreamCompaction {
 			for (int d = 0; d < max_level; d++) {
 				incr = pow(2, d + 1);
 				twod = pow(2, d);
-				kernUpsweep<<<fullBlocksPerGrid, blockSize >>>(malloc_size, d, dev_odata, dev_odata2, incr, twod);
-
-				//Ping Pong the buffers
-				cudaMemcpy(dev_odata2, dev_odata, malloc_size * sizeof(int), cudaMemcpyDeviceToDevice);
+				kernUpsweep<<<fullBlocksPerGrid, blockSize >>>(malloc_size, d, dev_odata, incr, twod);
 			}
 
 			//Downsweep
 			for (int d = max_level-1; d >= 0; d--) {
 				incr = pow(2, d + 1);
 				twod = pow(2, d);
-				kernDownsweep<<<fullBlocksPerGrid, blockSize >>>(malloc_size, d, dev_odata, dev_odata2, incr, twod);
-
-				//Ping Pong the buffers
-				cudaMemcpy(dev_odata2, dev_odata, malloc_size * sizeof(int), cudaMemcpyDeviceToDevice);
+				kernDownsweep<<<fullBlocksPerGrid, blockSize >>>(malloc_size, d, dev_odata, incr, twod);
 			}
         }
 
@@ -197,17 +177,15 @@ namespace StreamCompaction {
 			checkCUDAError("cudaMemcpy dev_idata failed!");
 			cudaMemcpy(dev_odata, dev_idata, n * sizeof(int), cudaMemcpyDeviceToDevice);
 			checkCUDAError("cudaMemcpy dev_odata failed!");
-
-            timer().startGpuTimer();
 			dim3 fullBlocksPerGrid((n + blockSize - 1) / blockSize);
+            timer().startGpuTimer();
 			//1: Compute mask (Temporary Array)
 			kernMapToBoolean<<<fullBlocksPerGrid, blockSize>>>(n, dev_odata, dev_idata);
 
 			//2: Exclusive Scan on TempArray
 			cudaMemcpy(dev_mask, dev_odata, n * sizeof(int), cudaMemcpyDeviceToDevice);
-			cudaMemcpy(dev_odata2, dev_odata, n * sizeof(int), cudaMemcpyDeviceToDevice);
 			checkCUDAError("cudaMemcpy dev_odata failed!");
-			scan_notimer(n, malloc_size, dev_odata, dev_odata2);
+			scan_notimer(n, malloc_size, dev_odata);
 
 			//2.5: Get Count from dev_mask
 			int tempcount[1];
@@ -215,9 +193,11 @@ namespace StreamCompaction {
 			int count = idata[n - 1] == 0 ? tempcount[0] : tempcount[0] + 1;
 
 			//3: Scatter (dev_odata now contains scan info)
+			cudaMemcpy(dev_odata2, dev_odata, n * sizeof(int), cudaMemcpyDeviceToDevice);
+			checkCUDAError("cudaMemcpy dev_odata failed!");
 			kernScatter<<<fullBlocksPerGrid, blockSize>>>(n, dev_mask, dev_odata, dev_odata2, dev_idata);
-			cudaMemcpy(odata, dev_odata, (count) * sizeof(int), cudaMemcpyDeviceToHost);
             timer().endGpuTimer();
+			cudaMemcpy(odata, dev_odata, (count) * sizeof(int), cudaMemcpyDeviceToHost);
 
 			cudaFree(dev_mask);
 			cudaFree(dev_odata);
