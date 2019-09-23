@@ -13,7 +13,7 @@
 #include <stream_compaction/thrust.h>
 #include "testing_helpers.hpp"
 
-const int SIZE = 1<<3; // feel free to change the size of array
+const int SIZE = 1<<8; // feel free to change the size of array
 const int NPOT = SIZE - 3; // Non-Power-Of-Two
 int *a = new int[SIZE];
 int *b = new int[SIZE];
@@ -29,10 +29,6 @@ int main(int argc, char* argv[]) {
 
     genArray(SIZE, a, 50);  // Leave a 0 at the end to test that edge case
 	a[SIZE - 1] = 0;
-
-	for (int p = 0; p < SIZE; p++) {
-		a[p] = p;
-	}
 
     printArray(SIZE, a, true);
 
@@ -84,7 +80,6 @@ int main(int argc, char* argv[]) {
     printElapsedTime(StreamCompaction::Efficient::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
     printArray(NPOT, c, true);
     printCmpResult(NPOT, b, c);
-
 	/*
     zeroArray(SIZE, c);
     printDesc("thrust scan, power-of-two");
@@ -108,9 +103,8 @@ int main(int argc, char* argv[]) {
     // Compaction tests
 
     genArray(SIZE - 1, a, 4);  // Leave a 0 at the end to test that edge case
-    a[SIZE - 1] = 0;
+	a[SIZE - 1] = 0;
     printArray(SIZE, a, true);
-
     int count, expectedCount, expectedNPOT;
 
     // initialize b using StreamCompaction::CPU::compactWithoutScan you implement
@@ -142,18 +136,16 @@ int main(int argc, char* argv[]) {
     printDesc("work-efficient compact, power-of-two");
     count = StreamCompaction::Efficient::compact(SIZE, c, a);
     printElapsedTime(StreamCompaction::Efficient::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
-    //printArray(count, c, true);
+    printArray(count, c, true);
     printCmpLenResult(count, expectedCount, b, c);
 
 
-	/*
     zeroArray(SIZE, c);
     printDesc("work-efficient compact, non-power-of-two");
     count = StreamCompaction::Efficient::compact(NPOT, c, a);
     printElapsedTime(StreamCompaction::Efficient::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
-    //printArray(count, c, true);
+    printArray(count, c, true);
     printCmpLenResult(count, expectedNPOT, b, c);
-	*/
     system("pause"); // stop Win32 console from closing on exit
 	delete[] a;
 	delete[] b;
