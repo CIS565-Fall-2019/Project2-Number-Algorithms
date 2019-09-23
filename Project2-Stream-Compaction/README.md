@@ -15,6 +15,7 @@ ________________________________________________________________________________
 * Work Efficient: 128
 
 ### Runtime vs Array Size (BLOCKSIZE = 128)
+ ![](img/graph2.png)  
 
 ## Questions
 **Can you find the performance bottlenecks? Is it memory I/O? Computation? Is it different for each implementation?**
