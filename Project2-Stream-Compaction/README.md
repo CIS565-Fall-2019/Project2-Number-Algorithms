@@ -8,6 +8,7 @@ ________________________________________________________________________________
 ![Developer](https://img.shields.io/badge/Developer-Dhruv-0f97ff.svg?style=flat) ![CUDA 10.1](https://img.shields.io/badge/CUDA-10.1-yellow.svg) ![Built](https://img.shields.io/appveyor/ci/gruntjs/grunt.svg) ![Issues](https://img.shields.io/badge/issues-none-green.svg)
 ____________________________________________________________________________________
 ## Performance Analysis
+### Blocksize vs Runtime (SIZE=1<<12)
 
 ## Questions
 **Can you find the performance bottlenecks? Is it memory I/O? Computation? Is it different for each implementation?**
