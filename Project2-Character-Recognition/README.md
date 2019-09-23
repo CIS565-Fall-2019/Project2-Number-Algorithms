@@ -12,6 +12,15 @@ ________________________________________________________________________________
 ### XOR Convergence
 ![](img/chareg.PNG)
 
-## Implementation Details
-### Variable Neural Network Builder & Batched Updates
 
+## Additional Implementation Features
+### Variable MLP Builder & Batched Updates
+Define any MLP as follows:
+```C++
+    //Network Structure
+		int numSamples = 1;
+		int inputDim = 2;
+		int numLayers = 1;
+		int hiddenDim[1] = {5};
+		int outputDim = 2;
+```
