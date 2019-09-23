@@ -10,6 +10,11 @@ ________________________________________________________________________________
 ## Performance Analysis
 ### Runtime vs Blocksize (ARRAY SIZE = 4096, 1<<12)
  ![](img/runtimevsblocksize.png)  
+**Chosen Blocksizes**
+* Naive : 128
+* Work Efficient: 1024
+
+### Runtime vs Array Size ()
 
 ## Questions
 **Can you find the performance bottlenecks? Is it memory I/O? Computation? Is it different for each implementation?**
