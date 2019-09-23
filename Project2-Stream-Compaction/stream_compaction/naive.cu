@@ -4,7 +4,7 @@
 #include "naive.h"
 
 /*! Block size used for CUDA kernel launch*/
-#define blockSize 128
+#define blockSize 1024
 int *dev_A;
 int *dev_B;
 
