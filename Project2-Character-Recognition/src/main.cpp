@@ -14,7 +14,7 @@
 #include <string>
 
 using namespace std;
-bool test(CharacterRecognition::mlp &mlp, int label);
+bool test(bool flag, CharacterRecognition::mlp &mlp, int label);
 int decode(int n, float* array);
 
 
@@ -99,10 +99,11 @@ void char_reg() {
 	cout << "--- Character Recognition ---" << endl;
 	for (int t = 0; t < 14; t++) {
 
+		characterRec.train(x, y, num_data, 10);
 		float err = characterRec.getError();
 		int correct_cnt = 0;
 		for (int i = 1; i <= 52; i++) {
-			if (test(characterRec, i)) {
+			if (test(false, characterRec, i)) {
 				correct_cnt++;
 			}
 		}
@@ -110,12 +111,12 @@ void char_reg() {
 	}
 	cout << "---" << endl;
 	for (int i = 1; i <= 52; i++) {
-		if (test(characterRec, i)) {
+		if (test(true, characterRec, i)) {
 		}
 	}
 }
 
-bool test(CharacterRecognition::mlp &mlp, int label) {
+bool test(bool flag, CharacterRecognition::mlp &mlp, int label) {
 
 	float *x = new float[10201];
 	float *y = new float[52];
@@ -135,8 +136,9 @@ bool test(CharacterRecognition::mlp &mlp, int label) {
 	}
 	mlp.predict(x, y, 1);
 	int pred = decode(52, y) + 1;
-	cout << "Target:" << label << ", Predicted:" << pred << endl;
-	
+	if (flag) {
+		cout << "Target:" << label << ", Predicted:" << pred << endl;
+	}
 
 	delete[] x;
 	delete[] y;
@@ -150,7 +152,7 @@ bool test(CharacterRecognition::mlp &mlp, int label) {
 }
 
 int decode(int n, float* array) {
-	float temp = 10000;
+	float temp = FLT_MIN;
 	int index = 0;
 	for (int i = 0; i < n; i++) {
 		if (array[i] > temp) {
