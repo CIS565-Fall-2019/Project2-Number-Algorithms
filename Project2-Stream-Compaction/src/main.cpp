@@ -12,9 +12,10 @@
 #include <stream_compaction/efficient.h>
 #include <stream_compaction/thrust.h>
 #include <stream_compaction/radix.h>
+#include <stream_compaction/shared.h>
 #include "testing_helpers.hpp"
 
-const int SIZE = 1 << 10; // feel free to change the size of array
+const int SIZE = 1 << 3; // feel free to change the size of array
 const int NPOT = SIZE - 3;// Non-Power-Of-Two
 int *a = new int[SIZE];
 int *b = new int[SIZE];
@@ -95,6 +96,20 @@ int main(int argc, char* argv[]) {
 	StreamCompaction::Thrust::scan(NPOT, c, a);
 	printElapsedTime(StreamCompaction::Thrust::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
 	//printArray(NPOT, c, true);
+	printCmpResult(NPOT, b, c);
+
+	zeroArray(SIZE, c);
+	printDesc("shared work-efficient scan, power-of-two");
+	StreamCompaction::Shared::scan(SIZE, c, a, 512);
+	printElapsedTime(StreamCompaction::Efficient::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
+	printArray(SIZE, c, true);
+	printCmpResult(SIZE, b, c);
+
+	zeroArray(SIZE, c);
+	printDesc("shared work-efficient scan, non-power-of-two");
+	StreamCompaction::Shared::scan(NPOT, c, a, 512);
+	printElapsedTime(StreamCompaction::Efficient::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
+	printArray(NPOT, c, true);
 	printCmpResult(NPOT, b, c);
 
 	printf("\n");

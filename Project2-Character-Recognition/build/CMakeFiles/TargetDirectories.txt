@@ -1,4 +1,0 @@
-C:/Users/saketk/Project2-Number-Algorithms/Project2-Character-Recognition/build/CMakeFiles/cis565_character_recognition.dir
-C:/Users/saketk/Project2-Number-Algorithms/Project2-Character-Recognition/build/CMakeFiles/ALL_BUILD.dir
-C:/Users/saketk/Project2-Number-Algorithms/Project2-Character-Recognition/build/CMakeFiles/ZERO_CHECK.dir
-C:/Users/saketk/Project2-Number-Algorithms/Project2-Character-Recognition/build/character_recognition/CMakeFiles/character_recognition.dir

@@ -9,7 +9,7 @@ The output was:
 Microsoft (R) Build Engine version 15.9.21+g9802d43bc3 for .NET Framework
 Copyright (C) Microsoft Corporation. All rights reserved.
 
-Build started 9/15/2019 6:28:26 PM.
+Build started 9/27/2019 10:06:51 PM.
 Project "C:\Users\saketk\Project2-Number-Algorithms\Project2-Stream-Compaction\build\CMakeFiles\3.15.0-rc1\CompilerIdC\CompilerIdC.vcxproj" on node 1 (default targets).
 PrepareForBuild:
   Creating directory "Debug\".
@@ -35,7 +35,7 @@ Build succeeded.
     0 Warning(s)
     0 Error(s)
 
-Time Elapsed 00:00:00.66
+Time Elapsed 00:00:00.61
 
 
 Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "CompilerIdC.exe"
@@ -54,7 +54,7 @@ The output was:
 Microsoft (R) Build Engine version 15.9.21+g9802d43bc3 for .NET Framework
 Copyright (C) Microsoft Corporation. All rights reserved.
 
-Build started 9/15/2019 6:28:27 PM.
+Build started 9/27/2019 10:06:52 PM.
 Project "C:\Users\saketk\Project2-Number-Algorithms\Project2-Stream-Compaction\build\CMakeFiles\3.15.0-rc1\CompilerIdCXX\CompilerIdCXX.vcxproj" on node 1 (default targets).
 PrepareForBuild:
   Creating directory "Debug\".
@@ -80,7 +80,7 @@ Build succeeded.
     0 Warning(s)
     0 Error(s)
 
-Time Elapsed 00:00:00.63
+Time Elapsed 00:00:00.60
 
 
 Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "CompilerIdCXX.exe"
@@ -92,68 +92,68 @@ The CXX compiler identification is MSVC, found in "C:/Users/saketk/Project2-Numb
 Determining if the C compiler works passed with the following output:
 Change Dir: C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/MSBuild/15.0/Bin/MSBuild.exe cmTC_537d8.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=15.0 /v:m && Microsoft (R) Build Engine version 15.9.21+g9802d43bc3 for .NET Framework
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/MSBuild/15.0/Bin/MSBuild.exe cmTC_418bf.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=15.0 /v:m && Microsoft (R) Build Engine version 15.9.21+g9802d43bc3 for .NET Framework
 Copyright (C) Microsoft Corporation. All rights reserved.
 
   Microsoft (R) C/C++ Optimizing Compiler Version 19.00.24215.1 for x64
   Copyright (C) Microsoft Corporation.  All rights reserved.
   
-  cl /c /Zi /W3 /WX- /Od /Ob0 /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_537d8.dir\Debug\\" /Fd"cmTC_537d8.dir\Debug\vc140.pdb" /Gd /TC /errorReport:queue "C:\Users\saketk\Project2-Number-Algorithms\Project2-Stream-Compaction\build\CMakeFiles\CMakeTmp\testCCompiler.c"
+  cl /c /Zi /W3 /WX- /Od /Ob0 /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_418bf.dir\Debug\\" /Fd"cmTC_418bf.dir\Debug\vc140.pdb" /Gd /TC /errorReport:queue "C:\Users\saketk\Project2-Number-Algorithms\Project2-Stream-Compaction\build\CMakeFiles\CMakeTmp\testCCompiler.c"
   testCCompiler.c
   
-  cmTC_537d8.vcxproj -> C:\Users\saketk\Project2-Number-Algorithms\Project2-Stream-Compaction\build\CMakeFiles\CMakeTmp\Debug\cmTC_537d8.exe
-  cmTC_537d8.vcxproj -> C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/build/CMakeFiles/CMakeTmp/Debug/cmTC_537d8.pdb (Full PDB)
+  cmTC_418bf.vcxproj -> C:\Users\saketk\Project2-Number-Algorithms\Project2-Stream-Compaction\build\CMakeFiles\CMakeTmp\Debug\cmTC_418bf.exe
+  cmTC_418bf.vcxproj -> C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/build/CMakeFiles/CMakeTmp/Debug/cmTC_418bf.pdb (Full PDB)
 
 
 
 Detecting C compiler ABI info compiled with the following output:
 Change Dir: C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/MSBuild/15.0/Bin/MSBuild.exe cmTC_23791.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=15.0 /v:m && Microsoft (R) Build Engine version 15.9.21+g9802d43bc3 for .NET Framework
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/MSBuild/15.0/Bin/MSBuild.exe cmTC_bafd5.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=15.0 /v:m && Microsoft (R) Build Engine version 15.9.21+g9802d43bc3 for .NET Framework
 Copyright (C) Microsoft Corporation. All rights reserved.
 
   Microsoft (R) C/C++ Optimizing Compiler Version 19.00.24215.1 for x64
   Copyright (C) Microsoft Corporation.  All rights reserved.
   
-  cl /c /Zi /W3 /WX- /Od /Ob0 /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_23791.dir\Debug\\" /Fd"cmTC_23791.dir\Debug\vc140.pdb" /Gd /TC /errorReport:queue "C:\Program Files\CMake\share\cmake-3.15\Modules\CMakeCCompilerABI.c"
+  cl /c /Zi /W3 /WX- /Od /Ob0 /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_bafd5.dir\Debug\\" /Fd"cmTC_bafd5.dir\Debug\vc140.pdb" /Gd /TC /errorReport:queue "C:\Program Files\CMake\share\cmake-3.15\Modules\CMakeCCompilerABI.c"
   CMakeCCompilerABI.c
   
-  cmTC_23791.vcxproj -> C:\Users\saketk\Project2-Number-Algorithms\Project2-Stream-Compaction\build\CMakeFiles\CMakeTmp\Debug\cmTC_23791.exe
-  cmTC_23791.vcxproj -> C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/build/CMakeFiles/CMakeTmp/Debug/cmTC_23791.pdb (Full PDB)
+  cmTC_bafd5.vcxproj -> C:\Users\saketk\Project2-Number-Algorithms\Project2-Stream-Compaction\build\CMakeFiles\CMakeTmp\Debug\cmTC_bafd5.exe
+  cmTC_bafd5.vcxproj -> C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/build/CMakeFiles/CMakeTmp/Debug/cmTC_bafd5.pdb (Full PDB)
 
 
 
 Determining if the CXX compiler works passed with the following output:
 Change Dir: C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/MSBuild/15.0/Bin/MSBuild.exe cmTC_b7ce5.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=15.0 /v:m && Microsoft (R) Build Engine version 15.9.21+g9802d43bc3 for .NET Framework
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/MSBuild/15.0/Bin/MSBuild.exe cmTC_a0679.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=15.0 /v:m && Microsoft (R) Build Engine version 15.9.21+g9802d43bc3 for .NET Framework
 Copyright (C) Microsoft Corporation. All rights reserved.
 
   Microsoft (R) C/C++ Optimizing Compiler Version 19.00.24215.1 for x64
   Copyright (C) Microsoft Corporation.  All rights reserved.
   
-  cl /c /Zi /W3 /WX- /Od /Ob0 /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /Fo"cmTC_b7ce5.dir\Debug\\" /Fd"cmTC_b7ce5.dir\Debug\vc140.pdb" /Gd /TP /errorReport:queue "C:\Users\saketk\Project2-Number-Algorithms\Project2-Stream-Compaction\build\CMakeFiles\CMakeTmp\testCXXCompiler.cxx"
+  cl /c /Zi /W3 /WX- /Od /Ob0 /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /Fo"cmTC_a0679.dir\Debug\\" /Fd"cmTC_a0679.dir\Debug\vc140.pdb" /Gd /TP /errorReport:queue "C:\Users\saketk\Project2-Number-Algorithms\Project2-Stream-Compaction\build\CMakeFiles\CMakeTmp\testCXXCompiler.cxx"
   testCXXCompiler.cxx
   
-  cmTC_b7ce5.vcxproj -> C:\Users\saketk\Project2-Number-Algorithms\Project2-Stream-Compaction\build\CMakeFiles\CMakeTmp\Debug\cmTC_b7ce5.exe
-  cmTC_b7ce5.vcxproj -> C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/build/CMakeFiles/CMakeTmp/Debug/cmTC_b7ce5.pdb (Full PDB)
+  cmTC_a0679.vcxproj -> C:\Users\saketk\Project2-Number-Algorithms\Project2-Stream-Compaction\build\CMakeFiles\CMakeTmp\Debug\cmTC_a0679.exe
+  cmTC_a0679.vcxproj -> C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/build/CMakeFiles/CMakeTmp/Debug/cmTC_a0679.pdb (Full PDB)
 
 
 
 Detecting CXX compiler ABI info compiled with the following output:
 Change Dir: C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/MSBuild/15.0/Bin/MSBuild.exe cmTC_23d69.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=15.0 /v:m && Microsoft (R) Build Engine version 15.9.21+g9802d43bc3 for .NET Framework
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/MSBuild/15.0/Bin/MSBuild.exe cmTC_4de74.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=15.0 /v:m && Microsoft (R) Build Engine version 15.9.21+g9802d43bc3 for .NET Framework
 Copyright (C) Microsoft Corporation. All rights reserved.
 
   Microsoft (R) C/C++ Optimizing Compiler Version 19.00.24215.1 for x64
   Copyright (C) Microsoft Corporation.  All rights reserved.
   
-  cl /c /Zi /W3 /WX- /Od /Ob0 /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /Fo"cmTC_23d69.dir\Debug\\" /Fd"cmTC_23d69.dir\Debug\vc140.pdb" /Gd /TP /errorReport:queue "C:\Program Files\CMake\share\cmake-3.15\Modules\CMakeCXXCompilerABI.cpp"
+  cl /c /Zi /W3 /WX- /Od /Ob0 /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /Fo"cmTC_4de74.dir\Debug\\" /Fd"cmTC_4de74.dir\Debug\vc140.pdb" /Gd /TP /errorReport:queue "C:\Program Files\CMake\share\cmake-3.15\Modules\CMakeCXXCompilerABI.cpp"
   CMakeCXXCompilerABI.cpp
   
-  cmTC_23d69.vcxproj -> C:\Users\saketk\Project2-Number-Algorithms\Project2-Stream-Compaction\build\CMakeFiles\CMakeTmp\Debug\cmTC_23d69.exe
-  cmTC_23d69.vcxproj -> C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/build/CMakeFiles/CMakeTmp/Debug/cmTC_23d69.pdb (Full PDB)
+  cmTC_4de74.vcxproj -> C:\Users\saketk\Project2-Number-Algorithms\Project2-Stream-Compaction\build\CMakeFiles\CMakeTmp\Debug\cmTC_4de74.exe
+  cmTC_4de74.vcxproj -> C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/build/CMakeFiles/CMakeTmp/Debug/cmTC_4de74.pdb (Full PDB)
 
 
 
@@ -162,17 +162,17 @@ Copyright (C) Microsoft Corporation. All rights reserved.
 Detecting CXX [-std:c++14] compiler features compiled with the following output:
 Change Dir: C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/MSBuild/15.0/Bin/MSBuild.exe cmTC_041d1.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=15.0 /v:m && Microsoft (R) Build Engine version 15.9.21+g9802d43bc3 for .NET Framework
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/MSBuild/15.0/Bin/MSBuild.exe cmTC_06401.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=15.0 /v:m && Microsoft (R) Build Engine version 15.9.21+g9802d43bc3 for .NET Framework
 Copyright (C) Microsoft Corporation. All rights reserved.
 
   Microsoft (R) C/C++ Optimizing Compiler Version 19.00.24215.1 for x64
   Copyright (C) Microsoft Corporation.  All rights reserved.
   
-  cl /c /Zi /W3 /WX- /Od /Ob0 /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /Fo"cmTC_041d1.dir\Debug\\" /Fd"cmTC_041d1.dir\Debug\vc140.pdb" /Gd /TP /errorReport:queue  -std:c++14 "C:\Users\saketk\Project2-Number-Algorithms\Project2-Stream-Compaction\build\CMakeFiles\feature_tests.cxx"
+  cl /c /Zi /W3 /WX- /Od /Ob0 /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /Fo"cmTC_06401.dir\Debug\\" /Fd"cmTC_06401.dir\Debug\vc140.pdb" /Gd /TP /errorReport:queue  -std:c++14 "C:\Users\saketk\Project2-Number-Algorithms\Project2-Stream-Compaction\build\CMakeFiles\feature_tests.cxx"
   feature_tests.cxx
   
-  cmTC_041d1.vcxproj -> C:\Users\saketk\Project2-Number-Algorithms\Project2-Stream-Compaction\build\CMakeFiles\CMakeTmp\Debug\cmTC_041d1.exe
-  cmTC_041d1.vcxproj -> C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/build/CMakeFiles/CMakeTmp/Debug/cmTC_041d1.pdb (Full PDB)
+  cmTC_06401.vcxproj -> C:\Users\saketk\Project2-Number-Algorithms\Project2-Stream-Compaction\build\CMakeFiles\CMakeTmp\Debug\cmTC_06401.exe
+  cmTC_06401.vcxproj -> C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/build/CMakeFiles/CMakeTmp/Debug/cmTC_06401.pdb (Full PDB)
 
 
 
@@ -238,17 +238,17 @@ Copyright (C) Microsoft Corporation. All rights reserved.
 Detecting CXX [] compiler features compiled with the following output:
 Change Dir: C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/MSBuild/15.0/Bin/MSBuild.exe cmTC_340e7.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=15.0 /v:m && Microsoft (R) Build Engine version 15.9.21+g9802d43bc3 for .NET Framework
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/MSBuild/15.0/Bin/MSBuild.exe cmTC_2a031.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=15.0 /v:m && Microsoft (R) Build Engine version 15.9.21+g9802d43bc3 for .NET Framework
 Copyright (C) Microsoft Corporation. All rights reserved.
 
   Microsoft (R) C/C++ Optimizing Compiler Version 19.00.24215.1 for x64
   Copyright (C) Microsoft Corporation.  All rights reserved.
   
-  cl /c /Zi /W3 /WX- /Od /Ob0 /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /Fo"cmTC_340e7.dir\Debug\\" /Fd"cmTC_340e7.dir\Debug\vc140.pdb" /Gd /TP /errorReport:queue "C:\Users\saketk\Project2-Number-Algorithms\Project2-Stream-Compaction\build\CMakeFiles\feature_tests.cxx"
+  cl /c /Zi /W3 /WX- /Od /Ob0 /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /Fo"cmTC_2a031.dir\Debug\\" /Fd"cmTC_2a031.dir\Debug\vc140.pdb" /Gd /TP /errorReport:queue "C:\Users\saketk\Project2-Number-Algorithms\Project2-Stream-Compaction\build\CMakeFiles\feature_tests.cxx"
   feature_tests.cxx
   
-  cmTC_340e7.vcxproj -> C:\Users\saketk\Project2-Number-Algorithms\Project2-Stream-Compaction\build\CMakeFiles\CMakeTmp\Debug\cmTC_340e7.exe
-  cmTC_340e7.vcxproj -> C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/build/CMakeFiles/CMakeTmp/Debug/cmTC_340e7.pdb (Full PDB)
+  cmTC_2a031.vcxproj -> C:\Users\saketk\Project2-Number-Algorithms\Project2-Stream-Compaction\build\CMakeFiles\CMakeTmp\Debug\cmTC_2a031.exe
+  cmTC_2a031.vcxproj -> C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/build/CMakeFiles/CMakeTmp/Debug/cmTC_2a031.pdb (Full PDB)
 
 
 
