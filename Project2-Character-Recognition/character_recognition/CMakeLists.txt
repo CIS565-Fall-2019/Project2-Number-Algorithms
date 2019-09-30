@@ -1,11 +1,13 @@
 set(SOURCE_FILES
     "common.h"
     "common.cu"
+	"functions.cu"
+	"functions.h"
     "mlp.h"
     "mlp.cu"
     )
 
 cuda_add_library(character_recognition
     ${SOURCE_FILES}
-    OPTIONS -arch=sm_20
+    OPTIONS -arch=sm_60
     )
