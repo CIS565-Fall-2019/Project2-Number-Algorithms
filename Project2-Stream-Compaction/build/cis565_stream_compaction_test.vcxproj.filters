@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\Users\saketk\Project2-Number-Algorithms\Project2-Stream-Compaction\src\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\saketk\Project2-Number-Algorithms\Project2-Stream-Compaction\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{A3E78DC2-08DA-3D79-AEB6-B66C049122E5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

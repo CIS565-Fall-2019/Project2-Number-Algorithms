@@ -1,0 +1,6 @@
+﻿  Building Custom Rule C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/CMakeLists.txt
+  main.cpp
+c:\users\saketk\project2-number-algorithms\project2-stream-compaction\src\testing_helpers.hpp(63): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+     Creating library C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/build/Debug/cis565_stream_compaction_test.lib and object C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/build/Debug/cis565_stream_compaction_test.exp
+  cis565_stream_compaction_test.vcxproj -> C:\Users\saketk\Project2-Number-Algorithms\Project2-Stream-Compaction\build\Debug\cis565_stream_compaction_test.exe
+  cis565_stream_compaction_test.vcxproj -> C:/Users/saketk/Project2-Number-Algorithms/Project2-Stream-Compaction/build/Debug/cis565_stream_compaction_test.pdb (Full PDB)

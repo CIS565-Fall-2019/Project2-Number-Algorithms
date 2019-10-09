@@ -9,9 +9,13 @@ set(SOURCE_FILES
     "efficient.cu"
     "thrust.h"
     "thrust.cu"
+	"radix.h"
+	"radix.cu"
+	"shared.h"
+	"shared.cu"
     )
 
 cuda_add_library(stream_compaction
     ${SOURCE_FILES}
-    OPTIONS -arch=sm_20
+    OPTIONS -arch=sm_61
     )

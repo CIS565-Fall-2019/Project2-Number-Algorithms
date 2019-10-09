@@ -18,9 +18,20 @@ namespace StreamCompaction {
          * (Optional) For better understanding before starting moving to GPU, you can simulate your GPU scan in this function first.
          */
         void scan(int n, int *odata, const int *idata) {
-	        timer().startCpuTimer();
-            // TODO
-	        timer().endCpuTimer();
+			bool caught = false;
+			try {
+				timer().startCpuTimer();
+			}
+			catch (const std::exception& e) {
+				caught = true;
+			}
+			odata[0] = 0;
+			for (int i = 1; i < n; i++) {
+				odata[i] = idata[i - 1] + odata[i-1];
+			}
+			if (!caught) {
+				timer().endCpuTimer();
+			}
         }
 
         /**
@@ -30,9 +41,15 @@ namespace StreamCompaction {
          */
         int compactWithoutScan(int n, int *odata, const int *idata) {
 	        timer().startCpuTimer();
-            // TODO
+			int j = 0;
+			for (int i = 0; i < n; i++) {
+				if (idata[i] != 0) {
+					odata[j] = idata[i];
+					j++;
+				}
+			}
 	        timer().endCpuTimer();
-            return -1;
+            return (j);
         }
 
         /**
@@ -42,9 +59,26 @@ namespace StreamCompaction {
          */
         int compactWithScan(int n, int *odata, const int *idata) {
 	        timer().startCpuTimer();
-	        // TODO
+			int *binary = new int[n];
+			for (int i = 0; i < n; i++) {
+				if (idata[i] != 0) {
+					binary[i] = 1;
+				}
+				else {
+					binary[i] = 0;
+				}
+			}
+			int *indices = new int[n];
+			scan(n, indices, binary);
+			int size = 0;
+			for (int i = 0; i < n; i++) {
+				if (binary[i] == 1) {
+					odata[indices[i]] = idata[i];
+					size++;
+				}
+			}
 	        timer().endCpuTimer();
-            return -1;
+			return size;
         }
     }
 }

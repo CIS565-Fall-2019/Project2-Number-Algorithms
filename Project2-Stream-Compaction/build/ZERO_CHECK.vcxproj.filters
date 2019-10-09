@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\saketk\Project2-Number-Algorithms\Project2-Stream-Compaction\build\CMakeFiles\b2ba6dc71df91e0ca150ef02dc5c1b12\generate.stamp.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{AB26E5FD-AA93-3CA8-9C86-905F8FE9A5F8}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
