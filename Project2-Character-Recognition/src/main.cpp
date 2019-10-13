@@ -10,143 +10,217 @@
 #include <character_recognition/mlp.h>
 #include <character_recognition/common.h>
 #include "testing_helpers.hpp"
+#include <random>
+#include <string>
+#include <fstream>
+#include <sstream>
 
-const int SIZE = 1 << 8; // feel free to change the size of array
-const int NPOT = SIZE - 3; // Non-Power-Of-Two
-int *a = new int[SIZE];
-int *b = new int[SIZE];
-int *c = new int[SIZE];
+#include <cuda.h>
+#include <cuda_runtime.h>
+
+std::random_device rd;  //Will be used to obtain a seed for the random number engine
+std::mt19937 gen(rd());
+std::uniform_real_distribution<> dis(-0.01, 0.01);
+
+#define checkCUDAErrorWithLine(msg) checkCUDAError(msg)
+
+
+
+void printArray2D(float *X, int nR, int nC) {
+	for (int i = 0; i < nR; i++) {
+		for (int j = 0; j < nC; j++)
+			printf("%.2f ", X[i*nC + j]);
+		printf("\n");
+	}
+}
+
+void printArray2D(int *X, int nR, int nC) {
+	for (int i = 0; i < nR; i++) {
+		for (int j = 0; j < nC; j++)
+			printf("%d ", X[i*nC + j]);
+		printf("\n");
+	}
+}
+
+void fillInputXOR(float *X, int *y) {
+	X[0] = 0.0, X[1] = 0.0, X[2] = 1.0;
+	X[3] = 0.0, X[4] = 1.0, X[5] = 1.0;
+	X[6] = 1.0, X[7] = 0.0, X[8] = 1.0;
+	X[9] = 1.0, X[10] = 1.0; X[11] = 1.0;
+
+	y[0] = 0;
+	y[1] = 1;
+	y[2] = 1;
+	y[3] = 0;
+}
+
+
+void fillImage(float *X, int *y) {
+
+	int j = 0;
+	for (int i = 1; i <= 52; i++) {
+		std::string fileName;
+		if (i <= 9) {
+			fileName = "../data-set/0" + std::to_string(i) + "info.txt";
+		}
+		else {
+			fileName = "../data-set\\" + std::to_string(i) + "info.txt";
+		}
+
+		std::ifstream myfile(fileName);
+		std::string line;
+		//std::cout << fileName << '\n';
+		if (myfile.is_open())
+		{
+			std::getline(myfile, line);
+			y[i-1] = std::stoi(line) - 1 ;
+
+			std::getline(myfile, line);
+
+
+			std::getline(myfile, line);
+			std::string buf;
+			std::stringstream ss(line);
+			while (ss >> buf) {
+				//std::cout << j << '\n';
+				X[j++] = ((float)std::stoi(buf))/255.0;
+			}
+
+
+			myfile.close();
+		}
+	}
+
+}
+
+void fillImageRandom(float *X, int *y, int N, int d) {
+
+	int j = 0;
+	for (int i = 1; i <= N; i++) {
+		//std::cout << fileName << '\n';
+		
+			y[i - 1] = i - 1;
+
+			for(int k = 0; k < d; k++) {
+				//std::cout << j << '\n';
+				X[j++] = dis(gen);
+			}
+
+	}
+}
+
+
+void generateRandomWeights(float *W, int nR, int nC) {
+	for (int i = 0; i < nR; i++) {
+		for (int j = 0; j < nC; j++)
+			W[i*nC + j] = dis(gen);
+	}
+}
 
 int main(int argc, char* argv[]) {
     // Scan tests
 
-    printf("\n");
-    printf("****************\n");
-    printf("** SCAN TESTS **\n");
-    printf("****************\n");
+	//int N = 4;
+	//int d = 3;
+	//int C = 2;
+	//int h1 = 4;
 
-    genArray(SIZE - 1, a, 50);  // Leave a 0 at the end to test that edge case
-    a[SIZE - 1] = 0;
-    printArray(SIZE, a, true);
+	//float *X = new float[N * d * sizeof(float)];
+	//int *y = new int[N * 1 * sizeof(int)];
+	//float *W1 = new float[d * h1 * sizeof(float)];
+	//float *W2 = new float[h1 * C * sizeof(float)];
+	//float loss_val = 0.0;
+	//float *loss = &loss_val;
 
-    // initialize b using StreamCompaction::CPU::scan you implement
-    // We use b for further comparison. Make sure your StreamCompaction::CPU::scan is correct.
-    // At first all cases passed because b && c are all zeroes.
-    zeroArray(SIZE, b);
-    printDesc("cpu scan, power-of-two");
-    StreamCompaction::CPU::scan(SIZE, b, a);
-    printElapsedTime(StreamCompaction::CPU::timer().getCpuElapsedTimeForPreviousOperation(), "(std::chrono Measured)");
-    printArray(SIZE, b, true);
+	//float alpha = 0.5;
 
-    zeroArray(SIZE, c);
-    printDesc("cpu scan, non-power-of-two");
-    StreamCompaction::CPU::scan(NPOT, c, a);
-    printElapsedTime(StreamCompaction::CPU::timer().getCpuElapsedTimeForPreviousOperation(), "(std::chrono Measured)");
-    printArray(NPOT, b, true);
-    printCmpResult(NPOT, b, c);
+	//fillInputXOR(X, y);
+	//generateRandomWeights(W1, d, h1);
+	//generateRandomWeights(W2, h1, C);
 
-    zeroArray(SIZE, c);
-    printDesc("naive scan, power-of-two");
-    StreamCompaction::Naive::scan(SIZE, c, a);
-    printElapsedTime(StreamCompaction::Naive::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
-    //printArray(SIZE, c, true);
-    printCmpResult(SIZE, b, c);
 
-	/* For bug-finding only: Array of 1s to help find bugs in stream compaction or scan
-	onesArray(SIZE, c);
-	printDesc("1s array for finding bugs");
-	StreamCompaction::Naive::scan(SIZE, c, a);
-	printArray(SIZE, c, true); */
+	//printf("X:\n");
+	//printArray2D(X, N, d);
+	//printf("\n");
+	//printf("W1:\n");
+	//printArray2D(W1, d, h1);
+	//printf("\n");
+	//printf("W2:\n");
+	//printArray2D(W2, h1, C);
+	//printf("\n");
 
-    zeroArray(SIZE, c);
-    printDesc("naive scan, non-power-of-two");
-    StreamCompaction::Naive::scan(NPOT, c, a);
-    printElapsedTime(StreamCompaction::Naive::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
-    //printArray(SIZE, c, true);
-    printCmpResult(NPOT, b, c);
+	//for (int i = 1; i <= 1000; i++) {
+	//	printf("\n\nIteration %d\n\n", i);
+	//	CharacterRecognition::trainStep(N, d, C, h1, alpha, X, y, loss, W1, W2);
+	//	
+	//}
 
-    zeroArray(SIZE, c);
-    printDesc("work-efficient scan, power-of-two");
-    StreamCompaction::Efficient::scan(SIZE, c, a);
-    printElapsedTime(StreamCompaction::Efficient::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
-    //printArray(SIZE, c, true);
-    printCmpResult(SIZE, b, c);
+	//CharacterRecognition::predictAndAcc(N, d, C, h1, X, y, W1, W2);
 
-    zeroArray(SIZE, c);
-    printDesc("work-efficient scan, non-power-of-two");
-    StreamCompaction::Efficient::scan(NPOT, c, a);
-    printElapsedTime(StreamCompaction::Efficient::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
-    //printArray(NPOT, c, true);
-    printCmpResult(NPOT, b, c);
+	int N = 52;
+	int d = 101 * 101;
+	int C = 52;
+	int h1 = 10;
 
-    zeroArray(SIZE, c);
-    printDesc("thrust scan, power-of-two");
-    StreamCompaction::Thrust::scan(SIZE, c, a);
-    printElapsedTime(StreamCompaction::Thrust::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
-    //printArray(SIZE, c, true);
-    printCmpResult(SIZE, b, c);
+	float *X = new float[N * d];
+	int *y = new int[N];
+	//	
+	////fillImageRandom(X, y, N, d);
+	fillImage(X, y);
+	//fillInputXOR(X, y);
 
-    zeroArray(SIZE, c);
-    printDesc("thrust scan, non-power-of-two");
-    StreamCompaction::Thrust::scan(NPOT, c, a);
-    printElapsedTime(StreamCompaction::Thrust::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
-    //printArray(NPOT, c, true);
-    printCmpResult(NPOT, b, c);
+	float *W1 = new float[d * h1 * sizeof(float)];
+	float *W2 = new float[h1 * C * sizeof(float)];
+	float loss_val = 0.0;
+	float *loss = &loss_val;
 
-    printf("\n");
-    printf("*****************************\n");
-    printf("** STREAM COMPACTION TESTS **\n");
-    printf("*****************************\n");
+	float alpha = 0.5;
 
-    // Compaction tests
+	generateRandomWeights(W1, d, h1);
+	generateRandomWeights(W2, h1, C);
 
-    genArray(SIZE - 1, a, 4);  // Leave a 0 at the end to test that edge case
-    a[SIZE - 1] = 0;
-    printArray(SIZE, a, true);
+	float *dev_X, *dev_W1, *dev_W2;
+	int *dev_y;
+	cudaMalloc((void **)&dev_X, N * d * sizeof(float));
+	checkCUDAErrorWithLine("cudaMalloc failed!");
+	cudaMalloc((void **)&dev_y, N * 1 * sizeof(int));
+	checkCUDAErrorWithLine("cudaMalloc failed!");
+	cudaMalloc((void **)&dev_W1, d * h1 * sizeof(float));
+	checkCUDAErrorWithLine("cudaMalloc failed!");
+	cudaMalloc((void **)&dev_W2, h1 * C * sizeof(float));
+	checkCUDAErrorWithLine("cudaMalloc fc failed!");
 
-    int count, expectedCount, expectedNPOT;
+	cudaMemcpy(dev_X, X, N * d * sizeof(float), cudaMemcpyHostToDevice);
+	cudaMemcpy(dev_y, y, N * 1 * sizeof(float), cudaMemcpyHostToDevice);
+	cudaMemcpy(dev_W1, W1, d * h1 * sizeof(float), cudaMemcpyHostToDevice);
+	cudaMemcpy(dev_W2, W2, h1 * C * sizeof(float), cudaMemcpyHostToDevice);
 
-    // initialize b using StreamCompaction::CPU::compactWithoutScan you implement
-    // We use b for further comparison. Make sure your StreamCompaction::CPU::compactWithoutScan is correct.
-    zeroArray(SIZE, b);
-    printDesc("cpu compact without scan, power-of-two");
-    count = StreamCompaction::CPU::compactWithoutScan(SIZE, b, a);
-    printElapsedTime(StreamCompaction::CPU::timer().getCpuElapsedTimeForPreviousOperation(), "(std::chrono Measured)");
-    expectedCount = count;
-    printArray(count, b, true);
-    printCmpLenResult(count, expectedCount, b, b);
 
-    zeroArray(SIZE, c);
-    printDesc("cpu compact without scan, non-power-of-two");
-    count = StreamCompaction::CPU::compactWithoutScan(NPOT, c, a);
-    printElapsedTime(StreamCompaction::CPU::timer().getCpuElapsedTimeForPreviousOperation(), "(std::chrono Measured)");
-    expectedNPOT = count;
-    printArray(count, c, true);
-    printCmpLenResult(count, expectedNPOT, b, c);
+	//std::ofstream myfile;
+	//myfile.open("loss_curve_XOR.txt");
 
-    zeroArray(SIZE, c);
-    printDesc("cpu compact with scan");
-    count = StreamCompaction::CPU::compactWithScan(SIZE, c, a);
-    printElapsedTime(StreamCompaction::CPU::timer().getCpuElapsedTimeForPreviousOperation(), "(std::chrono Measured)");
-    printArray(count, c, true);
-    printCmpLenResult(count, expectedCount, b, c);
+	for (int i = 1; i <= 100; i++) {
+		printf("\n\nIteration %d\n\n", i);
+		CharacterRecognition::trainStep(N, d, C, h1, alpha, dev_X, dev_y, loss, dev_W1, dev_W2);
 
-    zeroArray(SIZE, c);
-    printDesc("work-efficient compact, power-of-two");
-    count = StreamCompaction::Efficient::compact(SIZE, c, a);
-    printElapsedTime(StreamCompaction::Efficient::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
-    //printArray(count, c, true);
-    printCmpLenResult(count, expectedCount, b, c);
+		//myfile << i << " " << *loss << '\n';
+	}
 
-    zeroArray(SIZE, c);
-    printDesc("work-efficient compact, non-power-of-two");
-    count = StreamCompaction::Efficient::compact(NPOT, c, a);
-    printElapsedTime(StreamCompaction::Efficient::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
-    //printArray(count, c, true);
-    printCmpLenResult(count, expectedNPOT, b, c);
+	CharacterRecognition::predictAndAcc(N, d, C, h1, dev_X, dev_y, dev_W1, dev_W2);
 
-    system("pause"); // stop Win32 console from closing on exit
-	delete[] a;
-	delete[] b;
-	delete[] c;
+	//myfile.close();
+
+	cudaFree(dev_X);
+	checkCUDAErrorWithLine("cudaFree fc failed!");
+	cudaFree(dev_y);
+	checkCUDAErrorWithLine("cudaFree fc failed!");
+	cudaFree(dev_W1);
+	checkCUDAErrorWithLine("cudaFree fc failed!");
+	cudaFree(dev_W2);
+	checkCUDAErrorWithLine("cudaFree fc failed!");
+
+	delete[] X;
+	delete[] y;
+	delete[] W1;
+	delete[] W2;
 }
