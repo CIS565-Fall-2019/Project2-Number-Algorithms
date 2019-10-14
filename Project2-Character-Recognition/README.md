@@ -1,14 +1,43 @@
 CUDA Character Recognition
 ======================
-
 **University of Pennsylvania, CIS 565: GPU Programming and Architecture, Project 2**
 
-* (TODO) YOUR NAME HERE
-  * (TODO) [LinkedIn](), [personal website](), [twitter](), etc.
-* Tested on: (TODO) Windows 22, i7-2222 @ 2.22GHz 22GB, GTX 222 222MB (Moore 2222 Lab)
+Dhruv Karthik: [LinkedIn](https://www.linkedin.com/in/dhruv_karthik/)
 
-### (TODO: Your README)
+Tested on: Windows 10 Home, Intel(R) Core(TM) i7-8700 CPU @ 3.20GHz, 16GM, GTX 2070 - Compute Capability 7.5
+____________________________________________________________________________________
+![Developer](https://img.shields.io/badge/Developer-Dhruv-0f97ff.svg?style=flat) ![CUDA 10.1](https://img.shields.io/badge/CUDA-10.1-yellow.svg) ![Built](https://img.shields.io/appveyor/ci/gruntjs/grunt.svg) ![Issues](https://img.shields.io/badge/issues-none-green.svg)
+____________________________________________________________________________________
+## Outcome
+### XOR Convergence
+![](img/chareg.PNG)
 
-Include analysis, etc. (Remember, this is public, so don't put
-anything here that you don't want to share with the world.)
+## Analysis
 
+**Background** : As illustrated in the image above, I could train an XOR MLP via backpropagation. You can visually see backpropagation work by setting the learning rate to 1 and watching the softmax probabilities shift wildly on each training iteration. I trained the network with Binary Cross Entropy Loss, the network strure is illustrated as part of the Addtional Implementation Features section below.
+
+**Loss**: The losses would vary on each example due to random initialization, but my best loss on the XOR problem was **0.005005**
+
+## Additional Implementation Features
+### Variable MLP Builder & Batched Updates
+
+Define any MLP very easily as follows:
+```C++
+//Network Structure
+int numSamples = 1;
+int inputDim = 2;
+int numLayers = 1;
+int hiddenDim[1] = {5};
+int outputDim = 2;
+```
+Notice ```numSamples```. This allows you to set the batchSize of the Neural Network to perform Batched Gradient Descent, as opposed to stochastic gradient descent which is the base implementation. This required that I implement an ```AffineLayer``` class and construct matrices out of these, and handle backpropagation for variables batches. 
+### Variable Input Sizes and biases
+
+This is a consequence of the previous feature, as I can accept arbitrarily sized inputs and outputs via the ```inputDim``` and ```outputDim``` variables.  I also had the option of including biases. 
+
+## Tragic Historical Significance of the XOR Problem
+Neural Networks are not new. In 1958, [Frank Rosenblatt](https://en.wikipedia.org/wiki/Frank_Rosenblatt) proposed a hypothetical model of a brain's nervous system and coined it the *perceptron*. Essentially, this model fit a line to a dataset. However, as seen below, you can't fit a line to an XOR function. 
+
+![](img/goodperceptron.png)
+
+The perceptron got a ton of hype in the 60's, but two authors published a [book](https://mitpress.mit.edu/books/perceptrons) on emphasizing why perceptron's are terrible, because they can't fit the XOR function. This book single handedly resulted in the first of three AI Winters. If it weren't that book, the students of CIS 565 in 2010 would also be implementing MLP's in CUDA!
